@@ -1,132 +1,299 @@
--- Database: db_quanlythuvien (MySQL 8+)
--- This schema follows the ERD provided: Category, Book, Reader, Staff, Role, Permission, Role_Permission, Borrow, Borrow_detail, Fine
--- Notes:
--- - Keys are VARCHAR to match the diagram (IDs are application-generated).
--- - Borrow.status implemented as ENUM for borrow_status.
--- - Borrow.fine_id is kept as a nullable column (per diagram) but not a foreign key to avoid circular FK with Fine.
--- - utf8mb4 is used throughout.
+// ==========================================
+// 1. NHÓM QUẢN LÝ ĐẦU SÁCH & CUỐN SÁCH
+// ==========================================
 
-CREATE DATABASE IF NOT EXISTS `db_quanlythuvien`
-  DEFAULT CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-USE `db_quanlythuvien`;
+// Lưu thông tin chung của tác phẩm (Metadata)
+Table DauSach {
+  madausach varchar [pk]
+  tensach varchar
+  namxuatban int
+  dongia decimal // Giá bìa chung
+  matacgia varchar 
+  matheloai varchar 
+  manxb varchar 
+  mota varchar
+  anhbia varchar
+}
 
--- CATEGORY
-CREATE TABLE IF NOT EXISTS `Category` (
-  `category_id` VARCHAR(50) PRIMARY KEY,
-  `category_name` VARCHAR(50) NOT NULL,
-  `description` VARCHAR(255) NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+// Lưu từng cuốn sách vật lý nằm trên kệ (Physical Copy)
+Table CuonSach {
+  macuonsach varchar [pk] // Barcode
+  madausach varchar
+  mavitri varchar         // FK -> ViTri
+  trangthai varchar       // SanSang, DangMuon, Hong, Mat, ThanhLy
+  tinhtrang varchar       // Moi, Tot, Cu, Rac, HuHong
+}
 
--- ROLE
-CREATE TABLE IF NOT EXISTS `Role` (
-  `role_id` VARCHAR(50) PRIMARY KEY,
-  `role_name` VARCHAR(50) NOT NULL,
-  `description` VARCHAR(255) NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+Table ViTri {
+  mavitri varchar [pk]
+  khuvuc varchar    // VD: Tang 1, Tang 2
+  ke varchar        // VD: Ke A, Ke B
+  mota varchar
+}
 
--- PERMISSION
-CREATE TABLE IF NOT EXISTS `Permission` (
-  `permission_id` VARCHAR(50) PRIMARY KEY,
-  `permission_name` VARCHAR(50) NOT NULL,
-  `description` VARCHAR(255) NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+Table TacGia {
+  matacgia varchar [pk]
+  tentacgia varchar
+}
 
--- READER
-CREATE TABLE IF NOT EXISTS `Reader` (
-  `reader_id` VARCHAR(50) PRIMARY KEY,
-  `reader_name` VARCHAR(25) NOT NULL,
-  `birthday` DATE NULL,
-  `phone` VARCHAR(10) NULL,
-  `email` VARCHAR(50) NULL,
-  CONSTRAINT `uk_reader_phone` UNIQUE (`phone`),
-  CONSTRAINT `uk_reader_email` UNIQUE (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+Table TheLoai {
+  matheloai varchar [pk]
+  tentheloai varchar
+}
 
--- STAFF
-CREATE TABLE IF NOT EXISTS `Staff` (
-  `staff_id` VARCHAR(50) PRIMARY KEY,
-  `staff_name` VARCHAR(25) NOT NULL,
-  `role_id` VARCHAR(50) NOT NULL,
-  `position` VARCHAR(100) NULL,
-  `phone` VARCHAR(10) NULL,
-  `email` VARCHAR(100) NULL,
-  CONSTRAINT `fk_staff_role` FOREIGN KEY (`role_id`) REFERENCES `Role`(`role_id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `uk_staff_phone` UNIQUE (`phone`),
-  CONSTRAINT `uk_staff_email` UNIQUE (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+Table NhaXuatBan {
+  manxb varchar [pk]
+  tennxb varchar
+  diachi varchar
+  sdt varchar
+  email varchar
+}
 
--- BOOK
-CREATE TABLE IF NOT EXISTS `Book` (
-  `book_id` VARCHAR(50) PRIMARY KEY,
-  `title` VARCHAR(255) NOT NULL,
-  `author` VARCHAR(25) NULL,
-  `publisher` VARCHAR(25) NULL,
-  `publish_year` INT NULL,
-  `category` VARCHAR(50) NOT NULL,
-  `quantity` INT NOT NULL DEFAULT 0,
-  CONSTRAINT `fk_book_category` FOREIGN KEY (`category`) REFERENCES `Category`(`category_id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  INDEX `idx_book_category` (`category`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+// ==========================================
+// 2. NHÓM NHẬP HÀNG (Nhập theo Đầu sách)
+// ==========================================
 
--- ROLE_PERMISSION (bridge)
-CREATE TABLE IF NOT EXISTS `Role_Permission` (
-  `role_id` VARCHAR(50) NOT NULL,
-  `permission_id` VARCHAR(50) NOT NULL,
-  PRIMARY KEY (`role_id`, `permission_id`),
-  CONSTRAINT `fk_rp_role` FOREIGN KEY (`role_id`) REFERENCES `Role`(`role_id`) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT `fk_rp_perm` FOREIGN KEY (`permission_id`) REFERENCES `Permission`(`permission_id`) ON UPDATE CASCADE ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+Table NhaCungCap {
+  mancc varchar [pk]
+  tenncc varchar
+  diachincc varchar
+  sdt varchar
+  email varchar
+}
 
--- BORROW
-CREATE TABLE IF NOT EXISTS `Borrow` (
-  `borrow_id` VARCHAR(50) PRIMARY KEY,
-  `reader_id` VARCHAR(50) NOT NULL,
-  `staff_id` VARCHAR(50) NOT NULL,
-  `borrow_date` DATE NOT NULL,
-  `due_date` DATE NOT NULL,
-  `return_date` DATE NULL,
-  `status` ENUM('BORROWED','RETURNED','OVERDUE','CANCELLED') NOT NULL DEFAULT 'BORROWED',
-  `fine_id` VARCHAR(50) NULL, -- kept for compatibility with the ERD; not an FK to avoid circular dependency
-  CONSTRAINT `fk_borrow_reader` FOREIGN KEY (`reader_id`) REFERENCES `Reader`(`reader_id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  CONSTRAINT `fk_borrow_staff` FOREIGN KEY (`staff_id`) REFERENCES `Staff`(`staff_id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  INDEX `idx_borrow_reader` (`reader_id`),
-  INDEX `idx_borrow_staff` (`staff_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+Table PhieuNhap {
+  maphieunhap varchar [pk]
+  thoigiantao datetime
+  tongtien decimal
+  manv varchar
+  mancc varchar
+}
 
--- BORROW_DETAIL
-CREATE TABLE IF NOT EXISTS `Borrow_detail` (
-  `borrow_id` VARCHAR(50) NOT NULL,
-  `book_id` VARCHAR(50) NOT NULL,
-  `quantity` INT NOT NULL DEFAULT 1,
-  PRIMARY KEY (`borrow_id`, `book_id`),
-  CONSTRAINT `fk_bd_borrow` FOREIGN KEY (`borrow_id`) REFERENCES `Borrow`(`borrow_id`) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT `fk_bd_book` FOREIGN KEY (`book_id`) REFERENCES `Book`(`book_id`) ON UPDATE CASCADE ON DELETE RESTRICT,
-  INDEX `idx_bd_book` (`book_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+// Khi nhập, ta nhập số lượng cho Đầu sách. 
+// (Logic phần mềm sẽ tự sinh ra n dòng bên bảng CuonSach tương ứng)
+Table CTPhieuNhap {
+  maphieunhap varchar
+  madausach varchar
+  dongianhap decimal
+  soluong int
+  
+  indexes {
+    (maphieunhap, madausach) [pk]
+  }
+}
 
--- FINE
-CREATE TABLE IF NOT EXISTS `Fine` (
-  `fine_id` VARCHAR(50) PRIMARY KEY,
-  `borrow_id` VARCHAR(50) NOT NULL,
-  `fine_date` DATE NOT NULL,
-  `days_late` INT NOT NULL DEFAULT 0,
-  `amount` INT NOT NULL DEFAULT 0,
-  CONSTRAINT `fk_fine_borrow` FOREIGN KEY (`borrow_id`) REFERENCES `Borrow`(`borrow_id`) ON UPDATE CASCADE ON DELETE CASCADE,
-  UNIQUE KEY `uk_fine_borrow` (`borrow_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+// ==========================================
+// 3. NHÓM MƯỢN & TRẢ (Mượn đích danh Cuốn sách)
+// ==========================================
 
--- OPTIONAL: Some baseline seed values
-INSERT INTO `Role` (`role_id`, `role_name`) VALUES
-  ('admin', 'Administrator')
-ON DUPLICATE KEY UPDATE role_name = VALUES(role_name);
+Table DocGia { 
+  madocgia varchar [pk]
+  hodocgia varchar
+  tendocgia varchar
+  email varchar
+  sdt varchar
+  ngaysinh date
+  diachi varchar
+}
 
-INSERT INTO `Permission` (`permission_id`, `permission_name`) VALUES
-  ('manage_books', 'Quản lý sách'),
-  ('manage_borrows', 'Quản lý mượn trả'),
-  ('manage_readers', 'Quản lý độc giả')
-ON DUPLICATE KEY UPDATE permission_name = VALUES(permission_name);
+Table PhieuMuon {
+  mamuon varchar [pk]
+  ngaymuon datetime
+  ngayhethan datetime 
+  manv varchar
+  madocgia varchar
+  trangthai varchar // DangMuon, DaTraXong, QuaHan
+  ghichu varchar
+}
 
-INSERT INTO `Role_Permission` (`role_id`, `permission_id`)
-VALUES ('admin', 'manage_books'), ('admin', 'manage_borrows'), ('admin', 'manage_readers')
-ON DUPLICATE KEY UPDATE role_id = VALUES(role_id);
+// Chi tiết mượn chỉ ra rõ là mượn cuốn nào (Barcode nào)
+Table CTPhieuMuon {
+  mamuon varchar
+  macuonsach varchar
+  // Không cần cột soluong vì macuonsach là duy nhất (1 dòng = 1 cuốn)
+  tinhtrang_truoc varchar // Ghi nhận tình trạng lúc đưa cho khách (Mới/Cũ)
+  
+  indexes {
+    (mamuon, macuonsach) [pk]
+  }
+}
+
+Table PhieuTra {
+  matra varchar [pk]
+  mamuon varchar 
+  ngaytra datetime 
+  manv varchar 
+  tongtienphat decimal 
+}
+
+Table CTPhieuTra {
+  matra varchar
+  macuonsach varchar
+  maphat varchar
+  tinhtrang_sau varchar // Tình trạng khi trả về (Rách/Mất/Nguyên vẹn)
+  tienphathuha decimal 
+  songayquahan int 
+  tienphatquahan decimal 
+  
+  indexes {
+    (matra, macuonsach, maphat) [pk]
+  }
+}
+
+// Phạt
+Table PhieuPhat {
+  maphat varchar [pk]
+  madocgia varchar
+  matra varchar // gắn với phiếu trả
+  ngaylap datetime
+  tongtienphat decimal
+  trangthai varchar // ChuaThu, DaThu
+  ghichu varchar
+}
+
+Table CTPhieuPhat {
+  maphat varchar
+  macuonsach varchar
+  lydo varchar // QuaHan, HuHong, MatSach
+  songayquahan int
+  sotienphat decimal
+  
+  indexes {
+    (maphat, macuonsach) [pk]
+  }
+}
+
+// ==========================================
+// 4. NHÓM HỆ THỐNG & PHÂN QUYỀN
+// ==========================================
+
+Table NhanVien {
+  manv varchar [pk]
+  honv varchar
+  tennv varchar
+  gioitinh varchar
+  sdt varchar
+  ngaysinh date
+}
+
+Table TaiKhoan {
+  tendangnhap varchar [pk] 
+  matkhau varchar
+  manhomquyen varchar
+  manv varchar
+}
+
+Table NhomQuyen {
+  manhomquyen varchar [pk]
+  tennhomquyen varchar
+}
+
+Table DanhMucChucNang {
+  machucnang varchar [pk]
+  tenchucnang varchar
+}
+
+Table CTQuyen {
+  manhomquyen varchar
+  machucnang varchar
+  hanhdong varchar 
+  
+  indexes {
+    (manhomquyen, machucnang) [pk]
+  }
+}
+
+// ==========================================
+// LIÊN KẾT (RELATIONSHIPS)
+// ==========================================
+
+
+// ---------- SÁCH (ĐẦU SÁCH & CUỐN SÁCH) ----------
+
+// Tác giả — Đầu sách (1 — N)
+Ref: TacGia.matacgia < DauSach.matacgia
+
+// Thể loại — Đầu sách (1 — N)
+Ref: TheLoai.matheloai < DauSach.matheloai
+
+// NXB — Đầu sách (1 — N)
+Ref: NhaXuatBan.manxb < DauSach.manxb
+
+// Đầu sách — Cuốn sách (1 — N)
+Ref: DauSach.madausach < CuonSach.madausach
+
+// Vị trí — Cuốn sách (1 — N)
+Ref: ViTri.mavitri < CuonSach.mavitri
+
+
+// ---------- NHẬP HÀNG ----------
+
+// Nhà cung cấp — Phiếu nhập (1 — N)
+Ref: NhaCungCap.mancc < PhieuNhap.mancc
+
+// Nhân viên — Phiếu nhập (1 — N)
+Ref: NhanVien.manv < PhieuNhap.manv
+
+// Phiếu nhập — CT Phiếu nhập (1 — N)
+Ref: PhieuNhap.maphieunhap < CTPhieuNhap.maphieunhap
+
+// Đầu sách — CT Phiếu nhập (1 — N)
+Ref: DauSach.madausach < CTPhieuNhap.madausach
+
+
+// ---------- MƯỢN SÁCH ----------
+
+// Độc giả — Phiếu mượn (1 — N)
+Ref: DocGia.madocgia < PhieuMuon.madocgia
+
+// Nhân viên — Phiếu mượn (1 — N)
+Ref: NhanVien.manv < PhieuMuon.manv
+
+// Phiếu mượn — CT Phiếu mượn (1 — N)
+Ref: PhieuMuon.mamuon < CTPhieuMuon.mamuon
+
+// Cuốn sách — CT Phiếu mượn (1 — N)
+Ref: CuonSach.macuonsach < CTPhieuMuon.macuonsach
+
+
+// ---------- TRẢ SÁCH (1 — N) ----------
+
+// Phiếu mượn — Phiếu trả (1 — N)
+Ref: PhieuMuon.mamuon < PhieuTra.mamuon
+
+// Nhân viên — Phiếu trả (1 — N)
+Ref: NhanVien.manv < PhieuTra.manv
+
+// Phiếu trả — CT Phiếu trả (1 — N)
+Ref: PhieuTra.matra < CTPhieuTra.matra
+
+// Cuốn sách — CT Phiếu trả (1 — N)
+Ref: CuonSach.macuonsach < CTPhieuTra.macuonsach
+
+
+// ---------- PHẠT ----------
+
+// Độc giả — Phiếu phạt (1 — N)
+Ref: DocGia.madocgia < PhieuPhat.madocgia
+
+// Phiếu trả — Phiếu phạt (1 — 0..1)
+Ref: PhieuTra.matra - PhieuPhat.matra
+
+// Phiếu phạt — CT Phiếu phạt (1 — N)
+Ref: PhieuPhat.maphat < CTPhieuPhat.maphat
+
+// Cuốn sách — CT Phiếu phạt (1 — N)
+Ref: CuonSach.macuonsach < CTPhieuPhat.macuonsach
+
+
+// ---------- HỆ THỐNG & PHÂN QUYỀN ----------
+
+// Nhân viên — Tài khoản (1 — 0..1)
+Ref: NhanVien.manv - TaiKhoan.manv
+
+// Nhóm quyền — Tài khoản (1 — N)
+Ref: NhomQuyen.manhomquyen < TaiKhoan.manhomquyen
+
+// Nhóm quyền — Chức năng (N — N)
+Ref: NhomQuyen.manhomquyen < CTQuyen.manhomquyen
+Ref: DanhMucChucNang.machucnang < CTQuyen.machucnang
