@@ -7,14 +7,31 @@
 <body>
   <?php
     require_once '../../database/KetNoiDB.php';
+    require_once '../../DAO/NhanVienDAO.php';
+    $dao = new NhanVienDAO();
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       echo "Đã nhận được dữ liệu";
-      if(empty($_GET["manv"])) {
-        echo "Không được để trống";
+      if(empty($_GET["manv"]) || empty($_GET["honv"]) || empty($_GET["tennv"]) ||
+        empty($_GET["gioitinh"]) || empty($_GET["sdt"]) ||
+        empty($_GET["ngaysinh"]) || empty($_GET["luachon"])) {
+        echo "<script>alert('Thông tin nhân viên không được để trống!');</script>";
       }
       else {
+        // lấy dữ liệu về thông tin nhân viên
         $manv = $_GET["manv"];
-        echo "Mã nhân viên vừa gửi: " . $manv;
+        $honv = $_GET["honv"];
+        $tennv = $_GET["tennv"];
+        $gioitinh = $_GET["gioitinh"];
+        $sdt = $_GET["sdt"];
+        $ngaysinh = $_GET["ngaysinh"];
+        $luachon = $_GET["luachon"];
+
+
+        // thực hiện thêm nhân viên
+        $dao->Them($conn, $manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh);
+
+        // thông báo thêm thành công
+        echo "<script>alert('Thêm nhân viên thành công!');</script>";
       }
     }
   ?>
