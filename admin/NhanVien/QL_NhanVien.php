@@ -59,6 +59,11 @@
       }
     }
   ?>
+  <div class="KhungMenu">
+    <?php
+      require_once '../Menu/AdminMenu.php';
+    ?>
+  </div>
   <div class="formThongTin">
     <form method="GET">
       <label for="manv">Mã nhân viên</label>
