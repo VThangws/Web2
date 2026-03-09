@@ -57,6 +57,7 @@
         }
         else echo "<script>alert('Xóa nhân viên không thành công!');</script>";
       }
+      else echo '<script>alert("Chào mừng đến với trang quản lý nhân viên!");</script>';
     }
   ?>
   <div class="KhungMenu">

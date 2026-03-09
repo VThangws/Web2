@@ -7,8 +7,9 @@
 <body>
   <div class="Menu">
     <ul>
-      <li><a href="../NhanVien/QL_NhanVien.php">Quản lý nhân viên</a></li>
-      <li><a href="../DocGia/QL_DocGia.php">Quản lý đọc giả</a></li>
+      <li><a href="../QuanLy/QL_NhanVien.php">Quản lý nhân viên</a></li>
+      <li><a href="../QuanLy/QL_DocGia.php">Quản lý đọc giả</a></li>
+      <li><a href="../QuanLy/QL_TacGia.php">Quản lý tác giả</a></li>
     </ul>
   </div>
 </body>

@@ -1,0 +1,10 @@
+- Quản lý nhân viên (r)
+- Quản lý đọc giả (r)
+- Quản lý tài khoản
+- Quản lý tác giả (chưa xong)
+- Quản lý thể loại
+- Quản lý nhà xuất bản
+- Quản lý đầu sách
+- Quản lý cuốn sách
+- Quản lý phiếu nhập
+- Quản lý phiếu xuất
