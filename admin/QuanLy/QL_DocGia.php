@@ -39,6 +39,34 @@
           echo "<script>alert('Thêm đọc giả thành công!');</script>";
         }
       }
+      else if($_GET['luachon'] == "Sua") {
+        // lấy dữ liệu đọc giả từ form
+        $madocgia = $_GET['madocgia'];
+        $hodocgia = $_GET['hodocgia'];
+        $tendocgia = $_GET['tendocgia'];
+        $email = $_GET['email'];
+        $sdt = $_GET['sdt'];
+        $ngaysinh = $_GET['ngaysinh'];
+        $diachi = $_GET['diachi'];
+
+        // thực hiện cập nhật
+        $dao->Sua($conn, $madocgia, $hodocgia, 
+        $tendocgia, $email, $sdt,
+        $ngaysinh, $diachi);
+      }
+      else if($_GET['luachon'] == "Xoa") {
+        // lấy mã đọc giả để xóa
+        $madocgia = $_GET['madocgia'];
+        // thực hiện chức năng xóa đọc giả
+        $sql = "DELETE FROM docgia WHERE madocgia=?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $madocgia);
+        if($stmt->execute()) {
+          echo '<script>alert("Đã xóa đọc giả!");</script>';
+        }
+        else echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
+      }
+      else echo '<script>alert("Chào mừng đến với trang quản lý đọc giả!");</script>';
     }
   ?>
   <div class="KhungMenu">
@@ -94,8 +122,7 @@
               <td>" . $row['sdt'] . "</td>
               <td>" . $row['ngaysinh'] . "</td>
               <td>" . $row['diachi'] . "</td>
-              <td><a href='QL_DocGia.php?luachon=Xoa&
-              madocgia=" . $row['madocgia'] . "'>Xóa</a></td>
+              <td><a href='QL_DocGia.php?luachon=Xoa&madocgia=" . $row['madocgia'] . "'>Xóa</a></td>
             </tr>
           ";
         }
