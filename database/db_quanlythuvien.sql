@@ -1,299 +1,235 @@
-// ==========================================
-// 1. NHÓM QUẢN LÝ ĐẦU SÁCH & CUỐN SÁCH
-// ==========================================
+-- Vô hiệu hóa kiểm tra khóa ngoại tạm thời để tránh lỗi thứ tự tạo bảng
+SET FOREIGN_KEY_CHECKS = 0;
 
-// Lưu thông tin chung của tác phẩm (Metadata)
-Table DauSach {
-  madausach varchar [pk]
-  tensach varchar
-  namxuatban int
-  dongia decimal // Giá bìa chung
-  matacgia varchar 
-  matheloai varchar 
-  manxb varchar 
-  mota varchar
-  anhbia varchar
-}
+-- ==========================================
+-- 1. NHÓM QUẢN LÝ ĐẦU SÁCH & CUỐN SÁCH
+-- ==========================================
 
-// Lưu từng cuốn sách vật lý nằm trên kệ (Physical Copy)
-Table CuonSach {
-  macuonsach varchar [pk] // Barcode
-  madausach varchar
-  mavitri varchar         // FK -> ViTri
-  trangthai varchar       // SanSang, DangMuon, Hong, Mat, ThanhLy
-  tinhtrang varchar       // Moi, Tot, Cu, Rac, HuHong
-}
+-- Lưu thông tin chung của tác phẩm (Metadata)
+CREATE TABLE DauSach (
+    madausach VARCHAR(50) PRIMARY KEY,
+    tensach VARCHAR(255),
+    namxuatban INT,
+    dongia DECIMAL(10,2), -- Giá bìa chung
+    matacgia VARCHAR(50),
+    matheloai VARCHAR(50),
+    manxb VARCHAR(50),
+    mota VARCHAR(255),
+    anhbia VARCHAR(255)
+);
 
-Table ViTri {
-  mavitri varchar [pk]
-  khuvuc varchar    // VD: Tang 1, Tang 2
-  ke varchar        // VD: Ke A, Ke B
-  mota varchar
-}
+-- Lưu từng cuốn sách vật lý nằm trên kệ (Physical Copy)
+CREATE TABLE CuonSach (
+    macuonsach VARCHAR(50) PRIMARY KEY, -- Barcode
+    madausach VARCHAR(50),
+    mavitri VARCHAR(50), -- FK -> ViTri
+    trangthai VARCHAR(50), -- SanSang, DangMuon, Hong, Mat, ThanhLy
+    tinhtrang VARCHAR(50) -- Moi, Tot, Cu, Rac, HuHong
+);
 
-Table TacGia {
-  matacgia varchar [pk]
-  tentacgia varchar
-}
+CREATE TABLE ViTri (
+    mavitri VARCHAR(50) PRIMARY KEY,
+    khuvuc VARCHAR(100), -- VD: Tang 1, Tang 2
+    ke VARCHAR(50), -- VD: Ke A, Ke B
+    mota VARCHAR(255)
+);
 
-Table TheLoai {
-  matheloai varchar [pk]
-  tentheloai varchar
-}
+CREATE TABLE TacGia (
+    matacgia VARCHAR(50) PRIMARY KEY,
+    tentacgia VARCHAR(255)
+);
 
-Table NhaXuatBan {
-  manxb varchar [pk]
-  tennxb varchar
-  diachi varchar
-  sdt varchar
-  email varchar
-}
+CREATE TABLE TheLoai (
+    matheloai VARCHAR(50) PRIMARY KEY,
+    tentheloai VARCHAR(255)
+);
 
-// ==========================================
-// 2. NHÓM NHẬP HÀNG (Nhập theo Đầu sách)
-// ==========================================
+CREATE TABLE NhaXuatBan (
+    manxb VARCHAR(50) PRIMARY KEY,
+    tennxb VARCHAR(255),
+    diachi VARCHAR(255),
+    sdt VARCHAR(20),
+    email VARCHAR(100)
+);
 
-Table NhaCungCap {
-  mancc varchar [pk]
-  tenncc varchar
-  diachincc varchar
-  sdt varchar
-  email varchar
-}
+-- ==========================================
+-- 2. NHÓM NHẬP HÀNG (Nhập theo Đầu sách)
+-- ==========================================
 
-Table PhieuNhap {
-  maphieunhap varchar [pk]
-  thoigiantao datetime
-  tongtien decimal
-  manv varchar
-  mancc varchar
-}
+CREATE TABLE NhaCungCap (
+    mancc VARCHAR(50) PRIMARY KEY,
+    tenncc VARCHAR(255),
+    diachincc VARCHAR(255),
+    sdt VARCHAR(20),
+    email VARCHAR(100)
+);
 
-// Khi nhập, ta nhập số lượng cho Đầu sách. 
-// (Logic phần mềm sẽ tự sinh ra n dòng bên bảng CuonSach tương ứng)
-Table CTPhieuNhap {
-  maphieunhap varchar
-  madausach varchar
-  dongianhap decimal
-  soluong int
-  
-  indexes {
-    (maphieunhap, madausach) [pk]
-  }
-}
+CREATE TABLE PhieuNhap (
+    maphieunhap VARCHAR(50) PRIMARY KEY,
+    thoigiantao DATETIME,
+    tongtien DECIMAL(10,2),
+    manv VARCHAR(50),
+    mancc VARCHAR(50)
+);
 
-// ==========================================
-// 3. NHÓM MƯỢN & TRẢ (Mượn đích danh Cuốn sách)
-// ==========================================
+-- Khi nhập, ta nhập số lượng cho Đầu sách.
+-- (Logic phần mềm sẽ tự sinh ra n dòng bên bảng CuonSach tương ứng)
+CREATE TABLE CTPhieuNhap (
+    maphieunhap VARCHAR(50),
+    madausach VARCHAR(50),
+    dongianhap DECIMAL(10,2),
+    soluong INT,
+    PRIMARY KEY (maphieunhap, madausach)
+);
 
-Table DocGia { 
-  madocgia varchar [pk]
-  hodocgia varchar
-  tendocgia varchar
-  email varchar
-  sdt varchar
-  ngaysinh date
-  diachi varchar
-}
+-- ==========================================
+-- 3. NHÓM MƯỢN & TRẢ (Mượn đích danh Cuốn sách)
+-- ==========================================
 
-Table PhieuMuon {
-  mamuon varchar [pk]
-  ngaymuon datetime
-  ngayhethan datetime 
-  manv varchar
-  madocgia varchar
-  trangthai varchar // DangMuon, DaTraXong, QuaHan
-  ghichu varchar
-}
+CREATE TABLE DocGia (
+    madocgia VARCHAR(50) PRIMARY KEY,
+    hodocgia VARCHAR(100),
+    tendocgia VARCHAR(100),
+    email VARCHAR(100),
+    sdt VARCHAR(20),
+    ngaysinh DATE,
+    diachi VARCHAR(255)
+);
 
-// Chi tiết mượn chỉ ra rõ là mượn cuốn nào (Barcode nào)
-Table CTPhieuMuon {
-  mamuon varchar
-  macuonsach varchar
-  // Không cần cột soluong vì macuonsach là duy nhất (1 dòng = 1 cuốn)
-  tinhtrang_truoc varchar // Ghi nhận tình trạng lúc đưa cho khách (Mới/Cũ)
-  
-  indexes {
-    (mamuon, macuonsach) [pk]
-  }
-}
+CREATE TABLE PhieuMuon (
+    mamuon VARCHAR(50) PRIMARY KEY,
+    ngaymuon DATETIME,
+    ngayhethan DATETIME,
+    manv VARCHAR(50),
+    madocgia VARCHAR(50),
+    trangthai VARCHAR(50), -- DangMuon, DaTraXong, QuaHan
+    ghichu VARCHAR(255)
+);
 
-Table PhieuTra {
-  matra varchar [pk]
-  mamuon varchar 
-  ngaytra datetime 
-  manv varchar 
-  tongtienphat decimal 
-}
+-- Chi tiết mượn chỉ ra rõ là mượn cuốn nào (Barcode nào)
+CREATE TABLE CTPhieuMuon (
+    mamuon VARCHAR(50),
+    macuonsach VARCHAR(50),
+    tinhtrang_truoc VARCHAR(50), -- Ghi nhận tình trạng lúc đưa cho khách (Mới/Cũ)
+    PRIMARY KEY (mamuon, macuonsach)
+);
 
-Table CTPhieuTra {
-  matra varchar
-  macuonsach varchar
-  maphat varchar
-  tinhtrang_sau varchar // Tình trạng khi trả về (Rách/Mất/Nguyên vẹn)
-  tienphathuha decimal 
-  songayquahan int 
-  tienphatquahan decimal 
-  
-  indexes {
-    (matra, macuonsach, maphat) [pk]
-  }
-}
+CREATE TABLE PhieuTra (
+    matra VARCHAR(50) PRIMARY KEY,
+    mamuon VARCHAR(50),
+    ngaytra DATETIME,
+    manv VARCHAR(50),
+    tongtienphat DECIMAL(10,2)
+);
 
-// Phạt
-Table PhieuPhat {
-  maphat varchar [pk]
-  madocgia varchar
-  matra varchar // gắn với phiếu trả
-  ngaylap datetime
-  tongtienphat decimal
-  trangthai varchar // ChuaThu, DaThu
-  ghichu varchar
-}
+CREATE TABLE CTPhieuTra (
+    matra VARCHAR(50),
+    macuonsach VARCHAR(50),
+    maphat VARCHAR(50),
+    tinhtrang_sau VARCHAR(50), -- Tình trạng khi trả về (Rách/Mất/Nguyên vẹn)
+    tienphathuha DECIMAL(10,2),
+    songayquahan INT,
+    tienphatquahan DECIMAL(10,2),
+    PRIMARY KEY (matra, macuonsach, maphat)
+);
 
-Table CTPhieuPhat {
-  maphat varchar
-  macuonsach varchar
-  lydo varchar // QuaHan, HuHong, MatSach
-  songayquahan int
-  sotienphat decimal
-  
-  indexes {
-    (maphat, macuonsach) [pk]
-  }
-}
+-- Phạt
+CREATE TABLE PhieuPhat (
+    maphat VARCHAR(50) PRIMARY KEY,
+    madocgia VARCHAR(50),
+    matra VARCHAR(50), -- gắn với phiếu trả
+    ngaylap DATETIME,
+    tongtienphat DECIMAL(10,2),
+    trangthai VARCHAR(50), -- ChuaThu, DaThu
+    ghichu VARCHAR(255)
+);
 
-// ==========================================
-// 4. NHÓM HỆ THỐNG & PHÂN QUYỀN
-// ==========================================
+CREATE TABLE CTPhieuPhat (
+    maphat VARCHAR(50),
+    macuonsach VARCHAR(50),
+    lydo VARCHAR(255), -- QuaHan, HuHong, MatSach
+    songayquahan INT,
+    sotienphat DECIMAL(10,2),
+    PRIMARY KEY (maphat, macuonsach)
+);
 
-Table NhanVien {
-  manv varchar [pk]
-  honv varchar
-  tennv varchar
-  gioitinh varchar
-  sdt varchar
-  ngaysinh date
-}
+-- ==========================================
+-- 4. NHÓM HỆ THỐNG & PHÂN QUYỀN
+-- ==========================================
 
-Table TaiKhoan {
-  tendangnhap varchar [pk] 
-  matkhau varchar
-  manhomquyen varchar
-  manv varchar
-}
+CREATE TABLE NhanVien (
+    manv VARCHAR(50) PRIMARY KEY,
+    honv VARCHAR(100),
+    tennv VARCHAR(100),
+    gioitinh VARCHAR(10),
+    sdt VARCHAR(20),
+    ngaysinh DATE
+);
 
-Table NhomQuyen {
-  manhomquyen varchar [pk]
-  tennhomquyen varchar
-}
+CREATE TABLE TaiKhoan (
+    tendangnhap VARCHAR(50) PRIMARY KEY,
+    matkhau VARCHAR(255),
+    manhomquyen VARCHAR(50),
+    manv VARCHAR(50)
+);
 
-Table DanhMucChucNang {
-  machucnang varchar [pk]
-  tenchucnang varchar
-}
+CREATE TABLE NhomQuyen (
+    manhomquyen VARCHAR(50) PRIMARY KEY,
+    tennhomquyen VARCHAR(100)
+);
 
-Table CTQuyen {
-  manhomquyen varchar
-  machucnang varchar
-  hanhdong varchar 
-  
-  indexes {
-    (manhomquyen, machucnang) [pk]
-  }
-}
+CREATE TABLE DanhMucChucNang (
+    machucnang VARCHAR(50) PRIMARY KEY,
+    tenchucnang VARCHAR(100)
+);
 
-// ==========================================
-// LIÊN KẾT (RELATIONSHIPS)
-// ==========================================
+CREATE TABLE CTQuyen (
+    manhomquyen VARCHAR(50),
+    machucnang VARCHAR(50),
+    hanhdong VARCHAR(100),
+    PRIMARY KEY (manhomquyen, machucnang)
+);
 
+-- ==========================================
+-- THIẾT LẬP KHÓA NGOẠI (FOREIGN KEYS)
+-- ==========================================
 
-// ---------- SÁCH (ĐẦU SÁCH & CUỐN SÁCH) ----------
+-- SÁCH
+ALTER TABLE DauSach ADD CONSTRAINT fk_dausach_tacgia FOREIGN KEY (matacgia) REFERENCES TacGia(matacgia);
+ALTER TABLE DauSach ADD CONSTRAINT fk_dausach_theloai FOREIGN KEY (matheloai) REFERENCES TheLoai(matheloai);
+ALTER TABLE DauSach ADD CONSTRAINT fk_dausach_nxb FOREIGN KEY (manxb) REFERENCES NhaXuatBan(manxb);
+ALTER TABLE CuonSach ADD CONSTRAINT fk_cuonsach_dausach FOREIGN KEY (madausach) REFERENCES DauSach(madausach);
+ALTER TABLE CuonSach ADD CONSTRAINT fk_cuonsach_vitri FOREIGN KEY (mavitri) REFERENCES ViTri(mavitri);
 
-// Tác giả — Đầu sách (1 — N)
-Ref: TacGia.matacgia < DauSach.matacgia
+-- NHẬP HÀNG
+ALTER TABLE PhieuNhap ADD CONSTRAINT fk_phieunhap_nhacungcap FOREIGN KEY (mancc) REFERENCES NhaCungCap(mancc);
+ALTER TABLE PhieuNhap ADD CONSTRAINT fk_phieunhap_nhanvien FOREIGN KEY (manv) REFERENCES NhanVien(manv);
+ALTER TABLE CTPhieuNhap ADD CONSTRAINT fk_ctpn_phieunhap FOREIGN KEY (maphieunhap) REFERENCES PhieuNhap(maphieunhap);
+ALTER TABLE CTPhieuNhap ADD CONSTRAINT fk_ctpn_dausach FOREIGN KEY (madausach) REFERENCES DauSach(madausach);
 
-// Thể loại — Đầu sách (1 — N)
-Ref: TheLoai.matheloai < DauSach.matheloai
+-- MƯỢN SÁCH
+ALTER TABLE PhieuMuon ADD CONSTRAINT fk_phieumuon_docgia FOREIGN KEY (madocgia) REFERENCES DocGia(madocgia);
+ALTER TABLE PhieuMuon ADD CONSTRAINT fk_phieumuon_nhanvien FOREIGN KEY (manv) REFERENCES NhanVien(manv);
+ALTER TABLE CTPhieuMuon ADD CONSTRAINT fk_ctpm_phieumuon FOREIGN KEY (mamuon) REFERENCES PhieuMuon(mamuon);
+ALTER TABLE CTPhieuMuon ADD CONSTRAINT fk_ctpm_cuonsach FOREIGN KEY (macuonsach) REFERENCES CuonSach(macuonsach);
 
-// NXB — Đầu sách (1 — N)
-Ref: NhaXuatBan.manxb < DauSach.manxb
+-- TRẢ SÁCH
+ALTER TABLE PhieuTra ADD CONSTRAINT fk_phieutra_phieumuon FOREIGN KEY (mamuon) REFERENCES PhieuMuon(mamuon);
+ALTER TABLE PhieuTra ADD CONSTRAINT fk_phieutra_nhanvien FOREIGN KEY (manv) REFERENCES NhanVien(manv);
+ALTER TABLE CTPhieuTra ADD CONSTRAINT fk_ctpt_phieutra FOREIGN KEY (matra) REFERENCES PhieuTra(matra);
+ALTER TABLE CTPhieuTra ADD CONSTRAINT fk_ctpt_cuonsach FOREIGN KEY (macuonsach) REFERENCES CuonSach(macuonsach);
 
-// Đầu sách — Cuốn sách (1 — N)
-Ref: DauSach.madausach < CuonSach.madausach
+-- PHẠT
+ALTER TABLE PhieuPhat ADD CONSTRAINT fk_phieuphat_docgia FOREIGN KEY (madocgia) REFERENCES DocGia(madocgia);
+ALTER TABLE PhieuPhat ADD CONSTRAINT fk_phieuphat_phieutra FOREIGN KEY (matra) REFERENCES PhieuTra(matra);
+ALTER TABLE CTPhieuPhat ADD CONSTRAINT fk_ctpp_phieuphat FOREIGN KEY (maphat) REFERENCES PhieuPhat(maphat);
+ALTER TABLE CTPhieuPhat ADD CONSTRAINT fk_ctpp_cuonsach FOREIGN KEY (macuonsach) REFERENCES CuonSach(macuonsach);
 
-// Vị trí — Cuốn sách (1 — N)
-Ref: ViTri.mavitri < CuonSach.mavitri
+-- HỆ THỐNG
+ALTER TABLE TaiKhoan ADD CONSTRAINT fk_taikhoan_nhanvien FOREIGN KEY (manv) REFERENCES NhanVien(manv);
+ALTER TABLE TaiKhoan ADD CONSTRAINT fk_taikhoan_nhomquyen FOREIGN KEY (manhomquyen) REFERENCES NhomQuyen(manhomquyen);
+ALTER TABLE CTQuyen ADD CONSTRAINT fk_ctq_nhomquyen FOREIGN KEY (manhomquyen) REFERENCES NhomQuyen(manhomquyen);
+ALTER TABLE CTQuyen ADD CONSTRAINT fk_ctq_chucnang FOREIGN KEY (machucnang) REFERENCES DanhMucChucNang(machucnang);
 
-
-// ---------- NHẬP HÀNG ----------
-
-// Nhà cung cấp — Phiếu nhập (1 — N)
-Ref: NhaCungCap.mancc < PhieuNhap.mancc
-
-// Nhân viên — Phiếu nhập (1 — N)
-Ref: NhanVien.manv < PhieuNhap.manv
-
-// Phiếu nhập — CT Phiếu nhập (1 — N)
-Ref: PhieuNhap.maphieunhap < CTPhieuNhap.maphieunhap
-
-// Đầu sách — CT Phiếu nhập (1 — N)
-Ref: DauSach.madausach < CTPhieuNhap.madausach
-
-
-// ---------- MƯỢN SÁCH ----------
-
-// Độc giả — Phiếu mượn (1 — N)
-Ref: DocGia.madocgia < PhieuMuon.madocgia
-
-// Nhân viên — Phiếu mượn (1 — N)
-Ref: NhanVien.manv < PhieuMuon.manv
-
-// Phiếu mượn — CT Phiếu mượn (1 — N)
-Ref: PhieuMuon.mamuon < CTPhieuMuon.mamuon
-
-// Cuốn sách — CT Phiếu mượn (1 — N)
-Ref: CuonSach.macuonsach < CTPhieuMuon.macuonsach
-
-
-// ---------- TRẢ SÁCH (1 — N) ----------
-
-// Phiếu mượn — Phiếu trả (1 — N)
-Ref: PhieuMuon.mamuon < PhieuTra.mamuon
-
-// Nhân viên — Phiếu trả (1 — N)
-Ref: NhanVien.manv < PhieuTra.manv
-
-// Phiếu trả — CT Phiếu trả (1 — N)
-Ref: PhieuTra.matra < CTPhieuTra.matra
-
-// Cuốn sách — CT Phiếu trả (1 — N)
-Ref: CuonSach.macuonsach < CTPhieuTra.macuonsach
-
-
-// ---------- PHẠT ----------
-
-// Độc giả — Phiếu phạt (1 — N)
-Ref: DocGia.madocgia < PhieuPhat.madocgia
-
-// Phiếu trả — Phiếu phạt (1 — 0..1)
-Ref: PhieuTra.matra - PhieuPhat.matra
-
-// Phiếu phạt — CT Phiếu phạt (1 — N)
-Ref: PhieuPhat.maphat < CTPhieuPhat.maphat
-
-// Cuốn sách — CT Phiếu phạt (1 — N)
-Ref: CuonSach.macuonsach < CTPhieuPhat.macuonsach
-
-
-// ---------- HỆ THỐNG & PHÂN QUYỀN ----------
-
-// Nhân viên — Tài khoản (1 — 0..1)
-Ref: NhanVien.manv - TaiKhoan.manv
-
-// Nhóm quyền — Tài khoản (1 — N)
-Ref: NhomQuyen.manhomquyen < TaiKhoan.manhomquyen
-
-// Nhóm quyền — Chức năng (N — N)
-Ref: NhomQuyen.manhomquyen < CTQuyen.manhomquyen
-Ref: DanhMucChucNang.machucnang < CTQuyen.machucnang
+-- Bật lại kiểm tra khóa ngoại sau khi tạo xong
+SET FOREIGN_KEY_CHECKS = 1;
