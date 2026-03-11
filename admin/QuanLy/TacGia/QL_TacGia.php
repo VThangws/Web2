@@ -6,8 +6,8 @@
 </head>
 <body>
   <?php
-    require_once '../../database/KetNoiDB.php';
-    require_once '../../DAO/TacGiaDAO.php';
+    require_once '../../../database/ConnectDB.php';
+    require_once '../../../DAO/TacGiaDAO.php';
     $dao = new TacGiaDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "GET") {
@@ -26,12 +26,24 @@
           $dao->Them($conn, $matacgia, $tentacgia);
         }
       }
+      else if($_GET['luachon'] == "Xoa") {
+        // lấy mã tác giả
+        $matacgia = $_GET['matacgia'];
+        $dao->Xoa($conn, $matacgia);
+      }
+      else if($_GET['luachon'] == "Sua") {
+        // lấy thông tin tác giả từ form
+        $matacgia = $_GET['matacgia'];
+        $tentacgia = $_GET['tentacgia'];
+        // thực hiện cập nhật
+        $dao->Sua($conn, $matacgia, $tentacgia);
+      }
       else echo "<script>alert('Chào mừng đến với trang quản lý tác giả!');</script>";
     }
   ?>
   <div class="KhungMenu">
     <?php
-      require_once '../Menu/AdminMenu.php';
+      require_once '../../Menu/AdminMenu.php';
     ?>
   </div>
   <div class="KhungThongTin">
@@ -52,6 +64,8 @@
       <tr>
         <th>Mã tác giả</th>
         <th>Tên tác giả</th>
+        <th>Cập nhập</th>
+        <th>Xóa tác giả</th>
       </tr>
       <?php
         // lấy danh sách từ database
@@ -62,6 +76,8 @@
             <tr>
               <td>". $row['matacgia'] . "</td>
               <td>". $row['tentacgia'] . "</td>
+              <td><a href='Sua_TacGia.php?matacgia=" . $row['matacgia'] . "&tentacgia=" . $row['tentacgia'] . "'>Sửa</a></td>
+              <td><a href='QL_TacGia.php?luachon=Xoa&matacgia=" . $row['matacgia'] . "'>Xóa</a></td>
             </tr>
           ";
         }
