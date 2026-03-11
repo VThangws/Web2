@@ -6,8 +6,8 @@
 </head>
 <body>
   <?php
-    require_once '../../database/KetNoiDB.php';
-    require_once '../../DAO/DocGiaDAO.php';
+    require_once '../../../database/ConnectDB.php';
+    require_once '../../../DAO/DocGiaDAO.php';
     $dao = new DocGiaDAO();
     if($_SERVER['REQUEST_METHOD'] == 'GET') {
       // thêm
@@ -71,7 +71,7 @@
   ?>
   <div class="KhungMenu">
     <?php
-      require_once '../Menu/AdminMenu.php';
+      require_once '../../Menu/AdminMenu.php';
     ?>
   </div>
   <div class="KhungThongTin">

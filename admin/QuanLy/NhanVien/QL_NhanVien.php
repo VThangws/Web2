@@ -6,8 +6,8 @@
 </head>
 <body>
   <?php
-    require_once '../../database/KetNoiDB.php';
-    require_once '../../DAO/NhanVienDAO.php';
+    require_once '../../../database/ConnectDB.php';
+    require_once '../../../DAO/NhanVienDAO.php';
     $dao = new NhanVienDAO();
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       echo "Đã nhận được dữ liệu";
@@ -62,7 +62,7 @@
   ?>
   <div class="KhungMenu">
     <?php
-      require_once '../Menu/AdminMenu.php';
+      require_once '../../Menu/AdminMenu.php';
     ?>
   </div>
   <div class="formThongTin">
