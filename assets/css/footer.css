@@ -1,20 +1,91 @@
+.az-footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.az-footer-col h3,
+.az-footer-col h4 {
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.az-footer-col ul {
+    list-style: disc;
+    padding-left: 18px;
+    margin: 0;
+}
+
+.az-footer-col ul li {
+    margin-bottom: 6px;
+}
+
+.az-footer-col ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+.az-footer-col ul li a:hover {
+    text-decoration: underline;
+}
+
+.az-certified img {
+    max-width: 140px;
+    height: auto;
+    margin: 12px 0;
+}
+
+.az-social a {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    line-height: 32px;
+    margin-right: 8px;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    color: #555;
+}
+
+.az-social a:hover {
+    background: #eee;
+}
+
+.az-footer-bottom {
+    border-top: 1px solid #e0e0e0;
+    margin-top: 20px;
+    padding-top: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+}
+
 footer {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    background-color: #F2F5FA ;
-    padding: 30px 20px;
+    background-color: #F2F5FA;
+    padding: 30px 90px;
 }
 
 footer .col {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: 1px;
 }
 
 footer .logo {
-    margin-bottom: 30px;
+    margin-bottom: 1px;
+}
+
+footer .logo img {
+    width: 6%;
+    max-width: 80px;
+    height: auto;
 }
 
 footer h3 {
@@ -38,7 +109,7 @@ footer a:hover {
     text-decoration: underline;
 }
 
-footer .copyright{
+footer .copyright {
     width: 100%;
     text-align: center;
 }

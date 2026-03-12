@@ -1,7 +1,7 @@
-/* ----- PHẦN CSS DÙNG CHO MÀN HÌNH RỘNG (>= 751px) ----- */
+/* Header cũ cho layout mobile/desktop cũ */
 .header {
-  display: flex;
-  justify-content: space-between; /* logo bên trái, menu ở giữa, icon bên phải */
+  display: none;
+  /* align-items cho header cũ nếu dùng lại */
   align-items: center;
   padding: 10px 40px;
   border-bottom: 1px solid #ccc;
@@ -9,10 +9,108 @@
   position: sticky;
   z-index: 9999;
   background-color: #FFFFFF;
-  position: relative;
 }
 
-/* Ẩn nút bars trên màn hình lớn */
+/* Header MỚI dùng trong layout/header.php */
+.main-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #ffffff;
+  color: #000;
+  font-family: 'Roboto', Arial, sans-serif;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.main-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.main-logo img {
+  height: 32px;
+  display: block;
+}
+
+.main-nav ul {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.main-nav a {
+  color: #000;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.main-nav a:hover {
+  color: #1e88e5;
+}
+
+.main-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.main-icon-btn {
+  border: none;
+  background: transparent;
+  color: #000;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main-btn {
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.main-btn-outline {
+  border-color: #1e88e5;
+  color: #1e88e5;
+  background: transparent;
+}
+
+.main-btn-outline:hover {
+  background: #1e88e5;
+  color: #fff;
+}
+
+.main-btn-primary {
+  background: #00c853;
+  color: #fff;
+}
+
+.main-btn-primary:hover {
+  background: #00e676;
+}
+
+/* Phần menu, icon cũ vẫn giữ để không lỗi nếu file HTML cũ còn dùng */
 .menu-toggle {
   display: none;
 }
@@ -22,12 +120,11 @@
 }
 
 .logo_header img {
-  height: 50px;
+  height: 20px;
   display: block;
 }
 
 .menu_header {
-  /* Trên màn hình lớn thì menu hiển thị như cũ */
   position: static;
   display: block;
 }
@@ -57,18 +154,16 @@
   transition: left 0.3s ease;
 }
 
-/* Ẩn submenu mặc định */
 .menu_header .submenu {
   display: none;
   position: absolute;
-  top: 100%; /* ngay dưới menu chính */
+  top: 100%;
   left: 0;
   background-color: white;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
 }
 
-/* Hiện submenu khi hover vào li */
 .menu_header ul li:hover .submenu {
   display: block;
 }
@@ -97,12 +192,12 @@
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 8px; /* Khoảng cách giữa icon và chữ */
+  gap: 8px;
   transition: color 0.2s;
 }
 
 .icon:hover {
-  color: rgb(52, 164, 212);/* Màu xanh khi hover */
+  color: rgb(52, 164, 212);
 }
 
 .icon i {
@@ -110,19 +205,50 @@
   vertical-align: middle;
 }
 
-/* Giữ nguyên phần CSS khác của bạn... */
+/* Search overlay dùng chung */
+.search-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
 
+.search-overlay.active {
+  display: flex;
+}
 
-/* ----- PHẦN CSS CHO MÀN HÌNH NHỎ (<= 750px) ----- */
+.search-box {
+  width: min(600px, 90%);
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+}
+
+.search-box input[type="text"] {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-box .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+}
+
 @media (max-width: 750px) {
-  /* Nút bars (menu-toggle) xuất hiện */
-  .menu-toggle {
-    display: block;
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
+
+  .menu-toggle,
   .menu-close {
     display: block;
     font-size: 24px;
@@ -130,84 +256,70 @@
     border: none;
     cursor: pointer;
   }
-  .menu-title{
+
+  .menu-title {
     display: block;
-    margin-left:15px;
+    margin-left: 15px;
     margin-top: 20px;
     font-weight: 600;
   }
 
-  .menu_header > ul {
-    margin: 40px 0 0;
-  }
-  /* Menu dạng off-canvas: ban đầu ẩn ở bên trái */
   .menu_header {
     position: fixed;
     top: 0;
-    left: -500px;       /* Ẩn khỏi màn hình bên trái */
-    width: 300px;       /* Chiều rộng bar */
-    max-width: 80%;     /* (Tuỳ chọn) để tránh tràn trên màn hình nhỏ hơn 500px */
+    left: -500px;
+    width: 300px;
+    max-width: 80%;
     height: 100vh;
     background: #fff;
     overflow-y: auto;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
     transition: left 0.3s ease;
     z-index: 9999;
-    padding-top: 20px;  /* chừa khoảng trống trên cho nút đóng */
+    padding-top: 20px;
   }
 
-  /* Menu hiển thị khi có class .active -> trượt vào */
   .menu_header.active {
     left: 0;
   }
 
-  /* Nút đóng (x) ở góc trên bên phải bar */
-  .menu-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 24px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  /* Menu xổ dọc */
   .menu_header ul {
     padding: 0;
   }
-  .menu_header > ul{
+
+  .menu_header>ul {
+    margin: 40px 0 0;
     border-top: 2px solid #ccc;
   }
-  .submenu{
+
+  .submenu {
     border-bottom: 1px solid #ccc;
   }
-  .submenu >li {
+
+  .submenu>li {
     margin-left: 20px;
   }
-  .menu_header ul > li {
+
+  .menu_header ul>li {
     display: block;
-    
   }
 
-  /* Submenu (nếu có) */
   .menu_header .submenu {
-    position: static; 
+    position: static;
     box-shadow: none;
     display: none;
   }
-  .menu_header ul li > .submenu {
+
+  .menu_header ul li>.submenu {
     display: block;
   }
 }
 
-/* chỉ target span chứa tên user trong account-link */
 .icon.account-link span {
   font-size: 16px;
-  line-height: 1;        /* đảm bảo căn giữa với icon */
+  line-height: 1;
 }
 
-/* giữ nguyên kích thước icon */
 .icon.account-link i {
   font-size: 20px;
 }
