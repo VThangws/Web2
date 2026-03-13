@@ -5,13 +5,10 @@
     <div class="az-footer-inner">
         <!-- Cột 1: Giới thiệu thư viện -->
         <div class="col az-footer-col">
-            <h3>THƯ VIỆN TRI THỨC VIỆT</h3>
-            <p>Thư viện Tri Thức Việt - Không gian học tập và chia sẻ tri thức</p>
-            <p>* Cung cấp nguồn tài liệu học tập và nghiên cứu đa dạng</p>
-            <p>* Phục vụ nhu cầu đọc sách, tra cứu tài liệu cho sinh viên và bạn đọc</p>
-            <p>* Tổ chức các hoạt động khuyến đọc và phát triển văn hóa đọc</p>
-            <div class="az-certified">
-                <img src="/assets/img/logo-library/library.png" alt="Thư viện Tri Thức Việt">
+            <div class="az-footer-col-inner">
+                <div class="az-certified">
+                    <img src="/assets/img/logo-library/library.png" alt="Thư viện Tri Thức Việt">
+                </div>
             </div>
             <div class="az-social">
                 <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
@@ -19,17 +16,19 @@
                 <a href="#"><i class="fa-brands fa-youtube"></i></a>
             </div>
         </div>
-
-        <!-- Cột 2: Thông tin liên hệ -->
         <div class="col az-footer-col">
-            <h4>Thông tin liên hệ</h4>
-            <ul>
-                <li><i class="fa-solid fa-location-dot"></i> 273 Đường An Dương Vương, Quận 5, TP. Hồ Chí Minh</li>
-                <li><i class="fa-solid fa-phone"></i> 0900 123 456</li>
-                <li><i class="fa-solid fa-envelope"></i> thuvien@trithucviet.vn</li>
-            </ul>
+            <div class="az-footer-col-inner">
+                <div class="az-footer-text">
+                    <h3>THƯ VIỆN TRI THỨC VIỆT</h3>
+                    <p>Thư viện Tri Thức Việt - Không gian học tập và chia sẻ tri thức</p>
+                    <p>* Cung cấp nguồn tài liệu học tập và nghiên cứu đa dạng</p>
+                    <p>* Phục vụ nhu cầu đọc sách, tra cứu tài liệu cho sinh viên và bạn đọc</p>
+                    <p>* Tổ chức các hoạt động khuyến đọc và phát triển văn hóa đọc</p>
+                </div>
+               
+            </div>
+           
         </div>
-
         <!-- Cột 3: Danh mục -->
         <div class="col az-footer-col">
             <h4>Danh mục sách</h4>
@@ -66,8 +65,15 @@
             </ul>
         </div>
     </div>
-
+    <div class="col az-footer-col">
+            <h4>Thông tin liên hệ</h4>
+            <ul>
+                <li><i class="fa-solid fa-location-dot"></i> 273 Đường An Dương Vương, Quận 5, TP. Hồ Chí Minh</li>
+                <li><i class="fa-solid fa-phone"></i> 0900 123 456</li>
+                <li><i class="fa-solid fa-envelope"></i> thuvien@trithucviet.vn</li>
+            </ul>
+        </div>
     <div class="az-footer-bottom">
-        <p>Copyright © 2026 Thư Viện Tri Thức Việt. All Rights Reserved.</p>
+        <p class="az-footer-copy">Copyright © 2026 Thư Viện Tri Thức Việt. All Rights Reserved.</p>
     </div>
 </footer>

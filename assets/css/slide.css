@@ -385,7 +385,7 @@ body.snap-scroll {
 .intro-text {
     opacity: 0;
     transform: translateY(20px);
-    transition: 0.8s;
+    transition: 0.3s;
 }
 
 /* khi hiện */
@@ -398,7 +398,7 @@ body.snap-scroll {
 .intro-image {
     opacity: 0;
     transform: scale(0.9);
-    transition: 1s;
+    transition: 0.9s;
 }
 
 .intro-image.show {
