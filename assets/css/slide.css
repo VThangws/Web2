@@ -2,12 +2,149 @@
     width: 100%;
     overflow: hidden;
     position: relative;
+    opacity: 1;
+    /* luôn hiển thị */
+    transform: translateY(0);
+    /* không đẩy xuống */
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* Bóng trắng cố định ngay dưới banner */
+.slide::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -20px;
+    /* đẩy vùng hiệu ứng xuống một chút */
+    height: 100px;
+    /* dải màu dày hơn, bạn có thể chỉnh 30–60px */
+    pointer-events: none;
+    /* Màu đậm ở dưới, nhạt dần lên trên */
+    background: linear-gradient(to top,
+            rgba(255, 255, 255, 1) 0%,
+            /* dưới cùng trắng đậm */
+            rgba(255, 255, 255, 0.7) 40%,
+            rgba(255, 255, 255, 0.0) 100%
+            /* phía trên trong suốt */
+        );
+}
+
+.slide.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .banner-slider {
     display: flex;
-    width: 300%;
+    width: 100%;
+    height: 600px;
     animation: slideAnimation 18s ease-in-out infinite;
+}
+
+/* Vị trí và style cho mũi tên cuộn xuống dưới banner */
+.scroll-down-indicator {
+    margin-top: 8px;
+    /* cách banner một chút */
+    color: #000;
+    text-decoration: none;
+    font-size: 0.9rem;
+    gap: 4px;
+    padding: 8px 0 16px;
+}
+
+/* Vẽ mũi tên đen kiểu bo cong như nút điều hướng xuống */
+.scroll-arrow-icon {
+    display: block;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #000;
+    position: relative;
+}
+
+.scroll-arrow-icon::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-left: 2px solid #000;
+    border-bottom: 2px solid #000;
+    transform: translate(-50%, -35%) rotate(-45deg);
+}
+
+.scroll-arrow-icon::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 12px;
+    background: #000;
+    transform: translate(-50%, -65%);
+}
+
+.scroll-arrow-icon {
+    animation: bounceArrow 1.2s infinite;
+}
+
+@keyframes bounceArrow {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+.scroll-down-indicator .scroll-text {
+    font-weight: 500;
+}
+
+.scroll-down-indicator .scroll-arrow i {
+    font-size: 1.4rem;
+    animation: bounceDown 1.2s infinite;
+}
+
+@keyframes bounceDown {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(6px);
+    }
+}
+
+.scroll-arrow-img {
+    width: 36px;
+    height: auto;
+    animation: arrowBounce 1.2s infinite ease-in-out;
+}
+
+@keyframes arrowBounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(6px);
+    }
+}
+
+.scroll-down-indicator .material-symbols-outlined {
+    font-size: 32px;
+    color: #000;
+    animation: arrowBounce 1.2s infinite ease-in-out;
 }
 
 .slide-img {
@@ -59,11 +196,16 @@
 }
 
 .effect-theloai {
-    transition: color 0.3s, transform 0.2s;
+    color: #000;
+    /* chữ đen khi chưa hover */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease, background-color 0.3s ease;
 }
 
 .effect-theloai:hover {
-    transform: scale(1.1);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+    /* nếu muốn khi hover đổi sang trắng trên nền xanh thì thêm: */
+    /* color: #fff; */
 }
 
 .shadow-box {
@@ -103,4 +245,283 @@
 .centerbutton {
     top: 45% !important;
     left: 45% !important;
+}
+
+/* Hiệu ứng xuất hiện mượt mà khi lướt đến (scroll reveal)
+   TẠM TẮT ẩn mặc định để tránh trang trắng nếu chưa có JS thêm class .visible */
+.reveal-section {
+    opacity: 1;
+    /* luôn nhìn thấy */
+    transform: translateY(0);
+    transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.6s ease;
+    scroll-snap-align: start;
+    min-height: 100vh;
+    /* mỗi section gần như full màn hình */
+    display: flex;
+    align-items: center;
+}
+
+.reveal-section.visible {
+    transform: translateY(-10px) scale(1.01);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+}
+
+.reveal-section.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-section.section-active {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+    z-index: 1;
+}
+
+@media (max-width: 768px) {
+    .reveal-section {
+        min-height: auto;
+        scroll-snap-align: none;
+    }
+
+    body.snap-scroll {
+        scroll-snap-type: none;
+    }
+}
+
+body.snap-scroll {
+    scroll-snap-type: y mandatory;
+}
+
+.benefit-card {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    transition: all .3s ease;
+}
+
+.benefit-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* trạng thái ban đầu */
+.reveal-item {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+/* khi hiện */
+.reveal-item.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.reveal-item.visible {
+    opacity: 1;
+    transform: none;
+}
+
+.reveal-item,
+.reveal-section {
+    will-change: transform, opacity;
+}
+
+/* tiêu đề hiện trước */
+.reveal-title {
+    transition-delay: 0.8s;
+}
+
+/* card bung lần lượt */
+.reveal-card:nth-of-type(1) {
+    transition-delay: 1.5s;
+}
+
+.reveal-card:nth-of-type(2) {
+    transition-delay: 2.0s;
+}
+
+.reveal-card:nth-of-type(3) {
+    transition-delay: 2.5s;
+}
+
+.reveal-card:nth-of-type(4) {
+    transition-delay: 3.0s;
+}
+
+.reveal-item:nth-child(1) {
+    transition-delay: .2s;
+}
+
+.reveal-item:nth-child(2) {
+    transition-delay: .4s;
+}
+
+.reveal-item:nth-child(3) {
+    transition-delay: .6s;
+}
+
+.reveal-item:nth-child(4) {
+    transition-delay: .8s;
+}
+
+.reveal-item:nth-child(5) {
+    transition-delay: 1s;
+}
+
+.reveal-item:nth-child(6) {
+    transition-delay: 1.2s;
+}
+
+.type-text::after {
+    content: "|";
+    animation: blink 1s infinite;
+}
+
+/* animation */
+
+/* paragraph ẩn ban đầu */
+.intro-text {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 0.3s;
+}
+
+/* khi hiện */
+.intro-text.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* image zoom */
+.intro-image {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: 0.9s;
+}
+
+.intro-image.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* con trỏ typing */
+.type-title::after {
+    content: "|";
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1
+    }
+
+    50% {
+        opacity: 0
+    }
+
+    100% {
+        opacity: 1
+    }
+}
+
+/* ===== Scroll animation cho các section bên dưới ===== */
+/* Mặc định: tiêu đề và item ẩn nhẹ */
+.reveal-section .section-title {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.reveal-section .section-item {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* Khi section được focus (.visible), bật animation:
+   - Tiêu đề: 0.8s
+   - Item: bắt đầu sau 0.8s, lần lượt */
+.reveal-section.visible .section-title {
+    animation: sectionTitleIn 0.8s ease forwards;
+}
+
+.reveal-section.visible .section-item {
+    animation: sectionItemIn 0.6s ease forwards;
+    animation-delay: 0.8s;
+    /* xuất hiện sau tiêu đề */
+}
+
+/* Nếu muốn từng item lệch thời gian: dùng nth-child */
+.reveal-section.visible .section-item:nth-of-type(2) {
+    animation-delay: 1s;
+}
+
+.reveal-section.visible .section-item:nth-of-type(3) {
+    animation-delay: 1.2s;
+}
+
+.reveal-section.visible .section-item:nth-of-type(4) {
+    animation-delay: 1.4s;
+}
+
+@keyframes sectionTitleIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sectionItemIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.material-symbols-outlined {
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 300,
+        'GRAD' 200,
+        'opsz' 24
+}
+
+.back-to-top-bubble {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #0d6efd;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.back-to-top-bubble.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.back-to-top-bubble .material-symbols-outlined {
+    font-size: 24px;
 }
