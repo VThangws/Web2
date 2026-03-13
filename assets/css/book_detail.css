@@ -1,0 +1,96 @@
+/* KHUNG CHÍNH: Nền trắng, bung full chiều rộng */
+.waka-wrapper {
+    display: flex;
+    gap: 50px;
+    background-color: #ffffff;
+    color: #333333;
+    padding: 40px 20px;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* CỘT TRÁI: Chứa ảnh bìa */
+.waka-left {
+    flex: 0 0 320px;
+}
+.waka-cover {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); 
+    display: block;
+}
+
+/* CỘT PHẢI: Chứa toàn bộ thông tin & mô tả */
+.waka-right {
+    flex: 1;
+}
+.waka-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #000000;
+    margin-top: 0;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+.waka-rating {
+    color: #ffc107;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+.waka-rating span {
+    color: #666666;
+    margin-left: 15px;
+    padding-left: 15px;
+    border-left: 1px solid #cccccc;
+}
+
+/* Lưới thông tin 2 cột nhỏ */
+.waka-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 40px;
+    margin-bottom: 35px;
+}
+.info-group .lbl { color: #777777; font-size: 14px; margin-bottom: 4px; }
+.info-group .val { font-size: 16px; font-weight: 600; color: #222222; }
+.text-waka-green { color: #179b74; } 
+
+/* Nút bấm */
+.waka-btn-read {
+    background-color: #20c997;
+    color: #ffffff;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
+}
+.waka-btn-read:hover { background-color: #179b74; }
+
+/* Phần giới thiệu nội dung */
+.waka-desc {
+    margin-top: 40px;
+    padding-top: 25px;
+    border-top: 1px solid #eeeeee;
+}
+.waka-desc h3 {
+    color: #111111;
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+.waka-desc p {
+    color: #555555;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+/* Reponsive cho điện thoại */
+@media (max-width: 768px) {
+    .waka-wrapper { flex-direction: column; padding: 20px; }
+    .waka-left { flex: auto; max-width: 300px; margin: 0 auto; }
+    .waka-info-grid { grid-template-columns: 1fr; }
+}

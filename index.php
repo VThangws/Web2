@@ -34,6 +34,9 @@ if (isset($_GET['page'])) {
         case 'books':
             include __DIR__ . '/layout/books.php';
             break;
+        case 'book_detail':
+            include __DIR__ . '/layout/book_detail.php';
+            break;
         // ...các trang khác nếu có...
         default:
             include __DIR__ . '/layout/home.php';
