@@ -1,96 +1,104 @@
-/* KHUNG CHÍNH: Nền trắng, bung full chiều rộng */
-.waka-wrapper {
+/* 1. BỐ CỤC CHÍNH (2 CỘT) */
+.book-details-container {
     display: flex;
-    gap: 50px;
-    background-color: #ffffff;
-    color: #333333;
-    padding: 40px 20px;
-    width: 100%;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+    gap: 40px;
+    align-items: flex-start; /* Giữ các cột ở sát mép trên, quan trọng cho Sticky */
 }
 
-/* CỘT TRÁI: Chứa ảnh bìa */
-.waka-left {
-    flex: 0 0 320px;
-}
-.waka-cover {
-    width: 100%;
-    border-radius: 8px;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); 
-    display: block;
+/* 2. CỘT BÌA SÁCH (BÊN TRÁI) - CỐ ĐỊNH KHI CUỘN DOWN */
+.book-cover-column {
+    flex: 0 0 320px; /* Ép khung ảnh bự ra 320px */
+    position: sticky;
+    top: 75px; /* Cách đỉnh màn hình 100px để né Header */
+    text-align: center; /* Ảnh thì vẫn căn giữa cột trái */
 }
 
-/* CỘT PHẢI: Chứa toàn bộ thông tin & mô tả */
-.waka-right {
+.book-cover-column .book-cover {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* 3. CỘT THÔNG TIN SÁCH (BÊN PHẢI) */
+.book-info-column {
     flex: 1;
+    text-align: left !important; /* CHỐT CHẶN: Ép toàn bộ nội dung bên này bám lề trái */
 }
-.waka-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #000000;
-    margin-top: 0;
-    margin-bottom: 15px;
+
+.book-title {
+    text-align: left !important; /* Ép riêng tên sách bám lề trái */
+    font-size: 2.2rem;
     line-height: 1.3;
 }
-.waka-rating {
-    color: #ffc107;
-    font-size: 16px;
-    margin-bottom: 30px;
-}
-.waka-rating span {
-    color: #666666;
-    margin-left: 15px;
-    padding-left: 15px;
-    border-left: 1px solid #cccccc;
+
+/* 4. HIỂN THỊ ĐÁNH GIÁ (RATING) */
+.average-rating-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Ép cụm sao bám lề trái */
 }
 
-/* Lưới thông tin 2 cột nhỏ */
-.waka-info-grid {
+/* 5. LƯỚI THÔNG TIN (TÁC GIẢ, NXB...) */
+.book-info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px 40px;
-    margin-bottom: 35px;
-}
-.info-group .lbl { color: #777777; font-size: 14px; margin-bottom: 4px; }
-.info-group .val { font-size: 16px; font-weight: 600; color: #222222; }
-.text-waka-green { color: #179b74; } 
-
-/* Nút bấm */
-.waka-btn-read {
-    background-color: #20c997;
-    color: #ffffff;
-    border: none;
-    padding: 12px 40px;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.2s;
-    box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
-}
-.waka-btn-read:hover { background-color: #179b74; }
-
-/* Phần giới thiệu nội dung */
-.waka-desc {
-    margin-top: 40px;
-    padding-top: 25px;
-    border-top: 1px solid #eeeeee;
-}
-.waka-desc h3 {
-    color: #111111;
-    font-size: 18px;
-    margin-bottom: 15px;
-}
-.waka-desc p {
-    color: #555555;
-    line-height: 1.7;
-    font-size: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
 }
 
-/* Reponsive cho điện thoại */
+.info-group {
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 8px;
+    text-align: left; /* Đảm bảo chữ trong lưới bám lề trái */
+}
+
+/* 6. MÔ TẢ SÁCH */
+.book-desc-section h5, 
+.book-desc-section div {
+    text-align: left !important; /* Ép phần mô tả bám lề trái */
+}
+
+/* 7. PHẦN SÁCH LIÊN QUAN (CUỘN NGANG) */
+.book-thumbnail-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+    padding-bottom: 10px;
+}
+
+/* Hiệu ứng nảy lên nhẹ khi di chuột vào sách đề xuất */
+.book-thumbnail-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+}
+
+/* Làm đẹp thanh cuộn ngang (Scrollbar) cho dàn sách đề xuất */
+.book-thumbnail-grid::-webkit-scrollbar {
+    height: 8px;
+}
+.book-thumbnail-grid::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+.book-thumbnail-grid::-webkit-scrollbar-track {
+    background-color: #f8fafc;
+    border-radius: 10px;
+}
+
+/* 8. RESPONSIVE (DÀNH CHO ĐIỆN THOẠI / MÀN HÌNH NHỎ) */
 @media (max-width: 768px) {
-    .waka-wrapper { flex-direction: column; padding: 20px; }
-    .waka-left { flex: auto; max-width: 300px; margin: 0 auto; }
-    .waka-info-grid { grid-template-columns: 1fr; }
+    .book-details-container {
+        flex-direction: column; /* Đẩy cột phải rớt xuống dưới cột trái */
+    }
+    
+    .book-cover-column {
+        flex: none;
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto 20px auto;
+        position: static; /* Tắt hiệu ứng trượt dính trên điện thoại */
+    }
+    
+    .book-info-grid {
+        grid-template-columns: 1fr; /* Điện thoại thì thông tin nằm 1 cột dọc */
+    }
 }
