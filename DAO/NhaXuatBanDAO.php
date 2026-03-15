@@ -23,7 +23,7 @@
       else echo "<script>alert('Xóa thông tin nhà xuất bản không thành công!');</script>";
     }
 
-    public function Sua($conn, $manxb) {
+    public function Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email) {
       $sql = "UPDATE nhaxuatban SET tennxb=?,
       diachi=?,
       sdt=?,
