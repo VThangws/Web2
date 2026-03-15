@@ -38,7 +38,15 @@
         $dao->Xoa($conn, $manxb);
       }
       else if($_GET['luachon'] == "Sua") {
+        // lấy thông tin sửa
+        $manxb = $_GET['manxb'];
+        $tennxb = $_GET['tennxb'];
+        $diachi = $_GET['diachi'];
+        $sdt = $_GET['sdt'];
+        $email = $_GET['email'];
 
+        // thực hiện sửa
+        $dao->Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email);
       }
       else echo "<script>alert('Chào mừng đến với trang quản lý nhà xuất bản!');</script>";
     }
@@ -89,7 +97,7 @@
           echo "<td>". $item->getEmail() ."</td>";
           echo "<td>";
           echo "<a href='Sua_NhaXuatBan.php?" .
-          "maxnb=" . $item->getManxb() .
+          "manxb=" . $item->getManxb() .
           "&tennxb=" . $item->getTennxb() .
           "&diachi=" . $item->getDiachi() .
           "&sdt=" . $item->getSdt() .

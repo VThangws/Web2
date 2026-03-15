@@ -2,7 +2,7 @@
   class DauSach {
     private $madausach;
     private $tensach;
-    private $namsanxuat;
+    private $namxuatban;
     private $dongia;
     private $matacgia;
     private $matheloai;
@@ -10,10 +10,10 @@
     private $mota;
     private $anhbia;
 
-    public function __construct($madausach, $tensach, $namsanxuat, $dongia, $matacgia, $matheloai, $manxb, $mota, $anhbia) {
+    public function __construct($madausach, $tensach, $namxuatban, $dongia, $matacgia, $matheloai, $manxb, $mota, $anhbia) {
       $this->madausach = $madausach;
       $this->tensach = $tensach;
-      $this->namsanxuat = $namsanxuat;
+      $this->namxuatban = $namxuatban;
       $this->dongia = $dongia;
       $this->matacgia = $matacgia;
       $this->matheloai = $matheloai;
@@ -30,8 +30,8 @@
       return $this->tensach;
     }
 
-    public function getNamsanxuat() {
-      return $this->namsanxuat;
+    public function getNamxuatban() {
+      return $this->namxuatban;
     }
 
     public function getDongia() {
