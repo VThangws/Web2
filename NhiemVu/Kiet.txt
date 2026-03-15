@@ -3,7 +3,7 @@
 - Quản lý tài khoản
 - Quản lý tác giả (r)
 - Quản lý thể loại (r)
-- Quản lý nhà xuất bản
+- Quản lý nhà xuất bản(r)
 - Quản lý đầu sách
 - Quản lý cuốn sách
 - Quản lý phiếu nhập
