@@ -16,14 +16,15 @@ $related_books = [];
 $error_msg = null;
 
 // --- THỦ THUẬT FAKE RATING ---
-// Chỉ cấp sao cho những mã sách được khai báo ở đây. Mấy cuốn khác tự động ẩn.
+// Chỉ cấp sao cho những mã sách được khai báo ở đây.
 $fake_ratings = [
     'DS001' => ['sao' => 4.7, 'luot' => 3],
-    'DS003' => ['sao' => 5.0, 'luot' => 11], // Ứng Dụng Agile Marketing
-    'DS012' => ['sao' => 4.5, 'luot' => 8]
+    'DS002' => ['sao' => 5.0, 'luot' => 11], 
+    'DS003' => ['sao' => 4.5, 'luot' => 8]
 ];
 
 $has_rating = isset($fake_ratings[$madausach]);
+// Nếu không có trong danh sách fake, mặc định sao = 0, lượt = 0
 $sao = $has_rating ? $fake_ratings[$madausach]['sao'] : 0;
 $luot = $has_rating ? $fake_ratings[$madausach]['luot'] : 0;
 // -----------------------------
@@ -86,7 +87,6 @@ try {
             <div class="shadow-sm bg-white p-4 rounded mb-4 border border-light">
                 <h1 class="book-title fw-bold text-dark"><?= htmlspecialchars($book['tensach']) ?></h1>
                 
-                <?php if ($has_rating): ?>
                 <div class="average-rating-container my-3">
                     <span class="average-rating-number book-rating fs-4 fw-bold text-warning"><?= number_format($sao, 1) ?></span>
                     <span class="average-rating-stars text-warning fs-5">
@@ -98,7 +98,6 @@ try {
                     </span>
                     <span class="average-rating-text text-muted ms-2 border-start ps-2"><?= $luot ?> Đánh giá</span>
                 </div>
-                <?php endif; ?>
 
                 <div class="book-info-grid mt-4">
                     <div class="info-group">
@@ -120,12 +119,12 @@ try {
                 </div>
                 
                 <div class="mt-3 mb-4">
-                    <div class="lbl text-muted small mb-1">Giá cọc</div>
+                    <div class="lbl text-muted small mb-1">Giá mượn</div>
                     <div class="val text-danger fw-bold fs-4"><?= number_format($book['dongia'], 0, ',', '.') ?> VNĐ</div>
                 </div>
 
-                <button class="btn btn-success add-to-cart-btn book-btn-read px-4 py-2 fw-bold fs-6 rounded-pill" style="background-color: #20c997; border: none;">
-                    <i class="fa-solid fa-cart-plus me-2"></i> Thêm vào giỏ
+                <button id="btn-add-cart" data-id="<?= htmlspecialchars($madausach) ?>" class="btn btn-success add-to-cart-btn book-btn-read px-4 py-2 fw-bold fs-6 rounded-pill" style="background-color: #20c997; border: none;">
+                    <i class="fa-solid fa-cart-shopping me-2"></i> Thêm vào giỏ
                 </button>
 
                 <div class="book-desc-section book-desc mt-5">
@@ -136,9 +135,11 @@ try {
                 </div>
             </div>
         </div>
-    </div> <?php if (!empty($related_books)): ?>
+    </div> 
+
+    <?php if (!empty($related_books)): ?>
     <div class="related-books-section shadow-sm bg-white p-4 rounded mt-4 border border-light">
-        <h4 class="section-title fw-bold mb-4 text-dark text-center">Sách cùng thể loại<h4>
+        <h5 class="section-title fw-bold mb-4 text-dark text-center">Sản phẩm liên quan</h5>
         <div class="book-thumbnail-grid d-flex gap-4 overflow-auto pb-2 justify-content-center">
             <?php foreach ($related_books as $related_book): ?>
             <a href="/index.php?page=book_detail&madausach=<?= htmlspecialchars($related_book['madausach']) ?>" class="book-thumbnail-card text-decoration-none text-dark flex-shrink-0" style="width: 160px; border: none; box-shadow: none;">
@@ -152,3 +153,56 @@ try {
 
     <?php endif; ?>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.getElementById('btn-add-cart').addEventListener('click', function() {
+    // 1. Lấy mã sách từ nút bấm
+    var madausach = this.getAttribute('data-id');
+    var btn = this;
+
+    // 2. Đổi giao diện nút thành "Đang xử lý..." để biểu diễn độ trễ
+    var originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Đang thêm...';
+    btn.disabled = true;
+
+    // 3. Đóng gói dữ liệu
+    var formData = new FormData();
+    formData.append('madausach', madausach);
+
+    // 4. Gửi yêu cầu ngầm (AJAX) tới file xử lý PHP
+    fetch('/ajax/add_to_cart.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Trả lại trạng thái cũ cho nút bấm
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+
+        if(data.status === 'success') {
+            // Hiện thông báo thành công xanh lá cây cực nét
+            Swal.fire({
+                title: 'Thành công!',
+                text: data.message,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+            
+            // Chỗ này sau này ông có thiết kế cái Icon Giỏ Hàng trên Header 
+            // thì cập nhật số lượng data.total_items vào cái Icon đó nhé!
+            console.log("Tổng số sách trong giỏ: " + data.total_items);
+        } else {
+            Swal.fire('Lỗi!', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        Swal.fire('Thất bại!', 'Đứt kết nối với máy chủ!', 'error');
+    });
+});
+</script>
