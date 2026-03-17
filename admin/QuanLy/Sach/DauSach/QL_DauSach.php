@@ -11,8 +11,8 @@
     require_once "../../../database/ConnectDB.php";
     $dao = new DauSachDAO();
 
-    if($_SERVER['REQUEST_METHOD'] == "POST") {
-      if($_POST['luachon'] == "Them") {
+    if($_SERVER['REQUEST_METHOD'] == "POST" || $_SERVER['REQUEST_METHOD'] == "GET") {
+      if($_REQUEST['luachon'] == "Them") {
         // Lấy thông tin đầu sách
         $madausach = $_POST['madausach'];
         $tensach = $_POST['tensach'];
@@ -38,11 +38,66 @@
         $dao->Them($conn, $madausach, $tensach, $namsanxuat, $dongia,
          $matacgia, $matheloai, $manxb, $mota, $target_file);
       }
-      else if($_POST['luachon'] == "Xoa") {
-
+      else if($_REQUEST['luachon'] == "Xoa") {
+        // lấy mã đầu sách để xóa sách
+        $madausach = $_REQUEST['madausach'];
+        echo $madausach;
+        // thực hiện xóa sách
+        $dao->Xoa($conn, $madausach);
       }
-      else if($_POST['luachon'] == "Sua") {
+      else if($_REQUEST['luachon'] == "Sua") {
+        // Lấy thông tin ảnh bìa cũ
+        $dausach = $dao->getDauSach($conn, $_REQUEST['madausach']);
+        // lấy thông tin mới của đầu sách
+        $madausach = $_REQUEST['madausach'];
+        $tensach = $_REQUEST['tensach'];
+        $namxuatban = $_REQUEST['namxuatban'];
+        $dongia = $_REQUEST['dongia'];
+        $matacgia = $_REQUEST['matacgia'];
+        $matheloai = $_REQUEST['matheloai'];
+        $manxb = $_REQUEST['manxb'];
+        $mota = $_REQUEST['mota'];
+        $anhbia = null;
 
+        // kiểm tra có ảnh bìa mới không
+        $changeImg = false;
+        if(isset($_FILES['anhbia'])){
+          $changeImg = true;
+          $anhbia = $_FILES['anhbia']['name'];
+        }
+        // nếu có thì xóa ảnh bìa rồi thêm ảnh bìa mới
+        // nếu không thì không đụng đến link ảnh bìa
+        if($changeImg == true) {
+          // xóa ảnh bìa cũ
+          $linkAnhBiaCu = $dausach->getAnhbia();
+          unlink($linkAnhBiaCu);
+          // thêm ảnh bìa mới
+          $target_dir = "img/";
+          $filename = pathinfo($_FILES['anhbia']['name'], PATHINFO_FILENAME);
+          $target_file = $target_dir . $filename . ".png";
+          move_uploaded_file($_FILES['anhbia']['tmp_name'], $target_file);
+          // cập nhật thông tin trong database
+          $dao->Sua($conn, $madausach,
+          $tensach,
+          $namxuatban,
+          $dongia,
+          $matacgia,
+          $matheloai,
+          $manxb,
+          $mota,
+          $anhbia);
+        }
+        else {
+          // chỉ thực hiện sửa database mà không sửa link ảnh bìa
+          $dao->Sua_Khong_AnhBia($conn, $madausach,
+          $tensach,
+          $namxuatban,
+          $dongia,
+          $matacgia,
+          $matheloai,
+          $manxb,
+          $mota);
+        }
       }
     }
   ?>
@@ -98,7 +153,7 @@
           echo "<td>". $item->getMota() ."</td>";
           echo "<td><img width='50px' src='". $item->getAnhbia() ."' /></td>";
           echo "<td>" .
-          "<a href='Sua_DauSach?madausach=" . $item->getMadausach() . "'>Sửa</a>" .
+          "<a href='Sua_DauSach.php?madausach=" . $item->getMadausach() . "'>Sửa</a>" .
           "<a href='QL_DauSach.php?luachon=Xoa&madausach=" . $item->getMadausach() . "'>Xóa</a>" . "</td>";
           echo "</tr>";
         }

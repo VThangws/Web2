@@ -1,5 +1,5 @@
 <?php
-  class Sach {
+  class CuonSach {
     private $macuonsach;
     private $madausach;
     private $mavitri;
