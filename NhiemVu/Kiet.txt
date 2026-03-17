@@ -4,7 +4,7 @@
 - Quản lý tác giả (r)
 - Quản lý thể loại (r)
 - Quản lý nhà xuất bản(r)
-- Quản lý đầu sách
+- Quản lý đầu sách(phần sửa căn quá mắc cái ảnh bìa để sau)
 - Quản lý cuốn sách
 - Quản lý phiếu nhập
 - Quản lý phiếu xuất
