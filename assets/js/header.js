@@ -54,23 +54,34 @@ document.addEventListener('DOMContentLoaded', () => {
     revealSections.forEach((sec) => sec.classList.add('visible'));
     revealItems.forEach((it) => it.classList.add('visible'));
   }
-});
-document.addEventListener("DOMContentLoaded", function () {
 
-  const btnSearch = document.getElementById("openSearch");
-  const barSearch = document.getElementById("searchBarHeader");
+  const btnOpenSearch = document.getElementById("openSearch");
+  const searchBar = document.getElementById("searchBarHeader");
+  const inputSearch = document.getElementById("searchInput");
+  const btnSearch = document.getElementById("btnSearchHeader");
 
-  btnSearch.addEventListener("click", function (e) {
-    e.stopPropagation();
-    barSearch.classList.toggle("active");
+  // mở thanh search kiểu Apple
+  btnOpenSearch.onclick = () => {
+    searchBar.classList.toggle("active");
+    inputSearch.focus();
+  };
+
+  // tìm khi bấm icon
+  btnSearch.onclick = doSearch;
+
+  // tìm khi nhấn Enter
+  inputSearch.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      doSearch();
+    }
   });
 
-  document.addEventListener("click", function () {
-    barSearch.classList.remove("active");
-  });
+  function doSearch() {
+    let keyword = inputSearch.value.trim();
 
-  barSearch.addEventListener("click", function (e) {
-    e.stopPropagation();
-  });
-
+    if (keyword !== "") {
+      window.location.href =
+        "/index.php?page=books&search=" + encodeURIComponent(keyword);
+    }
+  }
 });

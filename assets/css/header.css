@@ -31,6 +31,17 @@
   justify-content: space-between;
   padding: 0;
   margin-left: 35px;
+  flex-wrap: nowrap;
+  /* header luôn trên 1 hàng */
+}
+
+.main-center-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1 1 auto;
+  margin: 0 24px;
+  min-width: 0;
 }
 
 .main-logo img {
@@ -45,6 +56,14 @@
   list-style: none;
   margin: 0;
   padding-left: 50px;
+  white-space: nowrap;
+  /* không xuống dòng từng mục */
+}
+
+.main-nav {
+  overflow-x: auto;
+  margin-left: 40px;
+  /* nếu không đủ chỗ thì cho scroll ngang menu */
 }
 
 .main-nav a {
@@ -64,6 +83,8 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
+  /* giữ cụm bên phải cố định */
 }
 
 .main-icon-btn {
@@ -356,42 +377,65 @@
 /* ===== SEARCH HEADER SLIDE ===== */
 
 .search-header-bar {
-  position: absolute;
-  top: 70px;
-  right: 120px;
-  width: 420px;
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 40px;
+  position: fixed;
+  top: 64px;
+  /* ngay dưới header cao 64px */
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.96);
   display: flex;
-  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  transform: translateY(-100%);
   opacity: 0;
-  transform: translateY(-10px);
   pointer-events: none;
-  transition: 0.3s;
+  transition: transform 0.35s ease, opacity 0.25s ease;
+  z-index: 1200;
 }
 
-.search-header-bar.active {
-  opacity: 1;
+.search-header-bar.open {
   transform: translateY(0);
+  opacity: 1;
   pointer-events: auto;
 }
 
-.search-header-bar input {
+.search-header-bar-inner {
+  width: min(600px, 90%);
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+
+.search-header-bar-inner input {
   flex: 1;
   border: none;
   background: transparent;
-  padding: 12px 18px;
   outline: none;
   font-size: 15px;
 }
 
-.search-header-bar button {
-  width: 55px;
+.search-header-bar-inner button {
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 18px;
+  color: #333;
+}
+
+@media (max-width: 750px) {
+  .search-header-bar {
+    top: 56px;
+    /* nếu header mobile thấp hơn có thể chỉnh lại */
+    height: 56px;
+  }
+}
+
+/* XÓA/ghi đè kiểu cũ width:0 nếu còn ở cuối file */
+.search-header-bar.active {
+  /* vô hiệu hóa kiểu cũ */
+  width: auto;
 }

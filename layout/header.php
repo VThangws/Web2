@@ -35,19 +35,28 @@ if (isset($_SESSION['user_id'])) {
             </a>
         </div>
 
-        <!-- Menu giữa -->
-        <nav class="main-nav">
-            <ul>
-                <li><a href="/index.php?page=sach&loai=skill">Kinh Tế</a></li>
-                <li><a href="/index.php?page=sach&loai=detective">Văn Học Trong Nước</a></li>
-                <li><a href="/index.php?page=sach&loai=children">Văn Học Nước Ngoài</a></li>
-                <li><a href="/index.php?page=sach&loai=literature">Đời Sống</a></li>
-                <li><a href="/index.php?page=sach&loai=romance">Thiếu Nhi</a></li>
-                <li><a href="/index.php?page=sach&loai=education">Phát Triển Bản Thân</a></li>
-                <li><a href="/index.php?page=sach&loai=fantasy">Tin Học Ngoại Ngữ</a></li>
-                <li><a href="/index.php?page=sach&loai=fantasy">Chuyên Ngành</a></li>
-            </ul>
-        </nav>
+        <!-- Khu giữa: menu + thanh search cùng 1 hàng -->
+        <div class="main-center-area">
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/index.php?page=books&loai=skill">Kinh Tế</a></li>
+                    <li><a href="/index.php?page=books&loai=detective">Văn Học Trong Nước</a></li>
+                    <li><a href="/index.php?page=books&loai=children">Văn Học Nước Ngoài</a></li>
+                    <li><a href="/index.php?page=books&loai=literature">Đời Sống</a></li>
+                    <li><a href="/index.php?page=books&loai=romance">Thiếu Nhi</a></li>
+                    <li><a href="/index.php?page=books&loai=education">Phát Triển Bản Thân</a></li>
+                    <li><a href="/index.php?page=books&loai=fantasy">Tin Học Ngoại Ngữ</a></li>
+                    <li><a href="/index.php?page=books&loai=fantasy">Chuyên Ngành</a></li>
+                </ul>
+            </nav>
+
+            <!-- Thanh tìm kiếm header: cùng bậc với menu, dài ra sẽ đẩy actions sang phải -->
+            <div id="searchBarHeader" class="search-header-bar">
+    <input id="searchInput" type="text" placeholder="Tìm sách, tác giả, thể loại...">
+    <button id="btnSearchHeader" type="button">
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+</div>
 
         <!-- Icon + nút bên phải -->
         <div class="main-actions">
@@ -72,15 +81,17 @@ if (isset($_SESSION['user_id'])) {
             </a>
         </div>
     </div>
-
-    <!-- Khung tìm kiếm overlay -->
-<div id="searchBarHeader" class="search-header-bar">
-    <input type="text" placeholder="Nhập tên sách, tác giả...">
-    <button>
-        <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
-</div>
 </header>
+
+<!-- Thanh tìm kiếm phong cách Apple: overlay dưới header -->
+<div id="searchBarHeader" class="search-header-bar">
+    <div class="search-header-bar-inner">
+        <input type="text" placeholder="Tìm sách, tác giả, thể loại...">
+        <button type="button">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+    </div>
+</div>
 
 <script>
     window.user_id = <?= isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null' ?>;
