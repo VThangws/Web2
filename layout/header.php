@@ -74,13 +74,12 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <!-- Khung tìm kiếm overlay -->
-    <div id="searchOverlay" class="search-overlay">
-        <div class="search-box">
-            <button class="close-btn" id="closeSearch">&times;</button>
-            <input type="text" id="searchInput" placeholder="Nhập tên sách, tác giả...">
-            <div id="searchResultBox"></div>
-        </div>
-    </div>
+<div id="searchBarHeader" class="search-header-bar">
+    <input type="text" placeholder="Nhập tên sách, tác giả...">
+    <button>
+        <i class="fa-solid fa-magnifying-glass"></i>
+    </button>
+</div>
 </header>
 
 <script>

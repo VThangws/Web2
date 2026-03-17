@@ -55,3 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
     revealItems.forEach((it) => it.classList.add('visible'));
   }
 });
+document.addEventListener("DOMContentLoaded", function () {
+
+  const btnSearch = document.getElementById("openSearch");
+  const barSearch = document.getElementById("searchBarHeader");
+
+  btnSearch.addEventListener("click", function (e) {
+    e.stopPropagation();
+    barSearch.classList.toggle("active");
+  });
+
+  document.addEventListener("click", function () {
+    barSearch.classList.remove("active");
+  });
+
+  barSearch.addEventListener("click", function (e) {
+    e.stopPropagation();
+  });
+
+});

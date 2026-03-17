@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let hasTyped = false;
 
-    function typeWriter(text, el, speed = 40) {
+    function typeWriter(text, el, speed = 15) {
         let i = 0;
 
         function typing() {

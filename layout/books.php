@@ -11,6 +11,9 @@ $result = $conn->query($sql);
 <link rel="stylesheet" href="/assets/css/books.css">
 
 <div class="books-page">
+    <div>
+
+    </div>
 
     <div class="books-grid-wrapper">
         <div class="books-grid">

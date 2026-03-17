@@ -1,23 +1,41 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "db_quanlythuvien";
+class ConnectDB
+{
+    private static ?ConnectDB $instance = null;
+    private \mysqli $conn;
 
-// 1. Tạo kết nối
-$conn = new mysqli($servername, $username, $password, $dbname);
+    private function __construct()
+    {
+        $servername = 'localhost';
+        $username   = 'root';
+        $password   = '';
+        $dbname     = 'db_quanlythuvien';
 
-// 2. Kiểm tra kết nối
-if ($conn->connect_error) {
-    die("Kết nối thất bại: " . $conn->connect_error);
+        $this->conn = new \mysqli($servername, $username, $password, $dbname);
+
+        if ($this->conn->connect_error) {
+            die('Kết nối thất bại: ' . $this->conn->connect_error);
+        }
+    }
+
+    public static function getInstance(): ConnectDB
+    {
+        if (self::$instance === null) {
+            self::$instance = new ConnectDB();
+        }
+        return self::$instance;
+    }
+
+    public function getConnection(): \mysqli
+    {
+        return $this->conn;
+    }
+
+    public function __destruct()
+    {
+        if (isset($this->conn)) {
+            $this->conn->close();
+        }
+    }
 }
-else echo "Kết nối thành công!";
-
-// 3. Thiết lập font chữ UTF-8 để tránh lỗi tiếng Việt
-$conn->set_charset("utf8");
-
-// ... Thực hiện các câu lệnh SQL tại đây ...
-
-// 4. Đóng kết nối (không bắt buộc nhưng nên làm)
-// $conn->close();
 ?>
