@@ -92,7 +92,9 @@ body.admin-has-sidebar .search-header-bar {
 }
 
 .admin-sidebar-nav a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 14px;
   color: #111;
   text-decoration: none;
@@ -101,6 +103,12 @@ body.admin-has-sidebar .search-header-bar {
   line-height: 1.25;
   border-radius: 10px;
   border: 1px solid transparent;
+}
+
+.admin-nav-icon {
+  width: 18px;
+  text-align: center;
+  flex: 0 0 18px;
 }
 
 .admin-sidebar-nav a:hover {

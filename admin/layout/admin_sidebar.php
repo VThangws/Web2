@@ -23,6 +23,7 @@ if (isset($_SESSION['user_id'])) {
 ?>
 
 <link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/admin_sidebar.css">
 
 <aside class="admin-sidebar" aria-label="Menu quản trị">
@@ -35,16 +36,66 @@ if (isset($_SESSION['user_id'])) {
 
     <nav class="admin-sidebar-nav">
         <ul>
-            <li><a href="/admin/adminMenu.php">Trang chủ</a></li>
-            <li><a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">Đầu sách</a></li>
-            <li><a href="/admin/QuanLy/HoaDon/QL_HoaDon.php">Hóa đơn</a></li>
-            <li><a href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Tài khoản</a></li>
-            <li><a href="/admin/QuanLy/DocGia/QL_DocGia.php">Độc giả</a></li>
-            <li><a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">Nhân viên</a></li>
-            <li><a href="/admin/QuanLy/TacGia/QL_TacGia.php">Tác giả</a></li>
-            <li><a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">Thể loại</a></li>
-            <li><a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">NXB</a></li>
-            <li><a href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Nhà cung cấp</a></li>
+            <li>
+                <a href="/admin/adminMenu.php">
+                    <i class="fa-solid fa-house admin-nav-icon" aria-hidden="true"></i>
+                    <span>Trang chủ</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">
+                    <i class="fa-solid fa-book admin-nav-icon" aria-hidden="true"></i>
+                    <span>Đầu sách</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/HoaDon/QL_HoaDon.php">
+                    <i class="fa-solid fa-receipt admin-nav-icon" aria-hidden="true"></i>
+                    <span>Hóa đơn</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">
+                    <i class="fa-solid fa-user-gear admin-nav-icon" aria-hidden="true"></i>
+                    <span>Tài khoản</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/DocGia/QL_DocGia.php">
+                    <i class="fa-solid fa-users admin-nav-icon" aria-hidden="true"></i>
+                    <span>Độc giả</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">
+                    <i class="fa-solid fa-user-tie admin-nav-icon" aria-hidden="true"></i>
+                    <span>Nhân viên</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/TacGia/QL_TacGia.php">
+                    <i class="fa-solid fa-pen-nib admin-nav-icon" aria-hidden="true"></i>
+                    <span>Tác giả</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">
+                    <i class="fa-solid fa-tags admin-nav-icon" aria-hidden="true"></i>
+                    <span>Thể loại</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">
+                    <i class="fa-solid fa-building admin-nav-icon" aria-hidden="true"></i>
+                    <span>NXB</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">
+                    <i class="fa-solid fa-truck admin-nav-icon" aria-hidden="true"></i>
+                    <span>Nhà cung cấp</span>
+                </a>
+            </li>
         </ul>
     </nav>
 
