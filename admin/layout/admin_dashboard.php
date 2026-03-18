@@ -71,7 +71,7 @@ try {
     <div class="container-md">
         <div class="d-flex flex-wrap gap-2 align-items-end justify-content-between mb-3 section-title">
             <div>
-                <h2 class="fw-bold mb-1">Tổng quan quản trị</h2>
+                <h2 class="fw-bold mb-1">Thống kê</h2>
                 <p class="text-muted mb-0">Số liệu tổng hợp từ hệ thống thư viện</p>
             </div>
             <div>
@@ -161,6 +161,15 @@ try {
 
                     <div class="col-md-6 reveal-item section-item">
                         <div class="benefit-card h-100">
+                            <div class="service-icon">🧾</div>
+                            <h5 class="fw-bold">Hóa đơn</h5>
+                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/HoaDon/QL_HoaDon.php">Mở phân hệ</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 reveal-item section-item">
+                        <div class="benefit-card h-100">
                             <div class="service-icon">👥</div>
                             <h5 class="fw-bold">Quản lý bạn đọc</h5>
                             <p class="mb-3">Theo dõi và cập nhật thông tin độc giả.</p>
@@ -179,6 +188,15 @@ try {
 
                     <div class="col-md-6 reveal-item section-item">
                         <div class="benefit-card h-100">
+                            <div class="service-icon">👤</div>
+                            <h5 class="fw-bold">Tài khoản</h5>
+                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Mở phân hệ</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 reveal-item section-item">
+                        <div class="benefit-card h-100">
                             <div class="service-icon">🏷️</div>
                             <h5 class="fw-bold">Danh mục (Tác giả / Thể loại / NXB)</h5>
                             <p class="mb-3">Quản lý dữ liệu nền phục vụ tra cứu và phân loại.</p>
@@ -187,6 +205,15 @@ try {
                                 <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/TheLoai/QL_TheLoai.php">Thể loại</a>
                                 <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/NhaXuatBan/QL_NhaXuatBan.php">NXB</a>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 reveal-item section-item">
+                        <div class="benefit-card h-100">
+                            <div class="service-icon">🚚</div>
+                            <h5 class="fw-bold">Nhà cung cấp</h5>
+                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Mở phân hệ</a>
                         </div>
                     </div>
 
