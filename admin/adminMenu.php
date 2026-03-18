@@ -22,10 +22,11 @@ session_start();
 </head>
 <body>
 <?php
-include __DIR__ . '/layout/admin_header.php';
+include __DIR__ . '/layout/admin_sidebar.php';
 include __DIR__ . '/layout/admin_dashboard.php';
 include __DIR__ . '/../layout/footer.php';
 ?>
+
 
 <script src="/assets/bootstrap/js/bootstrap.bundle.min.js" defer></script>
 </body>

@@ -2,48 +2,144 @@
 // admin_dashboard.php chỉ chứa NỘI DUNG trang admin (không include header/footer)
 ?>
 
-<section class="d-md-block d-none">
-    <div class="slide position-relative">
-        <div class="banner-slider">
-            <img src="/assets/img/banner/banner1.jpg" alt="Banner 1" class="img-fluid slide-img">
-            <img src="/assets/img/banner/banner2.jpg" alt="Banner 2" class="img-fluid slide-img">
-            <img src="/assets/img/banner/banner3.jpg" alt="Banner 3" class="img-fluid slide-img">
-        </div>
-        <div class="position-absolute centerbutton">
-            <a href="#admin-actions"
-               class="btn btn-outline-light rounded-0 fs-5 d-flex align-items-center justify-content-center effect-theloai rounded-1 fw-bold"
-               style="width:180px;height: 50px;">
-                Vào quản trị
-            </a>
-        </div>
-    </div>
+<?php
+$stats = [
+    'titles' => 0,
+    'copies' => 0,
+    'borrowedCopies' => 0,
+    'readers' => 0,
+];
 
-    <a href="#library-intro" class="scroll-down-indicator d-flex flex-column align-items-center justify-content-center">
-        <span class="material-symbols-outlined">keyboard_double_arrow_down</span>
-    </a>
-</section>
+$chartCategoryLabels = [];
+$chartCategoryCounts = [];
 
-<section id="library-intro" class="pt-3 pg-5 bg-light reveal-section library-intro">
+$chartStatusLabels = [];
+$chartStatusCounts = [];
+
+try {
+    $conn = @new mysqli('localhost', 'root', '', 'db_quanlythuvien');
+    if ($conn->connect_error) {
+        throw new RuntimeException('DB connect failed');
+    }
+
+    $countScalar = static function (mysqli $conn, string $sql): int {
+        $result = $conn->query($sql);
+        if (!$result) {
+            return 0;
+        }
+        $row = $result->fetch_row();
+        return isset($row[0]) ? (int) $row[0] : 0;
+    };
+
+    $stats['titles'] = $countScalar($conn, 'SELECT COUNT(*) FROM dausach');
+    $stats['copies'] = $countScalar($conn, 'SELECT COUNT(*) FROM cuonsach');
+    $stats['borrowedCopies'] = $countScalar($conn, "SELECT COUNT(*) FROM cuonsach WHERE trangthai='DangMuon'");
+    $stats['readers'] = $countScalar($conn, 'SELECT COUNT(*) FROM docgia');
+
+    $sqlCategory = "
+        SELECT tl.tentheloai AS label, COUNT(ds.madausach) AS cnt
+        FROM theloai tl
+        LEFT JOIN dausach ds ON ds.matheloai = tl.matheloai
+        GROUP BY tl.matheloai, tl.tentheloai
+        ORDER BY cnt DESC, tl.tentheloai ASC
+    ";
+    if ($result = $conn->query($sqlCategory)) {
+        while ($row = $result->fetch_assoc()) {
+            $chartCategoryLabels[] = (string) ($row['label'] ?? '');
+            $chartCategoryCounts[] = (int) ($row['cnt'] ?? 0);
+        }
+    }
+
+    $sqlStatus = "
+        SELECT COALESCE(trangthai, 'Khác') AS label, COUNT(*) AS cnt
+        FROM cuonsach
+        GROUP BY trangthai
+        ORDER BY cnt DESC
+    ";
+    if ($result = $conn->query($sqlStatus)) {
+        while ($row = $result->fetch_assoc()) {
+            $chartStatusLabels[] = (string) ($row['label'] ?? '');
+            $chartStatusCounts[] = (int) ($row['cnt'] ?? 0);
+        }
+    }
+} catch (Throwable $e) {
+    // Nếu DB chưa sẵn sàng, dashboard vẫn render với số 0.
+}
+?>
+
+<section class="py-4 bg-light reveal-section">
     <div class="container-md">
-        <div class="row align-items-center section-title">
-            <div class="col-md-6 mb-4 mb-md-0">
-                <h2 class="fw-bold mb-3 type-title">Trang quản trị ASAG Library</h2>
-
-                <p class="intro-text intro-1">
-                    Đây là khu vực quản trị dành cho thủ thư/nhân viên: quản lý danh mục sách, tác giả, thể loại,
-                    nhà xuất bản, bạn đọc và các nghiệp vụ liên quan.
-                </p>
-
-                <p class="intro-text intro-2">
-                    Hiện tại trang này là khung giao diện (placeholder). Bạn có thể thêm chức năng sau theo từng phân hệ
-                    bằng cách gắn link/điều hướng hoặc nhúng các màn hình quản lý hiện có.
-                </p>
+        <div class="d-flex flex-wrap gap-2 align-items-end justify-content-between mb-3 section-title">
+            <div>
+                <h2 class="fw-bold mb-1">Thống kê</h2>
+                <p class="text-muted mb-0">Số liệu tổng hợp từ hệ thống thư viện</p>
             </div>
+            <div>
+                <a href="#admin-actions" class="btn btn-primary">Vào phân hệ quản lý</a>
+            </div>
+        </div>
 
-            <div class="col-md-6">
-                <img src="/assets/img/banner/library_intro.jpg"
-                     class="img-fluid rounded-3 intro-image"
-                     alt="Quản trị thư viện">
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3 reveal-item section-item">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted small">Đầu sách</div>
+                        <div class="fs-3 fw-bold"><?php echo number_format($stats['titles']); ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal-item section-item">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted small">Cuốn sách</div>
+                        <div class="fs-3 fw-bold"><?php echo number_format($stats['copies']); ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal-item section-item">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted small">Đang mượn</div>
+                        <div class="fs-3 fw-bold"><?php echo number_format($stats['borrowedCopies']); ?></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3 reveal-item section-item">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="text-muted small">Độc giả</div>
+                        <div class="fs-3 fw-bold"><?php echo number_format($stats['readers']); ?></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-lg-7 reveal-item section-item">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h5 class="fw-bold mb-0">Đầu sách theo thể loại</h5>
+                            <span class="text-muted small">(theo số lượng đầu sách)</span>
+                        </div>
+                        <div style="height: 320px;">
+                            <canvas id="adminChartCategory" aria-label="Biểu đồ thể loại"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 reveal-item section-item">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h5 class="fw-bold mb-0">Trạng thái cuốn sách</h5>
+                            <span class="text-muted small">(tổng hợp)</span>
+                        </div>
+                        <div style="height: 320px;">
+                            <canvas id="adminChartCopyStatus" aria-label="Biểu đồ trạng thái"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -60,6 +156,15 @@
                             <h5 class="fw-bold">Quản lý đầu sách</h5>
                             <p class="mb-3">Thêm/sửa/xóa đầu sách, ảnh và thông tin mô tả.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/DauSach/QL_DauSach.php">Mở phân hệ</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 reveal-item section-item">
+                        <div class="benefit-card h-100">
+                            <div class="service-icon">🧾</div>
+                            <h5 class="fw-bold">Hóa đơn</h5>
+                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/HoaDon/QL_HoaDon.php">Mở phân hệ</a>
                         </div>
                     </div>
 
@@ -83,6 +188,15 @@
 
                     <div class="col-md-6 reveal-item section-item">
                         <div class="benefit-card h-100">
+                            <div class="service-icon">👤</div>
+                            <h5 class="fw-bold">Tài khoản</h5>
+                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Mở phân hệ</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 reveal-item section-item">
+                        <div class="benefit-card h-100">
                             <div class="service-icon">🏷️</div>
                             <h5 class="fw-bold">Danh mục (Tác giả / Thể loại / NXB)</h5>
                             <p class="mb-3">Quản lý dữ liệu nền phục vụ tra cứu và phân loại.</p>
@@ -91,6 +205,15 @@
                                 <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/TheLoai/QL_TheLoai.php">Thể loại</a>
                                 <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/NhaXuatBan/QL_NhaXuatBan.php">NXB</a>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 reveal-item section-item">
+                        <div class="benefit-card h-100">
+                            <div class="service-icon">🚚</div>
+                            <h5 class="fw-bold">Nhà cung cấp</h5>
+                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Mở phân hệ</a>
                         </div>
                     </div>
 
@@ -107,78 +230,67 @@
     </div>
 </section>
 
-<section class="py-5 bg-white reveal-section">
-    <div class="container-md">
-        <div class="row align-items-start">
-            <div class="col-lg-4 col-md-5 mb-4 mb-md-0 text-md-start text-center reveal-item section-title">
-                <h3 class="fw-bold">Gợi ý cấu trúc mở rộng</h3>
-                <p class="text-muted mb-0">Placeholder để bạn thêm tính năng theo nhu cầu.</p>
-            </div>
-
-            <div class="col-lg-8 col-md-7">
-                <div class="row g-4">
-                    <div class="col-sm-6 reveal-item section-item">
-                        <div class="benefit-card h-100">
-                            <h6 class="fw-bold">Thống kê & báo cáo</h6>
-                            <p class="small mb-0">Số lượng sách, lượt mượn, tình trạng tồn kho…</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 reveal-item section-item">
-                        <div class="benefit-card h-100">
-                            <h6 class="fw-bold">Quyền & phân vai</h6>
-                            <p class="small mb-0">Phân quyền theo vai trò (admin, thủ thư, nhân viên…).</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 reveal-item section-item">
-                        <div class="benefit-card h-100">
-                            <h6 class="fw-bold">Duyệt yêu cầu</h6>
-                            <p class="small mb-0">Duyệt đăng ký, duyệt mượn, xử lý hoàn/trả…</p>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 reveal-item section-item">
-                        <div class="benefit-card h-100">
-                            <h6 class="fw-bold">Nhật ký hệ thống</h6>
-                            <p class="small mb-0">Theo dõi thao tác quan trọng và lịch sử thay đổi dữ liệu.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="py-5 bg-light reveal-section stats-section">
-    <div class="container-md">
-        <div class="row mb-4 text-center reveal-item section-title">
-            <div class="col">
-                <h3 class="fw-bold">Tổng quan nhanh</h3>
-                <p class="text-muted mb-0">Các chỉ số minh hoạ (placeholder)</p>
-            </div>
-        </div>
-
-        <div class="row text-center">
-            <div class="col-md-3 col-6 mb-3 mb-md-0 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="6">6+</h3>
-                <p class="text-muted mb-0">Phân hệ quản lý</p>
-            </div>
-            <div class="col-md-3 col-6 mb-3 mb-md-0 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="3">3+</h3>
-                <p class="text-muted mb-0">Nhóm danh mục</p>
-            </div>
-            <div class="col-md-3 col-6 mb-3 mb-md-0 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="1">1+</h3>
-                <p class="text-muted mb-0">Dashboard</p>
-            </div>
-            <div class="col-md-3 col-6 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="2026">2026+</h3>
-                <p class="text-muted mb-0">Phiên bản demo</p>
-            </div>
-        </div>
-    </div>
-</section>
-
 <div id="back-to-top" class="back-to-top-bubble">
     <span class="material-symbols-outlined">chevron_line_up</span>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof Chart === 'undefined') return;
+
+    const categoryLabels = <?php echo json_encode($chartCategoryLabels, JSON_UNESCAPED_UNICODE); ?>;
+    const categoryCounts = <?php echo json_encode($chartCategoryCounts, JSON_UNESCAPED_UNICODE); ?>;
+
+    const statusLabels = <?php echo json_encode($chartStatusLabels, JSON_UNESCAPED_UNICODE); ?>;
+    const statusCounts = <?php echo json_encode($chartStatusCounts, JSON_UNESCAPED_UNICODE); ?>;
+
+    const categoryCanvas = document.getElementById('adminChartCategory');
+    if (categoryCanvas) {
+        new Chart(categoryCanvas, {
+            type: 'bar',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    label: 'Số đầu sách',
+                    data: categoryCounts,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                },
+                scales: {
+                    x: { ticks: { autoSkip: false } },
+                    y: { beginAtZero: true, precision: 0 },
+                },
+            },
+        });
+    }
+
+    const statusCanvas = document.getElementById('adminChartCopyStatus');
+    if (statusCanvas) {
+        new Chart(statusCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                },
+            },
+        });
+    }
+});
+</script>
 
 <script src="/assets/js/home.js" defer></script>

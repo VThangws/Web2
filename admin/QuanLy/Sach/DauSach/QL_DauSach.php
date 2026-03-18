@@ -105,7 +105,7 @@
   ?>
   <div class="KhungMenu">
     <?php
-      require_once "../../../layout/admin_header.php";
+      require_once "../../../layout/admin_sidebar.php";
     ?>
   </div>
   <div class="KhungThongTin">
