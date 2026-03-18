@@ -1,0 +1,6 @@
+-database
+-Trang home
+-Trang books
+-Tìm kiếm & tìm kiếm nâng cao(thiếu tìm kiếm theo tên tác giả)
+-Phân trang
+*Nhớ sau này thêm logic hết sách

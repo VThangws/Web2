@@ -6,13 +6,14 @@ $conn = ConnectDB::getInstance()->getConnection();
 
 // Map slug tren URL sang ma the loai trong DB (can chinh theo bang theloai cua ban)
 $categoryMap = [
-    'skill'      => 'TL001',        // Kinh Tế
-    'detective'  => 'TL002',  // Văn Học Trong Nước
-    'children'   => 'TL003',  // Văn Học Nước Ngoài
-    'literature' => 'TL004',   // Đời Sống
-    'romance'    => 'TL005',  // Thiếu Nhi
-    'education'  => 'TL006', // Phát Triển Bản Thân
-    'fantasy'    => 'TL007'       // Tin Học / Chuyên Ngành
+    'kinh-te'      => 'TL001',        // Kinh Tế
+    'van-hoc-trong-nuoc'  => 'TL002',  // Văn Học Trong Nước
+    'van-hoc-nuoc-ngoai'   => 'TL003',  // Văn Học Nước Ngoài
+    'doi-song' => 'TL004',   // Đời Sống
+    'thieu-nhi'    => 'TL005',  // Thiếu Nhi
+    'phat-trien-ban-than'  => 'TL006', // Phát Triển Bản Thân
+    'tin-hoc-ngoai-ngu'    => 'TL007',       //Tin học ngoại ngữ
+    'chuyen-nganh'    => 'TL008'       //Chuyên Ngành
 ];
 
 $currentLoai = $_GET['loai'] ?? null;
