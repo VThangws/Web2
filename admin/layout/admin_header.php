@@ -35,12 +35,12 @@ if (isset($_SESSION['user_id'])) {
         <nav class="main-nav">
             <ul>
                 <li><a href="/admin/index.php">Trang chủ</a></li>
-                <li><a href="/admin/QuanLy/DauSach/QL_DauSach.php">Đầu sách</a></li>
+                <li><a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">Đầu sách</a></li>
                 <li><a href="/admin/QuanLy/DocGia/QL_DocGia.php">Độc giả</a></li>
                 <li><a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">Nhân viên</a></li>
                 <li><a href="/admin/QuanLy/TacGia/QL_TacGia.php">Tác giả</a></li>
-                <li><a href="/admin/QuanLy/TheLoai/QL_TheLoai.php">Thể loại</a></li>
-                <li><a href="/admin/QuanLy/NhaXuatBan/QL_NhaXuatBan.php">NXB</a></li>
+                <li><a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">Thể loại</a></li>
+                <li><a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">NXB</a></li>
             </ul>
         </nav>
 

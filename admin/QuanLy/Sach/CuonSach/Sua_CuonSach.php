@@ -6,7 +6,7 @@
 </head>
 <body>
   <?php
-    require_once "../../../../database/ConnectDB.php";
+    require_once "../../../../database/KetNoiDB.php";
     require_once "../../../../model/Sach/CuonSach.php";
     require_once "../../../../DAO/Sach/CuonSachDAO.php";
     $dao = new CuonSachDAO();
