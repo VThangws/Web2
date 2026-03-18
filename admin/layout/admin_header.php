@@ -23,53 +23,59 @@ if (isset($_SESSION['user_id'])) {
 ?>
 
 <link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="/assets/css/admin_sidebar.css">
 
-<header class="main-header">
-    <div class="main-header-inner">
-        <div class="main-logo">
-            <a href="/admin/index.php">
-                <img src="/assets/img/logo-library/library.png" alt="Library Logo">
-            </a>
-        </div>
-
-        <nav class="main-nav">
-            <ul>
-                <li><a href="/admin/index.php">Trang chủ</a></li>
-                <li><a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">Đầu sách</a></li>
-                <li><a href="/admin/QuanLy/DocGia/QL_DocGia.php">Độc giả</a></li>
-                <li><a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">Nhân viên</a></li>
-                <li><a href="/admin/QuanLy/TacGia/QL_TacGia.php">Tác giả</a></li>
-                <li><a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">Thể loại</a></li>
-                <li><a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">NXB</a></li>
-            </ul>
-        </nav>
-
-        <div class="main-actions">
-            <button id="openSearch" class="main-icon-btn" type="button" aria-label="Tìm kiếm">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-
-            <?php if ($user): ?>
-                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
-                    Xin chào, <?= htmlspecialchars($user['name'], ENT_QUOTES) ?>
-                </a>
-            <?php endif; ?>
-
-            <a href="/admin/logout.php" class="main-btn main-btn-primary" aria-label="Đăng xuất">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span class="ms-2">Đăng xuất</span>
-            </a>
-        </div>
+<aside class="admin-sidebar" aria-label="Menu quản trị">
+    <div class="admin-sidebar-header">
+        <a href="/admin/index.php" class="d-flex align-items-center gap-2 text-decoration-none">
+            <img src="/assets/img/logo-library/library.png" alt="Library Logo">
+            <span class="admin-sidebar-title">Quản lý thư viện</span>
+        </a>
     </div>
 
-    <div id="searchOverlay" class="search-overlay">
-        <div class="search-box">
-            <button class="close-btn" id="closeSearch">&times;</button>
-            <input type="text" id="searchInput" placeholder="Nhập tên sách, tác giả...">
-            <div id="searchResultBox"></div>
+    <nav class="admin-sidebar-nav">
+        <ul>
+            <li><a href="/admin/index.php">Trang chủ</a></li>
+            <li><a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">Đầu sách</a></li>
+            <li><a href="/admin/QuanLy/DocGia/QL_DocGia.php">Độc giả</a></li>
+            <li><a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">Nhân viên</a></li>
+            <li><a href="/admin/QuanLy/TacGia/QL_TacGia.php">Tác giả</a></li>
+            <li><a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">Thể loại</a></li>
+            <li><a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">NXB</a></li>
+        </ul>
+    </nav>
+
+    <div class="admin-sidebar-actions">
+        <?php
+        $displayName = $user && isset($user['name']) ? (string)$user['name'] : 'Admin';
+        $initial = 'A';
+        if (function_exists('mb_substr')) {
+            $initial = mb_strtoupper(mb_substr(trim($displayName), 0, 1, 'UTF-8'), 'UTF-8');
+        } else {
+            $initial = strtoupper(substr(trim($displayName), 0, 1));
+        }
+        ?>
+
+        <div class="admin-user-chip" aria-label="Tài khoản">
+            <div class="admin-avatar rounded-circle border bg-light d-inline-flex align-items-center justify-content-center">
+                <?= htmlspecialchars($initial, ENT_QUOTES) ?>
+            </div>
+            <span class="admin-user-name">
+                <?= htmlspecialchars($displayName, ENT_QUOTES) ?>
+            </span>
         </div>
+
+        <a href="/admin/logout.php" class="main-btn main-btn-primary" aria-label="Đăng xuất">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="ms-2">Đăng xuất</span>
+        </a>
     </div>
-</header>
+</aside>
+
+<script>
+    // Make room for the fixed left sidebar across admin pages.
+    if (document.body) document.body.classList.add('admin-has-sidebar');
+</script>
 
 <script>
     window.user_id = <?= isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null' ?>;

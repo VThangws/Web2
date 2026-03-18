@@ -27,7 +27,7 @@
     <div class="container-md">
         <div class="row align-items-center section-title">
             <div class="col-md-6 mb-4 mb-md-0">
-                <h2 class="fw-bold mb-3 type-title">Trang quản trị ASAG Library</h2>
+                <h2 class="fw-bold mb-3 type-title">Trang quản trị Quản lý thư viện</h2>
 
                 <p class="intro-text intro-1">
                     Đây là khu vực quản trị dành cho thủ thư/nhân viên: quản lý danh mục sách, tác giả, thể loại,
