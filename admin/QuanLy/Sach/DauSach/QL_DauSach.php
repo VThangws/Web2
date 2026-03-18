@@ -6,9 +6,9 @@
 </head>
 <body>
   <?php
-    require_once "../../../model/DauSach.php";
-    require_once "../../../DAO/DauSachDAO.php";
-    require_once "../../../database/ConnectDB.php";
+    require_once "../../../../model/Sach/DauSach.php";
+    require_once "../../../../DAO/Sach/DauSachDAO.php";
+    require_once "../../../../database/KetNoiDB.php";
     $dao = new DauSachDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "POST" || $_SERVER['REQUEST_METHOD'] == "GET") {
@@ -101,7 +101,11 @@
       }
     }
   ?>
-  <div class="KhungMenu"></div>
+  <div class="KhungMenu">
+    <?php
+      require_once "../../../layout/admin_header.php";
+    ?>
+  </div>
   <div class="KhungThongTin">
     <form method="post" enctype="multipart/form-data">
       <label for="madausach">Mã đầu sách</label>
