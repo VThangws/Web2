@@ -6,10 +6,34 @@
 </head>
 <body>
   <?php
-    require_once "../../../../database/ConnectDB.php";
+    require_once "../../../../database/KetNoiDB.php";
     require_once "../../../../model/Sach/CuonSach.php";
     require_once "../../../../DAO/Sach/CuonSachDAO.php";
     $dao = new CuonSachDAO();
+    
+    if($_SERVER['REQUEST_METHOD'] == "GET" || $_SERVER['REQUEST_METHOD'] == "POST") {
+      // lấy thông tin mới của cuốn sách
+      $macuonsach = $_REQUEST['macuonsach'];
+      $madausach = $_REQUEST['madausach'];
+      $mavitri = $_REQUEST['mavitri'];
+      $trangthai = $_REQUEST['trangthai'];
+      $tinhtrang = $_REQUEST['tinhtrang'];
+      if($_REQUEST['luachon'] == "Them") {
+        // thực hiện thêm cuốn sách mới
+        $dao->Them($conn, $macuonsach, $madausach, $mavitri,
+        $trangthai, $tinhtrang);
+      }
+      else if($_REQUEST['luachon'] == "Xoa") {
+        // thực hiện xóa cuốn sách
+        $macuonsach = $_REQUEST['macuonsach'];
+        $dao->Xoa($conn, $macuonsach);
+      }
+      else if($_REQUEST['luachon'] == "Sua") {
+        // thực hiện sửa thông tin cuốn sách
+        $dao->Sua($conn, $macuonsach, $madausach, $mavitri,
+        $trangthai, $tinhtrang);
+      }
+    }
   ?>
   <div class="KhungMenu">
     <?php

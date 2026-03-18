@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!section || !title) return;
 
+    if (!section || !title || !p1 || !p2 || !img) return;
+
     const originalText = title.textContent;
     title.textContent = '';
 
