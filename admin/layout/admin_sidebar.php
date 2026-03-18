@@ -27,7 +27,7 @@ if (isset($_SESSION['user_id'])) {
 
 <aside class="admin-sidebar" aria-label="Menu quản trị">
     <div class="admin-sidebar-header">
-        <a href="/admin/index.php" class="d-flex align-items-center gap-2 text-decoration-none">
+        <a href="/admin/adminMenu.php" class="d-flex align-items-center gap-2 text-decoration-none">
             <img src="/assets/img/logo-library/library.png" alt="Library Logo">
             <span class="admin-sidebar-title">Quản lý thư viện</span>
         </a>
@@ -35,7 +35,7 @@ if (isset($_SESSION['user_id'])) {
 
     <nav class="admin-sidebar-nav">
         <ul>
-            <li><a href="/admin/index.php">Trang chủ</a></li>
+            <li><a href="/admin/adminMenu.php">Trang chủ</a></li>
             <li><a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">Đầu sách</a></li>
             <li><a href="/admin/QuanLy/DocGia/QL_DocGia.php">Độc giả</a></li>
             <li><a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">Nhân viên</a></li>

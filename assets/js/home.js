@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const p2 = document.querySelector(".intro-2");
     const img = document.querySelector(".intro-image");
 
+    if (!section || !title || !p1 || !p2 || !img) return;
+
     const originalText = title.textContent;
     title.textContent = "";
 
