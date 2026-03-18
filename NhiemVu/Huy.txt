@@ -1,5 +1,5 @@
 -database
--Trang home
+-Trang home(chưa thêm rút gọn thanh header)
 -Trang books
 -Tìm kiếm & tìm kiếm nâng cao(thiếu tìm kiếm theo tên tác giả)
 -Phân trang
