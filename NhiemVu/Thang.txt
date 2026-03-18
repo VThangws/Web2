@@ -1,0 +1,6 @@
+- Quản lý tài khoản
+- Quản lý phiếu nhập
+- Quản lý phiếu xuất
+- Quản lý phiếu mượn
+- Quản lý phiếu trả
+- Quản lý nhà cung cấp
