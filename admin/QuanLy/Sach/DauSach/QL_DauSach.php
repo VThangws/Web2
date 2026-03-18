@@ -23,9 +23,10 @@
         $manxb = $_POST['manxb'];
         $mota = $_POST['mota'];
         // sử lý file ảnh bìa
-        $target_dir = "img/";
+        $target_dir = "../../../../assets/img/books/";
         $filename = pathinfo($_FILES['anhbia']['name'], PATHINFO_FILENAME);
         $target_file = $target_dir . $filename . $madausach . ".png";
+        $filename_to_save = $filename . $madausach . ".png";
         echo $target_file;
         // lưu hình ảnh
         if(move_uploaded_file($_FILES['anhbia']['tmp_name'], $target_file)) {
@@ -36,7 +37,7 @@
         }
         // thực hiện thêm vào database
         $dao->Them($conn, $madausach, $tensach, $namsanxuat, $dongia,
-         $matacgia, $matheloai, $manxb, $mota, $target_file);
+         $matacgia, $matheloai, $manxb, $mota, $filename_to_save);
       }
       else if($_REQUEST['luachon'] == "Xoa") {
         // lấy mã đầu sách để xóa sách
@@ -72,9 +73,10 @@
           $linkAnhBiaCu = $dausach->getAnhbia();
           unlink($linkAnhBiaCu);
           // thêm ảnh bìa mới
-          $target_dir = "img/";
+          $target_dir = "../../../../assets/img/books/";
           $filename = pathinfo($_FILES['anhbia']['name'], PATHINFO_FILENAME);
-          $target_file = $target_dir . $filename . ".png";
+          $target_file = $target_dir . $filename . $madausach . ".png";
+          $filename_to_save = $filename . $madausach . ".png";
           move_uploaded_file($_FILES['anhbia']['tmp_name'], $target_file);
           // cập nhật thông tin trong database
           $dao->Sua($conn, $madausach,
@@ -85,7 +87,7 @@
           $matheloai,
           $manxb,
           $mota,
-          $anhbia);
+          $filename_to_save);
         }
         else {
           // chỉ thực hiện sửa database mà không sửa link ảnh bìa
@@ -155,9 +157,9 @@
           echo "<td>". $item->getMatheloai() ."</td>";
           echo "<td>". $item->getManxb() ."</td>";
           echo "<td>". $item->getMota() ."</td>";
-          echo "<td><img width='50px' src='". $item->getAnhbia() ."' /></td>";
+          echo "<td><img width='150px' src='../../../../assets/img/books/". $item->getAnhbia() ."' /></td>";
           echo "<td>" .
-          "<a href='Sua_DauSach.php?madausach=" . $item->getMadausach() . "'>Sửa</a>" .
+          "<a href='Sua_DauSach.php?madausach=" . $item->getMadausach() . "'>Sửa</a>" . " | " .
           "<a href='QL_DauSach.php?luachon=Xoa&madausach=" . $item->getMadausach() . "'>Xóa</a>" . "</td>";
           echo "</tr>";
         }
