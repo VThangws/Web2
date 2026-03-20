@@ -1,26 +1,69 @@
 <?php
-
-// home.php chỉ chứa NỘI DUNG TRANG CHỦ, không include header/footer nữa
+require_once __DIR__ . '/../database/ConnectDB.php';
+$homeConn = ConnectDB::getInstance()->getConnection();
+$homeGenres = [];
+$genreResult = $homeConn->query("SELECT matheloai, tentheloai FROM theloai ORDER BY tentheloai");
+if ($genreResult && $genreResult->num_rows > 0) {
+    while ($g = $genreResult->fetch_assoc()) {
+        $homeGenres[] = $g;
+    }
+}
 ?>
+
 <section class="d-md-block d-none">
-    <div class="slide position-relative">
-        <div class="banner-slider">
-            <img src="/assets/img/banner/banner1.jpg" alt="Banner 1" class="img-fluid slide-img">
-            <img src="/assets/img/banner/banner2.jpg" alt="Banner 2" class="img-fluid slide-img">
-            <img src="/assets/img/banner/banner3.jpg" alt="Banner 3" class="img-fluid slide-img">
-        </div>
-        <div class="position-absolute centerbutton">
-            <a href="/index.php?page=books"
-                class="btn btn-outline-light rounded-0 fs-5 d-flex align-items-center justify-content-center effect-theloai rounded-1 fw-bold"
-                style="width:150px;height: 50px;">
-                Khám phá
-            </a>
+    <div class="slide position-relative digital-banner">
+        <div class="container-md h-700">
+            <div class="row h-100 align-items-center">
+                <!-- Cột text bên trái -->
+                <div class="col-lg-7 col-md-7 banner-text-col">
+                    <h1 class="banner-title">Sách đề cử</h1>
+
+                    <div class="banner-filter">
+                        <label class="banner-filter-label">Thể loại</label>
+                        <select id="bannerGenreSelect" class="banner-filter-select">
+                            <option value="">Tất cả thể loại</option>
+                            <?php foreach ($homeGenres as $genre): ?>
+                                <option value="<?= htmlspecialchars($genre['matheloai'], ENT_QUOTES) ?>">
+                                    <?= htmlspecialchars($genre['tentheloai'], ENT_QUOTES) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="banner-badge">GỢI Ý HÔM NAY</div>
+
+                    <h2 class="banner-book-title">Tự do tài chính từ bên trong</h2>
+
+                    <p class="banner-desc">
+                        Chúng ta ai cũng phải sống với tiền, nhưng rất ít người được dạy cách sống lành mạnh với tiền –
+                        không loạn nhịp tim mỗi lần nhìn số dư tài khoản. Cuốn sách này không dạy bạn làm giàu cấp tốc,
+                        mà giúp bạn xây dựng mối quan hệ tích cực với tiền, trả lời cho câu hỏi: làm sao để tiền không còn là nỗi lo?
+                    </p>
+
+                    <div class="banner-actions">
+                        <a href="/index.php?page=books" class="btn banner-read-btn">
+                            <span class="material-symbols-outlined">menu_book</span>
+                            Đọc sách
+                        </a>
+                        <button class="banner-like-btn" type="button">
+                            <span class="material-symbols-outlined">favorite</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cột cover bên phải: slider có nút chuyển trái/phải -->
+                <div class="col-lg-5 col-md-5 banner-cover-col d-flex justify-content-center justify-content-lg-end">
+                    <div class="banner-cover-slider" id="bannerCoverSlider">
+                        <!-- JS sẽ render các thẻ banner-cover-card dựa trên thể loại chọn -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <!-- Mũi tên hướng dẫn cuộn xuống: NẰM DƯỚI banner, không đè lên -->
+    <!-- Mũi tên hướng dẫn cuộn xuống
     <a href="#library-intro" class="scroll-down-indicator d-flex flex-column align-items-center justify-content-center">
         <span class="material-symbols-outlined">keyboard_double_arrow_down</span>
-    </a>
+    </a> -->
 </section>
 
 <!-- GIỚI THIỆU TỔNG QUAN THƯ VIỆN -->

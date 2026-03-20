@@ -58,6 +58,15 @@ if (isset($_SESSION['user_id'])) {
 
         <!-- Icon + nút bên phải -->
         <div class="main-actions">
+            <div class="header-support">
+                <div class="support-icon">
+                    <i class="fa-solid fa-phone-volume"></i>
+                </div>
+                <div class="support-info">
+                    <span class="support-title">Hỗ trợ khách hàng</span>
+                    <strong class="support-phone">0987654321</strong>
+                </div>
+            </div>
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($user): ?>
                 <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
@@ -74,6 +83,18 @@ if (isset($_SESSION['user_id'])) {
             </a>
         </div>
     </div>
+
+    <!-- Subheader: thanh menu phụ bên dưới header chính
+    <div class="subheader">
+        <div class="subheader-inner">
+            <a href="/index.php" class="subheader-link">Trang chủ</a>
+            <a href="/index.php?page=books&sort=latest" class="subheader-link">Sách mới</a>
+            <a href="/index.php?page=books&tag=best-seller" class="subheader-link">Bán chạy</a>
+            <a href="/index.php?page=books&tag=khuyen-mai" class="subheader-link">Khuyến mãi</a>
+            <a href="/index.php?page=books" class="subheader-link">Tất cả sách</a>
+            <a href="#" class="subheader-link">Hỗ trợ</a>
+        </div>
+    </div> -->
 </header>
 
 

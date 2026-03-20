@@ -241,3 +241,226 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 })();
+
+// 3D carousel bìa sách bên phải banner
+(function () {
+    const slider = document.querySelector('.banner-cover-slider');
+    if (!slider) return;
+
+    const cards = Array.from(slider.querySelectorAll('.banner-cover-card'));
+    if (cards.length === 0) return;
+
+    const prevBtn = slider.querySelector('.banner-prev');
+    const nextBtn = slider.querySelector('.banner-next');
+
+    let current = 0;
+
+    function updatePositions() {
+        const n = cards.length;
+        const center = current;
+        const left = (current - 1 + n) % n;
+        const right = (current + 1) % n;
+
+        cards.forEach((card, idx) => {
+            card.classList.remove('position-center', 'position-left', 'position-right', 'position-hidden');
+            if (idx === center) card.classList.add('position-center');
+            else if (idx === left) card.classList.add('position-left');
+            else if (idx === right) card.classList.add('position-right');
+            else card.classList.add('position-hidden');
+        });
+    }
+
+    function goNext() {
+        current = (current + 1) % cards.length;
+        updatePositions();
+    }
+
+    function goPrev() {
+        current = (current - 1 + cards.length) % cards.length;
+        updatePositions();
+    }
+
+    updatePositions();
+
+    let timer = setInterval(goNext, 1500);
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            goNext();
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            goPrev();
+        });
+    }
+})();
+
+// Banner: load sách theo thể loại và đổ vào slider 3D bên phải
+(function () {
+    const genreSelect = document.getElementById('bannerGenreSelect');
+    const slider = document.getElementById('bannerCoverSlider');
+    if (!genreSelect || !slider) return;
+
+    function renderBooks(books) {
+        slider.innerHTML = `
+            <button class="banner-nav banner-prev" type="button">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <div class="banner-cover-track"></div>
+            <button class="banner-nav banner-next" type="button">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        `;
+
+        const track = slider.querySelector('.banner-cover-track');
+        books.forEach((b, idx) => {
+            const card = document.createElement('div');
+            card.className = 'banner-cover-card';
+            card.dataset.index = String(idx);
+            const imgSrc = b.anhbia ? `/assets/img/books/${b.anhbia}` : '/assets/img/categories/booknew.png';
+            card.innerHTML = `<img src="${imgSrc}" alt="${b.tensach || ''}">`;
+            track.appendChild(card);
+        });
+
+        // Khởi động lại 3D carousel sau khi render
+        initBannerCarousel();
+    }
+
+    function loadBooksByGenre(matheloai) {
+        fetch(`/ajax/banner_books.php?matheloai=${encodeURIComponent(matheloai || '')}`)
+            .then(res => res.json())
+            .then(renderBooks)
+            .catch(() => renderBooks([]));
+    }
+
+    // Lần đầu load: tất cả thể loại (random)
+    loadBooksByGenre('');
+
+    genreSelect.addEventListener('change', () => {
+        loadBooksByGenre(genreSelect.value);
+    });
+})();
+
+// Gợi ý hôm nay: đổi câu nói hay mỗi ngày
+(function () {
+    const badge = document.querySelector('.banner-badge');
+    const title = document.querySelector('.banner-book-title');
+    const desc = document.querySelector('.banner-desc');
+    if (!badge || !title || !desc) return;
+
+    const quotes = [
+        {
+            badge: 'GỢI Ý HÔM NAY',
+            title: 'Đọc sách mỗi ngày, mở rộng thế giới của bạn',
+            desc: 'Từng trang sách lật qua không chỉ mang theo kiến thức mà còn mở ra những góc nhìn hoàn toàn mới mẻ. Thay vì lướt điện thoại vô định, hãy thử dành ra 15 phút tĩnh lặng mỗi ngày để đắm chìm vào những con chữ. Bạn sẽ bất ngờ với cách tư duy của mình dần trở nên sắc bén và tâm hồn được bồi đắp sâu sắc hơn.'
+        },
+        {
+            badge: 'CÂU NÓI HÔM NAY',
+            title: 'Không có người không thích đọc, chỉ là chưa tìm thấy cuốn sách của mình',
+            desc: 'Giống như việc tìm kiếm một người bạn tri kỷ, đôi khi chúng ta cần kiên nhẫn thử nghiệm nhiều thể loại khác nhau. Đừng ngại bước ra khỏi vùng an toàn để khám phá một tác phẩm viễn tưởng hay một cuốn tản văn nhẹ nhàng. Chắc chắn có một câu chuyện ngoài kia đang kiên nhẫn chờ đợi để được bạn lật mở.'
+        },
+        {
+            badge: 'GỢI Ý HÔM NAY',
+            title: 'Mỗi cuốn sách là một người thầy',
+            desc: 'Bất kể bạn đang chênh vênh giữa những ngã rẽ cuộc sống, hay đơn giản là cần một lời khuyên để vượt qua khó khăn, luôn có những người đã đi trước và đúc kết kinh nghiệm thành sách. Hãy để những bộ óc vĩ đại nhất của nhân loại làm người dẫn đường, soi sáng cho những quyết định quan trọng của bạn.'
+        },
+        {
+            badge: 'TRÍ THỨC MỖI NGÀY',
+            title: 'Sách là nơi an toàn để thử những trải nghiệm mới',
+            desc: 'Chỉ với một cuốn sách trên tay, bạn đã sở hữu tấm vé thông hành quyền lực nhất: du hành ngược thời gian, vươn tới tương lai hay dạo bước trên những vùng đất xa xôi. Sách trao cho bạn đặc quyền được sống hàng ngàn cuộc đời rực rỡ khác nhau mà không phải chịu bất kỳ rủi ro nào ở hiện tại.'
+        }
+    ];
+
+    // Dùng số ngày kể từ 1970 để chọn câu, nên mỗi ngày sẽ là một câu cố định
+    const todayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    const q = quotes[todayIndex % quotes.length];
+
+    badge.textContent = q.badge;
+    title.textContent = q.title;
+    desc.textContent = q.desc;
+})();
+
+// Bóng sách mờ phía sau cuốn đang active
+function updateBannerShadow(centerCard) {
+    const col = document.querySelector('.banner-cover-col');
+    if (!col || !centerCard) return;
+
+    let shadow = col.querySelector('.banner-cover-shadow');
+    if (!shadow) {
+        shadow = document.createElement('div');
+        shadow.className = 'banner-cover-shadow';
+        shadow.innerHTML = '<img src="" alt="Bóng sách">';
+        col.appendChild(shadow);
+    }
+
+    const img = centerCard.querySelector('img');
+    const shadowImg = shadow.querySelector('img');
+    if (img && shadowImg) {
+        shadowImg.src = img.src;
+    }
+}
+
+// Khởi tạo carousel 3D cho banner-cover-slider
+function initBannerCarousel() {
+    const slider = document.querySelector('.banner-cover-slider');
+    if (!slider) return;
+
+    const cards = Array.from(slider.querySelectorAll('.banner-cover-card'));
+    if (!cards.length) return;
+
+    const prevBtn = slider.querySelector('.banner-prev');
+    const nextBtn = slider.querySelector('.banner-next');
+
+    let current = 0;
+
+    function updatePositions() {
+        const n = cards.length;
+        const center = current;
+        const left = (current - 1 + n) % n;
+        const right = (current + 1) % n;
+
+        cards.forEach((card, idx) => {
+            card.classList.remove('position-center', 'position-left', 'position-right', 'position-hidden');
+            if (idx === center) card.classList.add('position-center');
+            else if (idx === left) card.classList.add('position-left');
+            else if (idx === right) card.classList.add('position-right');
+            else card.classList.add('position-hidden');
+        });
+
+        updateBannerShadow(cards[center]);
+    }
+
+    function goNext() {
+        current = (current + 1) % cards.length;
+        updatePositions();
+    }
+
+    function goPrev() {
+        current = (current - 1 + cards.length) % cards.length;
+        updatePositions();
+    }
+
+    updatePositions();
+
+    let timer = setInterval(goNext, 1500);
+
+    if (nextBtn) {
+        nextBtn.onclick = () => {
+            clearInterval(timer);
+            goNext();
+        };
+    }
+    if (prevBtn) {
+        prevBtn.onclick = () => {
+            clearInterval(timer);
+            goPrev();
+        };
+    }
+}
+
+// Gọi initBannerCarousel một lần khi DOM ready (trong trường hợp đã có sẵn card cứng)
+document.addEventListener('DOMContentLoaded', initBannerCarousel);
