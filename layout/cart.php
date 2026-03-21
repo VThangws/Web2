@@ -4,7 +4,7 @@ $total_price = 0;
 $cart_empty = empty($_SESSION['cart']);
 ?>
 
-<div class="container-md mt-3">
+<div class="container-md mt-4">
     <div class="border rounded py-2 px-4 d-flex align-items-center bg-white shadow-sm">
         <div class="me-auto">
             <p class="mb-0">

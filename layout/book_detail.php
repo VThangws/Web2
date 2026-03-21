@@ -1,5 +1,4 @@
 <?php
-// Bật thông báo lỗi để rà lỗi (Tắt đi khi đưa lên host thật)
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -7,7 +6,7 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../database/ConnectDB.php';
 $db = ConnectDB::getInstance();
 
-// 2. Lấy mã sách từ URL (Lưu ý: DB mới dùng mã DS001, DS002...)
+// 2. Lấy mã sách từ URL
 $madausach = isset($_GET['madausach']) ? $_GET['madausach'] : 'DS001';
 
 // 3. Khởi tạo biến
@@ -15,8 +14,7 @@ $book = null;
 $related_books = [];
 $error_msg = null;
 
-// --- THỦ THUẬT FAKE RATING ---
-// Chỉ cấp sao cho những mã sách được khai báo ở đây.
+// --- FAKE RATING ---
 $fake_ratings = [
     'DS001' => ['sao' => 4.7, 'luot' => 3],
     'DS002' => ['sao' => 5.0, 'luot' => 11], 
@@ -27,7 +25,6 @@ $has_rating = isset($fake_ratings[$madausach]);
 // Nếu không có trong danh sách fake, mặc định sao = 0, lượt = 0
 $sao = $has_rating ? $fake_ratings[$madausach]['sao'] : 0;
 $luot = $has_rating ? $fake_ratings[$madausach]['luot'] : 0;
-// -----------------------------
 
 try {
     $conn = $db->getConnection();
@@ -68,7 +65,7 @@ try {
 
 <link rel="stylesheet" href="/assets/css/book_detail.css">
 
-<div class="container py-5 book-container">
+<div class="container pt-4 pb-5 book-container">
     <?php if ($error_msg): ?>
         <div class="alert alert-danger text-center">Lỗi: <?= $error_msg ?></div>
     <?php elseif (!$book): ?>
@@ -83,7 +80,7 @@ try {
                 
                 <i class="fa-solid fa-angle-right text-muted" style="margin: 0 8px; font-size: 12px;"></i>
                 
-                <a href="/index.php?page=sach&loai=<?= htmlspecialchars($book['matheloai']) ?>" class="text-decoration-none fw-semibold" style="color: #20c997;">
+                <a href="/index.php?page=books&loai=<?= htmlspecialchars($book['matheloai']) ?>" class="text-decoration-none fw-semibold" style="color: #20c997;">
                     <?= htmlspecialchars($book['tentheloai'] ?: 'Danh mục') ?>
                 </a>
                 
@@ -93,7 +90,7 @@ try {
             </div>
         </div>
 
-    <div class="book-details-container">
+    <div class="book-details-container" style="margin-top: 40px;">
         
         <div class="book-cover-column">
             <img src="/assets/img/books/<?= htmlspecialchars($book['anhbia'] ?: 'demo.jpg') ?>" alt="Bìa sách" class="book-cover rounded shadow">
@@ -171,17 +168,15 @@ try {
 </div>
 
 <style>
-/* ====================================
-   1. CSS CHO NÚT THÊM VÀO GIỎ HÀNG (HÌNH VUÔNG)
-   ==================================== */
+/* 1. CSS NÚT THÊM VÀO GIỎ HÀNG  */
 .btn-cart-custom {
-    background-color: #20c997; /* Xanh ngọc bích */
+    background-color: #20c997;
     color: white;
     border: none;
     padding: 12px 32px;
     font-weight: 900;
     font-size: 18px;
-    border-radius: 8px; /* Ép về hình vuông, bo góc cực nhẹ */
+    border-radius: 8px;
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
@@ -205,9 +200,7 @@ try {
     box-shadow: none;
 }
 
-/* ====================================
-   2. CSS CHO TOAST (VUÔNG, ICON TRÊN, CHỮ DƯỚI)
-   ==================================== */
+/* 2. CSS CHO TOAST  */
 .notice-add-to-cart {
     position: fixed; 
     top: 50%;     
@@ -264,10 +257,6 @@ try {
     z-index: -1;
 }
 </style>
-
-<button id="btn-add-cart" data-id="<?= htmlspecialchars($madausach) ?>" class="btn-cart-custom">
-    <i class="fa-solid fa-cart-shopping me-2"></i> Thêm vào giỏ hàng
-</button>
 
 <div id="toast-cart" class="notice-add-to-cart opacity-0">
     <span class="checkmark"><i class="fa-solid fa-check"></i></span>

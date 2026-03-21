@@ -16,8 +16,34 @@ $categoryMap = [
 ];
 
 $currentLoai = $_GET['loai'] ?? null;
-$currentMaTL = ($currentLoai && isset($categoryMap[$currentLoai])) ? $categoryMap[$currentLoai] : null;
+$currentMaTL = null;
+
+if ($currentLoai) {
+    // Nếu URL truyền lên chữ (vd: 'kinh-te'), thì lấy mã từ từ điển
+    if (isset($categoryMap[$currentLoai])) {
+        $currentMaTL = $categoryMap[$currentLoai]; 
+    } 
+    // Nếu URL truyền thẳng mã (vd: 'TL001'), thì xài luôn
+    else {
+        $currentMaTL = $currentLoai; 
+    }
+}
 $search = $_GET['search'] ?? '';
+// --- LẤY TÊN THỂ LOẠI HOẶC TỪ KHÓA ĐỂ LÀM THANH ĐIỀU HƯỚNG ---
+$breadcrumbText = "Tất cả sách";
+if ($currentMaTL) {
+    $sqlCat = "SELECT tentheloai FROM TheLoai WHERE matheloai = ?";
+    $stmtCat = $conn->prepare($sqlCat);
+    $stmtCat->bind_param("s", $currentMaTL);
+    $stmtCat->execute();
+    $resCat = $stmtCat->get_result();
+    if ($cat = $resCat->fetch_assoc()) {
+        $breadcrumbText = $cat['tentheloai'];
+    }
+} elseif ($search != '') {
+    $breadcrumbText = "Kết quả tìm kiếm: '" . $search . "'";
+}
+// -------------------------------------------------------------
 
 // --- 1. CẤU HÌNH PHÂN TRANG CƠ BẢN ---
 $limit = 12; // Số lượng sách hiển thị trên 1 trang
@@ -111,6 +137,16 @@ if ($totalPages > 0) {
 <link rel="stylesheet" href="/assets/css/books.css">
 
 <div class="books-page">
+    
+    <div class="mb-4" style="max-width: 1200px; margin: 25px auto 20px auto;">
+        <div class="border rounded bg-white d-flex align-items-center shadow-sm" style="padding: 12px 20px; font-size: 15px;">
+            <a href="/index.php" class="text-decoration-none fw-semibold" style="color: #20c997;">Trang chủ</a>
+            
+            <i class="fa-solid fa-angle-right text-muted" style="margin: 0 8px; font-size: 12px;"></i>
+            
+            <span class="text-dark fw-bold"><?= htmlspecialchars($breadcrumbText) ?></span>
+        </div>
+    </div>
     <div class="books-grid-wrapper">
         <div class="books-grid">
             <?php if ($result && $result->num_rows > 0): ?>

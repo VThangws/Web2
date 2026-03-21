@@ -2,15 +2,16 @@
 .book-details-container {
     display: flex;
     gap: 40px;
-    align-items: flex-start; /* Giữ các cột ở sát mép trên, quan trọng cho Sticky */
+    align-items: flex-start;
+    margin-top: 40px;
 }
 
 /* 2. CỘT BÌA SÁCH (BÊN TRÁI) - CỐ ĐỊNH KHI CUỘN DOWN */
 .book-cover-column {
     flex: 0 0 320px; /* Ép khung ảnh bự ra 320px */
     position: sticky;
-    top: 75px; /* Cách đỉnh màn hình 100px để né Header */
-    text-align: center; /* Ảnh thì vẫn căn giữa cột trái */
+    top: 85px; /*  né Header */
+    text-align: center; /* Ảnh căn giữa cột trái */
 }
 
 .book-cover-column .book-cover {
