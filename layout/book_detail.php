@@ -77,6 +77,22 @@ try {
         </div>
     <?php else: ?>
 
+        <div class="mb-4">
+            <div class="border rounded bg-white d-flex align-items-center shadow-sm" style="padding: 12px 20px; font-size: 15px;">
+                <a href="/index.php" class="text-decoration-none fw-semibold" style="color: #20c997;">Trang chủ</a>
+                
+                <i class="fa-solid fa-angle-right text-muted" style="margin: 0 8px; font-size: 12px;"></i>
+                
+                <a href="/index.php?page=sach&loai=<?= htmlspecialchars($book['matheloai']) ?>" class="text-decoration-none fw-semibold" style="color: #20c997;">
+                    <?= htmlspecialchars($book['tentheloai'] ?: 'Danh mục') ?>
+                </a>
+                
+                <i class="fa-solid fa-angle-right text-muted" style="margin: 0 8px; font-size: 12px;"></i>
+                
+                <span class="text-dark fw-bold"><?= htmlspecialchars($book['tensach']) ?></span>
+            </div>
+        </div>
+
     <div class="book-details-container">
         
         <div class="book-cover-column">
@@ -123,8 +139,8 @@ try {
                     <div class="val text-danger fw-bold fs-4"><?= number_format($book['dongia'], 0, ',', '.') ?> VNĐ</div>
                 </div>
 
-                <button id="btn-add-cart" data-id="<?= htmlspecialchars($madausach) ?>" class="btn btn-success add-to-cart-btn book-btn-read px-4 py-2 fw-bold fs-6 rounded-pill" style="background-color: #20c997; border: none;">
-                    <i class="fa-solid fa-cart-shopping me-2"></i> Thêm vào giỏ
+                <button id="btn-add-cart" data-id="<?= htmlspecialchars($madausach) ?>" class="btn-cart-custom">
+                    <i class="fa-solid fa-cart-shopping me-2"></i> Thêm vào giỏ hàng
                 </button>
 
                 <div class="book-desc-section book-desc mt-5">
@@ -154,55 +170,170 @@ try {
     <?php endif; ?>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+/* ====================================
+   1. CSS CHO NÚT THÊM VÀO GIỎ HÀNG (HÌNH VUÔNG)
+   ==================================== */
+.btn-cart-custom {
+    background-color: #20c997; /* Xanh ngọc bích */
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    font-weight: 900;
+    font-size: 18px;
+    border-radius: 8px; /* Ép về hình vuông, bo góc cực nhẹ */
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
+}
+
+.btn-cart-custom:hover {
+    background-color: #1aa179;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
+}
+
+.btn-cart-custom:disabled {
+    background-color: #8ce1c6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ====================================
+   2. CSS CHO TOAST (VUÔNG, ICON TRÊN, CHỮ DƯỚI)
+   ==================================== */
+.notice-add-to-cart {
+    position: fixed; 
+    top: 50%;     
+    left: 50%;    
+    transform: translate(-50%, -50%) scale(0.9); 
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    
+    border-radius: 16px; /* Bo góc mượt cho khối vuông */
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15); 
+    background-color: #20c997; /* Đồng bộ màu xanh */
+    color: white; 
+    
+    /* ÉP 2 DÒNG BẰNG FLEXBOX */
+    display: flex;
+    flex-direction: column; 
+    align-items: center;    
+    justify-content: center; 
+    
+    padding: 30px 20px;
+    width: 220px; 
+    text-align: center; 
+    font-size: 18px;
+    font-weight: 900;
+    
+    z-index: 10000; 
+    opacity: 0; 
+    pointer-events: none; 
+}
+
+/* Vòng tròn trắng chứa icon */
+.notice-add-to-cart .checkmark {
+    margin-right: 0; 
+    margin-bottom: 16px; /* Đẩy chữ xích xuống dưới */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    color: #20c997; 
+    border-radius: 50%;
+    width: 48px; 
+    height: 48px;
+}
+
+.notice-add-to-cart .checkmark i {
+    font-size: 26px;
+}
+
+.notice-add-to-cart.opacity-100 {
+    opacity: 1 !important;
+    transform: translate(-50%, -50%) scale(1) !important;
+}
+.notice-add-to-cart.opacity-0 {
+    opacity: 0 !important;
+    z-index: -1;
+}
+</style>
+
+<button id="btn-add-cart" data-id="<?= htmlspecialchars($madausach) ?>" class="btn-cart-custom">
+    <i class="fa-solid fa-cart-shopping me-2"></i> Thêm vào giỏ hàng
+</button>
+
+<div id="toast-cart" class="notice-add-to-cart opacity-0">
+    <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+    <span>Đã thêm vào giỏ hàng</span>
+</div>
 
 <script>
 document.getElementById('btn-add-cart').addEventListener('click', function() {
-    // 1. Lấy mã sách từ nút bấm
     var madausach = this.getAttribute('data-id');
     var btn = this;
 
-    // 2. Đổi giao diện nút thành "Đang xử lý..." để biểu diễn độ trễ
+    // FIX LỖI GIẬT NÚT: 
+    var currentWidth = btn.offsetWidth;
+    btn.style.width = currentWidth + 'px';
+    
     var originalHTML = btn.innerHTML;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Đang thêm...';
     btn.disabled = true;
 
-    // 3. Đóng gói dữ liệu
     var formData = new FormData();
     formData.append('madausach', madausach);
 
-    // 4. Gửi yêu cầu ngầm (AJAX) tới file xử lý PHP
     fetch('/ajax/add_to_cart.php', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
-        // Trả lại trạng thái cũ cho nút bấm
         btn.innerHTML = originalHTML;
         btn.disabled = false;
+        btn.style.width = ''; 
 
         if(data.status === 'success') {
-            // Hiện thông báo thành công xanh lá cây cực nét
-            Swal.fire({
-                title: 'Thành công!',
-                text: data.message,
-                icon: 'success',
-                timer: 1500,
-                showConfirmButton: false
-            });
             
-            // Chỗ này sau này ông có thiết kế cái Icon Giỏ Hàng trên Header 
-            // thì cập nhật số lượng data.total_items vào cái Icon đó nhé!
-            console.log("Tổng số sách trong giỏ: " + data.total_items);
+            // Hiện thông báo Toast nảy từ giữa màn hình
+            var toast = document.getElementById('toast-cart');
+            if(toast) {
+                toast.classList.remove('opacity-0');
+                toast.classList.add('opacity-100');
+
+                setTimeout(function() {
+                    toast.classList.remove('opacity-100');
+                    toast.classList.add('opacity-0');
+                }, 2000); // xuất hiện 2 giây 
+            }
+
+            // Cập nhật số đỏ trên Header
+            var cartBadge = document.getElementById('cart-badge');
+            if (cartBadge) {
+                cartBadge.innerText = data.total_items;
+                cartBadge.classList.remove('d-none'); 
+                
+                cartBadge.style.transform = 'translate(-50%, -50%) scale(1.3)';
+                setTimeout(function() {
+                    cartBadge.style.transform = 'translate(-50%, -50%) scale(1)';
+                }, 200);
+            }
         } else {
-            Swal.fire('Lỗi!', data.message, 'error');
+            alert('Lỗi: ' + data.message);
         }
     })
     .catch(error => {
         btn.innerHTML = originalHTML;
         btn.disabled = false;
-        Swal.fire('Thất bại!', 'Đứt kết nối với máy chủ!', 'error');
+        btn.style.width = '';
+        alert('Đứt kết nối với máy chủ!');
     });
 });
 </script>

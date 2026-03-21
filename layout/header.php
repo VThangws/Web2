@@ -8,6 +8,12 @@ require_once __DIR__ . '/../database/ConnectDB.php';
 // Lấy đối tượng kết nối mysqli từ ConnectDB
 $conn = ConnectDB::getInstance()->getConnection();
 
+$so_luong_gio_hang = 0;
+if (isset($_SESSION['cart'])) {
+    foreach ($_SESSION['cart'] as $item) {
+        $so_luong_gio_hang += $item['soluong'];
+    }
+}
 // Xử lý thông tin người dùng (Độc giả/Thủ thư)
 $user = null;
 if (isset($_SESSION['user_id'])) {
@@ -66,9 +72,11 @@ if (isset($_SESSION['user_id'])) {
                 <a href="/User-form/Login_Form/Login_Form.php" class="main-btn main-btn-primary">Đăng nhập</a>
             <?php endif; ?>
 
-            <!-- Icon giỏ hàng: dùng Font Awesome -->
-            <a href="/index.php?page=giohang" class="main-icon-btn main-cart">
-                <i class="fa-solid fa-cart-shopping"></i>
+            <a href="#miniCart" data-bs-toggle="offcanvas" role="button" aria-controls="miniCart" class="main-icon-btn main-cart position-relative d-inline-flex align-items-center justify-content-center" style="text-decoration: none; margin-left: 10px;">
+                <i class="fa-solid fa-cart-shopping fs-5 text-dark"></i>
+                <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger <?= $so_luong_gio_hang > 0 ? '' : 'd-none' ?>" style="font-size: 0.65rem; padding: 0.25em 0.5em; margin-top: 5px; margin-left: -5px;">
+                    <?= $so_luong_gio_hang ?>
+                </span>
             </a>
         </div>
     </div>
@@ -83,7 +91,152 @@ if (isset($_SESSION['user_id'])) {
     </div>
 </header>
 
+</header>
+
+<div class="offcanvas offcanvas-end shadow" tabindex="-1" id="miniCart" aria-labelledby="miniCartLabel" style="width: 360px;">
+    <div class="offcanvas-header border-bottom">
+        <h5 class="offcanvas-title fw-bold fs-6" id="miniCartLabel">Sản phẩm trong giỏ (<span id="mini-cart-count"><?= $so_luong_gio_hang ?></span>)</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    
+    <div class="offcanvas-body" id="mini-cart-body">
+        </div>
+    
+    <style>
+    .btn-mini-checkout {
+        background-color: #20c997;
+        color: white;
+        border: 1px solid #20c997;
+        border-radius: 50px;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .btn-mini-checkout:hover {
+        background-color: #1aa179;
+        border-color: #1aa179;
+        color: white;
+    }
+
+    .btn-mini-close {
+        background-color: white;
+        color: #20c997;
+        border: 1px solid #20c997;
+        border-radius: 50px;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .btn-mini-close:hover {
+        background-color: #eafaf5;
+        color: #1aa179;
+        border-color: #1aa179;
+    }
+    </style>
+
+    <div class="offcanvas-footer border-top p-3 bg-white">
+        <a href="/index.php?page=cart" class="btn btn-mini-checkout w-100 fw-bold mb-3 py-2">Chi tiết giỏ hàng</a>
+        <button type="button" class="btn btn-mini-close w-100 fw-bold py-2" data-bs-dismiss="offcanvas">Đóng</button>
+    </div>
+</div>
+
 <script>
     window.user_id = <?= isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null' ?>;
 </script>
-<script src="/assets/js/header.js" defer></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    
+    // 1. ĐỒNG BỘ HÓA SỐ LƯỢNG
+    function syncCartBadge() {
+        fetch('/ajax/get_cart_count.php')
+        .then(response => response.json())
+        .then(data => {
+            let badge = document.getElementById('cart-badge');
+            let miniCount = document.getElementById('mini-cart-count');
+            
+            if (badge) {
+                badge.innerText = data.total_items;
+                if (data.total_items > 0) {
+                    badge.classList.remove('d-none');
+                } else {
+                    badge.classList.add('d-none');
+                }
+            }
+            if (miniCount) {
+                miniCount.innerText = data.total_items;
+            }
+        })
+        .catch(err => console.log('Lỗi đồng bộ:', err));
+    }
+
+    syncCartBadge();
+
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) syncCartBadge();
+    });
+    window.addEventListener('focus', syncCartBadge);
+
+    // 2. XỬ LÝ MINI CART
+    var miniCartEl = document.getElementById('miniCart');
+    var miniCartBody = document.getElementById('mini-cart-body');
+
+    function loadMiniCart(showLoading = true) {
+        if(!miniCartBody) return;
+        
+        if (showLoading) {
+            miniCartBody.innerHTML = '<div class="text-center mt-5"><i class="fa-solid fa-spinner fa-spin fs-3 text-secondary"></i><p class="mt-2 text-secondary small">Đang tải...</p></div>';
+        }
+
+        fetch('/ajax/get_mini_cart.php')
+        .then(response => response.json())
+        .then(data => {
+            miniCartBody.innerHTML = data.html; // Cập nhật thẳng HTML, không qua bước loading
+            syncCartBadge(); 
+        });
+    }
+
+    if(miniCartEl) {
+        // Khi mở offcanvas mới cho hiện loading
+        miniCartEl.addEventListener('show.bs.offcanvas', function() {
+            loadMiniCart(true); 
+        });
+    }
+
+    document.body.addEventListener('click', function(e) {
+        let btn = e.target.closest('.btn-mini-update');
+        if (!btn) return;
+
+        let madausach = btn.getAttribute('data-id');
+        let action = btn.getAttribute('data-action');
+
+        let formData = new FormData();
+        formData.append('madausach', madausach);
+        formData.append('action', action);
+
+        // Giữ lại chiều rộng của nút để tránh giật layout khi đổi chữ thành "..."
+        let btnWidth = btn.offsetWidth;
+        btn.style.width = btnWidth + 'px';
+        btn.disabled = true;
+        let originalContent = btn.innerHTML;
+        btn.innerHTML = '...'; 
+
+        fetch('/ajax/update_cart.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                loadMiniCart(false); 
+
+                if (window.location.href.includes('page=cart')) {
+                    location.reload();
+                }
+            }
+        })
+        .catch(err => {
+            console.error("Lỗi cập nhật giỏ:", err);
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            btn.style.width = 'auto';
+        });
+    });
+});
+</script>
