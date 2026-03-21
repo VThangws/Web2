@@ -9,10 +9,10 @@
       $stmt->bind_param("sssss", $macuonsach, $madausach,
       $mavitri, $trangthai, $tinhtrang);
       if($stmt->execute()) {
-        echo "<script>alert('Đã cập nhật thông tin cuốn sách ". $macuonsach . "');</script>";
+        echo "<script>alert('Đã thêm thông tin cuốn sách ". $macuonsach . "');</script>";
       }
       else {
-        echo "<script>alert('Cập nhật thông tin cuốn sách không thành công!');</script>";
+        echo "<script>alert('Thêm thông tin cuốn sách không thành công!');</script>";
       }
     }
 

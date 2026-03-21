@@ -1,151 +1,72 @@
-document.addEventListener("DOMContentLoaded", () => {
+// Hiệu ứng typing + xuất hiện cho phần GIỚI THIỆU TỔNG QUAN
+document.addEventListener('DOMContentLoaded', () => {
+    const section = document.querySelector('.library-intro');
+    const title = document.querySelector('.type-title');
+    const p1 = document.querySelector('.intro-1');
+    const p2 = document.querySelector('.intro-2');
+    const img = document.querySelector('.intro-image');
 
-    const section = document.querySelector(".library-intro");
-    const title = document.querySelector(".type-title");
-    const p1 = document.querySelector(".intro-1");
-    const p2 = document.querySelector(".intro-2");
-    const img = document.querySelector(".intro-image");
+    if (!section || !title) return;
+
+    if (!section || !title || !p1 || !p2 || !img) return;
 
     const originalText = title.textContent;
-    title.textContent = "";
+    title.textContent = '';
 
     let hasTyped = false;
 
-    function typeWriter(text, el, speed = 40) {
+    function typeWriter(text, el, speed = 20) {
         let i = 0;
-
         function typing() {
             if (i < text.length) {
                 el.textContent += text.charAt(i);
                 i++;
                 setTimeout(typing, speed);
             } else {
-
-                setTimeout(() => p1.classList.add("show"), 300);
-                setTimeout(() => p2.classList.add("show"), 900);
-                setTimeout(() => img.classList.add("show"), 1200);
-
+                if (p1) setTimeout(() => p1.classList.add('show'), 300);
+                if (p2) setTimeout(() => p2.classList.add('show'), 900);
+                if (img) setTimeout(() => img.classList.add('show'), 1200);
             }
         }
-
         typing();
     }
 
     const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
-
             if (entry.isIntersecting && !hasTyped) {
-
                 hasTyped = true;
                 typeWriter(originalText, title);
                 observer.unobserve(section);
-
             }
-
         });
-    }, {
-        threshold: 0.5
-    });
+    }, { threshold: 0.5 });
 
     observer.observe(section);
-
-});
-// scroll reveal toàn bộ section
-const sections = document.querySelectorAll(".reveal-section");
-
-const observerSection = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-
-            entry.target.classList.add("active");
-
-            const items = entry.target.querySelectorAll(".reveal-item");
-
-            items.forEach((item, i) => {
-                setTimeout(() => {
-                    item.classList.add("active");
-                }, 200 * i);
-            });
-
-        }
-    });
-}, {
-    threshold: 0.25
 });
 
-sections.forEach(section => {
-    observerSection.observe(section);
-});
-
-// Scroll animation kiểu Apple cho trang home
-
-document.addEventListener('DOMContentLoaded', () => {
+// Scroll reveal cho các section và item trên home
+(function () {
     const sections = document.querySelectorAll('.reveal-section');
-
     if (!sections.length) return;
 
-    // Thêm class để bật snap scrolling trên body
-    document.body.classList.add('snap-scroll');
-
-    if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                const sec = entry.target;
-                if (entry.isIntersecting) {
-                    sections.forEach(s => {
-                        if (s !== sec) s.classList.remove('section-active');
-                    });
-                    sec.classList.add('section-active');
-                }
-            });
-        }, {
-            threshold: 0.6
-        });
-
-        sections.forEach(sec => observer.observe(sec));
-    } else {
-        sections[0].classList.add('section-active');
-    }
-});
-
-// === Full-page section scroll: chỉ chặn wheel ở lần lướt xuống đầu tiên và trong thời gian auto scroll ===
-(function () {
-    const introSection = document.querySelector('.library-intro');
-    if (!introSection) return;
-
-    let firstScrollHandled = false;
-    let isAutoScrolling = false;
-
-    window.addEventListener('wheel', (e) => {
-        // Nếu đang auto scroll sau lần đầu thì chặn để tránh người dùng phá animation
-        if (isAutoScrolling) {
-            e.preventDefault();
-            return;
-        }
-
-        // Chỉ xử lý logic đặc biệt cho lần lướt xuống đầu tiên
-        if (!firstScrollHandled && e.deltaY > 0) {
-            const introTop = introSection.getBoundingClientRect().top;
-            if (introTop > 0) {
-                e.preventDefault();
-                firstScrollHandled = true;
-                isAutoScrolling = true;
-                introSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                setTimeout(() => {
-                    isAutoScrolling = false;
-                }, 800); // sau 0.8s coi như auto scroll xong, trả wheel về bình thường
-                return;
-            } else {
-                // nếu banner đã không còn trên viewport thì xem như đã qua lần đầu
-                firstScrollHandled = true;
+    const observerSection = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                const items = entry.target.querySelectorAll('.reveal-item');
+                items.forEach((item, i) => {
+                    setTimeout(() => {
+                        item.classList.add('visible');
+                    }, 200 * i);
+                });
             }
-        }
+        });
+    }, { threshold: 0.25 });
 
-        // Các wheel sau (hoặc wheel không phải lần đầu lướt xuống) đều để browser xử lý bình thường
-    }, { passive: false });
+    sections.forEach(section => observerSection.observe(section));
 })();
 
-// === Full-page section scroll: từ lần lướt xuống đầu tiên tới hết section thống kê cuối cùng ===
+// Full-page section scroll: từ lần lướt xuống đầu tiên tới hết section thống kê cuối cùng
 (function () {
     const allSections = Array.from(document.querySelectorAll('.reveal-section'));
     const introSection = document.querySelector('.library-intro');
@@ -156,12 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsIndex = allSections.indexOf(statsSection);
     if (introIndex === -1 || statsIndex === -1 || statsIndex <= introIndex) return;
 
-    // Danh sách section sẽ bị điều khiển scroll: từ Giới thiệu đến hết Thống kê
     const sections = allSections.slice(introIndex, statsIndex + 1);
 
-    let fullPageActive = false;    // đã bắt đầu chế độ chặn scroll + snap
-    let isAutoScrolling = false;   // đang auto scroll
-    let currentIndex = 0;          // index trong mảng sections
+    let fullPageActive = false;
+    let isAutoScrolling = false;
+    let currentIndex = 0;
 
     function scrollToSection(index) {
         if (index < 0 || index >= sections.length) return;
@@ -195,26 +115,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     window.addEventListener('wheel', (e) => {
-        // Nếu chưa kích hoạt chế độ full-page và lướt xuống lần đầu
+        // Kích hoạt full-page khi lần đầu lướt xuống từ trên banner vào phần giới thiệu
         if (!fullPageActive && e.deltaY > 0) {
             const introTop = introSection.getBoundingClientRect().top;
             if (introTop > 0) {
-                // Đang ở trên phần Giới thiệu (banner còn hiện) -> kích hoạt chế độ full-page từ đây
                 e.preventDefault();
                 fullPageActive = true;
-                currentIndex = 0; // luôn vào section Giới thiệu đầu tiên
+                currentIndex = 0;
                 scrollToSection(0);
                 return;
             }
-            // Nếu đã xuống dưới Giới thiệu rồi thì coi như người dùng đã vượt qua điểm bắt đầu
             fullPageActive = true;
             detectCurrentSection();
         }
 
-        // Nếu chưa active thì cho scroll bình thường
         if (!fullPageActive) return;
 
-        // Nếu đang auto scroll thì chặn input để tránh giật
         if (isAutoScrolling) {
             e.preventDefault();
             return;
@@ -224,33 +140,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const atLastSection = currentIndex === sections.length - 1;
 
-        // Cuộn xuống
         if (e.deltaY > 0) {
-            // Nếu còn section phía dưới trong chuỗi thì snap tiếp
             if (!atLastSection) {
                 e.preventDefault();
                 scrollToSection(currentIndex + 1);
             } else {
-                // Đang ở section Thống kê (cuối chuỗi) và người dùng tiếp tục lướt xuống
-                // -> tắt chế độ full-page để có thể cuộn xuống footer bình thường
+                // Đang ở thống kê, lướt xuống nữa thì tắt chế độ để cuộn tiếp tới footer
                 fullPageActive = false;
-                // KHÔNG e.preventDefault() ở đây để lần cuộn này đi xuyên xuống footer
             }
         } else {
-            // Cuộn lên trong phạm vi sections (Giới thiệu -> các section trước Thống kê)
             if (currentIndex > 0) {
                 e.preventDefault();
                 scrollToSection(currentIndex - 1);
             } else {
-                // Ở section Giới thiệu, nếu cuộn lên thì thoát khỏi chế độ và trả scroll cho trình duyệt
+                // Lên trên khỏi phần giới thiệu thì tắt chế độ
                 fullPageActive = false;
-                // Không chặn để cuộn ngược lên banner bình thường
             }
         }
     }, { passive: false });
 })();
 
-// === Random rolling numbers for stats section ===
+// Random rolling numbers cho section thống kê
 (function () {
     const statsSection = document.querySelector('.stats-section');
     if (!statsSection) return;
@@ -270,14 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const target = parseInt(clean || '0', 10);
             if (!target) return;
 
-            const duration = 1500 + Math.random() * 800; // 1.5s - 2.3s
+            const duration = 1500 + Math.random() * 800;
             const startTime = performance.now();
 
             function update(now) {
                 const progress = Math.min((now - startTime) / duration, 1);
                 const current = Math.floor(target * progress);
 
-                // randomize last digit while not finished
                 let display = current;
                 if (progress < 1) {
                     const randLast = Math.floor(Math.random() * 10);
@@ -309,12 +218,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         obs.observe(statsSection);
     } else {
-        // fallback: start after small delay
         setTimeout(startStatsAnimation, 1000);
     }
 })();
 
-// Nút quay lại đầu trang (back-to-top bubble)
+// Nút quay lại đầu trang riêng cho home (nếu chưa có)
 (function () {
     const btn = document.getElementById('back-to-top');
     if (!btn) return;
@@ -333,3 +241,226 @@ document.addEventListener('DOMContentLoaded', () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 })();
+
+// 3D carousel bìa sách bên phải banner
+(function () {
+    const slider = document.querySelector('.banner-cover-slider');
+    if (!slider) return;
+
+    const cards = Array.from(slider.querySelectorAll('.banner-cover-card'));
+    if (cards.length === 0) return;
+
+    const prevBtn = slider.querySelector('.banner-prev');
+    const nextBtn = slider.querySelector('.banner-next');
+
+    let current = 0;
+
+    function updatePositions() {
+        const n = cards.length;
+        const center = current;
+        const left = (current - 1 + n) % n;
+        const right = (current + 1) % n;
+
+        cards.forEach((card, idx) => {
+            card.classList.remove('position-center', 'position-left', 'position-right', 'position-hidden');
+            if (idx === center) card.classList.add('position-center');
+            else if (idx === left) card.classList.add('position-left');
+            else if (idx === right) card.classList.add('position-right');
+            else card.classList.add('position-hidden');
+        });
+    }
+
+    function goNext() {
+        current = (current + 1) % cards.length;
+        updatePositions();
+    }
+
+    function goPrev() {
+        current = (current - 1 + cards.length) % cards.length;
+        updatePositions();
+    }
+
+    updatePositions();
+
+    let timer = setInterval(goNext, 1500);
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            goNext();
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            clearInterval(timer);
+            goPrev();
+        });
+    }
+})();
+
+// Banner: load sách theo thể loại và đổ vào slider 3D bên phải
+(function () {
+    const genreSelect = document.getElementById('bannerGenreSelect');
+    const slider = document.getElementById('bannerCoverSlider');
+    if (!genreSelect || !slider) return;
+
+    function renderBooks(books) {
+        slider.innerHTML = `
+            <button class="banner-nav banner-prev" type="button">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
+            <div class="banner-cover-track"></div>
+            <button class="banner-nav banner-next" type="button">
+                <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+        `;
+
+        const track = slider.querySelector('.banner-cover-track');
+        books.forEach((b, idx) => {
+            const card = document.createElement('div');
+            card.className = 'banner-cover-card';
+            card.dataset.index = String(idx);
+            const imgSrc = b.anhbia ? `/assets/img/books/${b.anhbia}` : '/assets/img/categories/booknew.png';
+            card.innerHTML = `<img src="${imgSrc}" alt="${b.tensach || ''}">`;
+            track.appendChild(card);
+        });
+
+        // Khởi động lại 3D carousel sau khi render
+        initBannerCarousel();
+    }
+
+    function loadBooksByGenre(matheloai) {
+        fetch(`/ajax/banner_books.php?matheloai=${encodeURIComponent(matheloai || '')}`)
+            .then(res => res.json())
+            .then(renderBooks)
+            .catch(() => renderBooks([]));
+    }
+
+    // Lần đầu load: tất cả thể loại (random)
+    loadBooksByGenre('');
+
+    genreSelect.addEventListener('change', () => {
+        loadBooksByGenre(genreSelect.value);
+    });
+})();
+
+// Gợi ý hôm nay: đổi câu nói hay mỗi ngày
+(function () {
+    const badge = document.querySelector('.banner-badge');
+    const title = document.querySelector('.banner-book-title');
+    const desc = document.querySelector('.banner-desc');
+    if (!badge || !title || !desc) return;
+
+    const quotes = [
+        {
+            badge: 'GỢI Ý HÔM NAY',
+            title: 'Đọc sách mỗi ngày, mở rộng thế giới của bạn',
+            desc: 'Từng trang sách lật qua không chỉ mang theo kiến thức mà còn mở ra những góc nhìn hoàn toàn mới mẻ. Thay vì lướt điện thoại vô định, hãy thử dành ra 15 phút tĩnh lặng mỗi ngày để đắm chìm vào những con chữ. Bạn sẽ bất ngờ với cách tư duy của mình dần trở nên sắc bén và tâm hồn được bồi đắp sâu sắc hơn.'
+        },
+        {
+            badge: 'CÂU NÓI HÔM NAY',
+            title: 'Không có người không thích đọc, chỉ là chưa tìm thấy cuốn sách của mình',
+            desc: 'Giống như việc tìm kiếm một người bạn tri kỷ, đôi khi chúng ta cần kiên nhẫn thử nghiệm nhiều thể loại khác nhau. Đừng ngại bước ra khỏi vùng an toàn để khám phá một tác phẩm viễn tưởng hay một cuốn tản văn nhẹ nhàng. Chắc chắn có một câu chuyện ngoài kia đang kiên nhẫn chờ đợi để được bạn lật mở.'
+        },
+        {
+            badge: 'GỢI Ý HÔM NAY',
+            title: 'Mỗi cuốn sách là một người thầy',
+            desc: 'Bất kể bạn đang chênh vênh giữa những ngã rẽ cuộc sống, hay đơn giản là cần một lời khuyên để vượt qua khó khăn, luôn có những người đã đi trước và đúc kết kinh nghiệm thành sách. Hãy để những bộ óc vĩ đại nhất của nhân loại làm người dẫn đường, soi sáng cho những quyết định quan trọng của bạn.'
+        },
+        {
+            badge: 'TRÍ THỨC MỖI NGÀY',
+            title: 'Sách là nơi an toàn để thử những trải nghiệm mới',
+            desc: 'Chỉ với một cuốn sách trên tay, bạn đã sở hữu tấm vé thông hành quyền lực nhất: du hành ngược thời gian, vươn tới tương lai hay dạo bước trên những vùng đất xa xôi. Sách trao cho bạn đặc quyền được sống hàng ngàn cuộc đời rực rỡ khác nhau mà không phải chịu bất kỳ rủi ro nào ở hiện tại.'
+        }
+    ];
+
+    // Dùng số ngày kể từ 1970 để chọn câu, nên mỗi ngày sẽ là một câu cố định
+    const todayIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+    const q = quotes[todayIndex % quotes.length];
+
+    badge.textContent = q.badge;
+    title.textContent = q.title;
+    desc.textContent = q.desc;
+})();
+
+// Bóng sách mờ phía sau cuốn đang active
+function updateBannerShadow(centerCard) {
+    const col = document.querySelector('.banner-cover-col');
+    if (!col || !centerCard) return;
+
+    let shadow = col.querySelector('.banner-cover-shadow');
+    if (!shadow) {
+        shadow = document.createElement('div');
+        shadow.className = 'banner-cover-shadow';
+        shadow.innerHTML = '<img src="" alt="Bóng sách">';
+        col.appendChild(shadow);
+    }
+
+    const img = centerCard.querySelector('img');
+    const shadowImg = shadow.querySelector('img');
+    if (img && shadowImg) {
+        shadowImg.src = img.src;
+    }
+}
+
+// Khởi tạo carousel 3D cho banner-cover-slider
+function initBannerCarousel() {
+    const slider = document.querySelector('.banner-cover-slider');
+    if (!slider) return;
+
+    const cards = Array.from(slider.querySelectorAll('.banner-cover-card'));
+    if (!cards.length) return;
+
+    const prevBtn = slider.querySelector('.banner-prev');
+    const nextBtn = slider.querySelector('.banner-next');
+
+    let current = 0;
+
+    function updatePositions() {
+        const n = cards.length;
+        const center = current;
+        const left = (current - 1 + n) % n;
+        const right = (current + 1) % n;
+
+        cards.forEach((card, idx) => {
+            card.classList.remove('position-center', 'position-left', 'position-right', 'position-hidden');
+            if (idx === center) card.classList.add('position-center');
+            else if (idx === left) card.classList.add('position-left');
+            else if (idx === right) card.classList.add('position-right');
+            else card.classList.add('position-hidden');
+        });
+
+        updateBannerShadow(cards[center]);
+    }
+
+    function goNext() {
+        current = (current + 1) % cards.length;
+        updatePositions();
+    }
+
+    function goPrev() {
+        current = (current - 1 + cards.length) % cards.length;
+        updatePositions();
+    }
+
+    updatePositions();
+
+    let timer = setInterval(goNext, 1500);
+
+    if (nextBtn) {
+        nextBtn.onclick = () => {
+            clearInterval(timer);
+            goNext();
+        };
+    }
+    if (prevBtn) {
+        prevBtn.onclick = () => {
+            clearInterval(timer);
+            goPrev();
+        };
+    }
+}
+
+// Gọi initBannerCarousel một lần khi DOM ready (trong trường hợp đã có sẵn card cứng)
+document.addEventListener('DOMContentLoaded', initBannerCarousel);

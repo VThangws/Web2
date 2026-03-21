@@ -41,27 +41,38 @@ if (isset($_SESSION['user_id'])) {
             </a>
         </div>
 
-        <!-- Menu giữa -->
-        <nav class="main-nav">
-            <ul>
-                <li><a href="/index.php?page=sach&loai=skill">Kinh Tế</a></li>
-                <li><a href="/index.php?page=sach&loai=detective">Văn Học Trong Nước</a></li>
-                <li><a href="/index.php?page=sach&loai=children">Văn Học Nước Ngoài</a></li>
-                <li><a href="/index.php?page=sach&loai=literature">Đời Sống</a></li>
-                <li><a href="/index.php?page=sach&loai=romance">Thiếu Nhi</a></li>
-                <li><a href="/index.php?page=sach&loai=education">Phát Triển Bản Thân</a></li>
-                <li><a href="/index.php?page=sach&loai=fantasy">Tin Học Ngoại Ngữ</a></li>
-                <li><a href="/index.php?page=sach&loai=fantasy">Chuyên Ngành</a></li>
-            </ul>
-        </nav>
+        <!-- Thanh tìm kiếm lớn + các link thể loại -->
+        <div class="header-search-big">
+            <div id="searchBarHeader" class="search-big-box">
+                <input id="searchInputHeader" type="text" placeholder="Tìm theo thương hiệu...">
+                <button id="btnSearchHeader" type="button">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <div class="search-category-mini">
+                <a href="/index.php?page=books&loai=kinh-te">Kinh Tế</a>
+                <a href="/index.php?page=books&loai=van-hoc-trong-nuoc">Văn Học Trong Nước</a>
+                <a href="/index.php?page=books&loai=van-hoc-nuoc-ngoai">Văn Học Nước Ngoài</a>
+                <a href="/index.php?page=books&loai=doi-song">Đời Sống</a>
+                <a href="/index.php?page=books&loai=thieu-nhi">Thiếu Nhi</a>
+                <a href="/index.php?page=books&loai=phat-trien-ban-than">Phát Triển Bản Thân</a>
+                <a href="/index.php?page=books&loai=tin-hoc-ngoai-ngu">Tin Học Ngoại Ngữ</a>
+                <a href="/index.php?page=books&loai=chuyen-nganh">Chuyên Ngành</a>
+            </div>
+        </div>
 
         <!-- Icon + nút bên phải -->
         <div class="main-actions">
-            <!-- Icon tìm kiếm -->
-            <button id="openSearch" class="main-icon-btn" type="button">
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </button>
-
+            <div class="header-support">
+                <div class="support-icon">
+                    <i class="fa-solid fa-phone-volume"></i>
+                </div>
+                <div class="support-info">
+                    <span class="support-title">Hỗ trợ khách hàng</span>
+                    <strong class="support-phone">0987654321</strong>
+                </div>
+            </div>
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($user): ?>
                 <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
@@ -81,14 +92,17 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
 
-    <!-- Khung tìm kiếm overlay -->
-    <div id="searchOverlay" class="search-overlay">
-        <div class="search-box">
-            <button class="close-btn" id="closeSearch">&times;</button>
-            <input type="text" id="searchInput" placeholder="Nhập tên sách, tác giả...">
-            <div id="searchResultBox"></div>
+    <!-- Subheader: thanh menu phụ bên dưới header chính
+    <div class="subheader">
+        <div class="subheader-inner">
+            <a href="/index.php" class="subheader-link">Trang chủ</a>
+            <a href="/index.php?page=books&sort=latest" class="subheader-link">Sách mới</a>
+            <a href="/index.php?page=books&tag=best-seller" class="subheader-link">Bán chạy</a>
+            <a href="/index.php?page=books&tag=khuyen-mai" class="subheader-link">Khuyến mãi</a>
+            <a href="/index.php?page=books" class="subheader-link">Tất cả sách</a>
+            <a href="#" class="subheader-link">Hỗ trợ</a>
         </div>
-    </div>
+    </div> -->
 </header>
 
 </header>

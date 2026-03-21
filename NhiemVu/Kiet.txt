@@ -1,10 +1,10 @@
 - Quản lý nhân viên (r)
 - Quản lý đọc giả (r)
-- Quản lý tài khoản
+- Quản lý tài khoản(Nhường Thắng)
 - Quản lý tác giả (r)
 - Quản lý thể loại (r)
 - Quản lý nhà xuất bản(r)
 - Quản lý đầu sách(phần sửa căn quá mắc cái ảnh bìa để sau)
-- Quản lý cuốn sách
-- Quản lý phiếu nhập
-- Quản lý phiếu xuất
+- Quản lý cuốn sách(r)
+- Quản lý phiếu nhập(Nhường Thắng)
+- Quản lý phiếu xuất(Nhường Thắng)

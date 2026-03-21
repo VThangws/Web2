@@ -1,34 +1,322 @@
+/* === BANNER CHUNG === */
 .slide {
     width: 100%;
     overflow: hidden;
     position: relative;
-    opacity: 1;
-    /* luôn hiển thị */
-    transform: translateY(0);
-    /* không đẩy xuống */
-    transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
-/* Bóng trắng cố định ngay dưới banner */
-.slide::after {
+.digital-banner {
+    height: 650px;
+    background: #ffffff;
+    /* nền trắng */
+    color: #111;
+    overflow: hidden;
+}
+
+.digital-banner .container-md {
+    height: 100%;
+}
+
+/* Text bên trái banner */
+.banner-text-col {
+    padding-top: 20px;
+}
+
+.banner-title {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #111;
+}
+
+.banner-filter {
+    margin-bottom: 10px;
+}
+
+.banner-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(0, 0, 0, 0.15);
+    padding: 3px 12px;
+    font-size: 12px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.banner-filter-btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.banner-filter-label {
+    font-size: 12px;
+    color: #666;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.banner-filter-select {
+    min-width: 220px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: #f7f7f7;
+    color: #222;
+    font-size: 13px;
+    outline: none;
+}
+
+.banner-filter-select option {
+    color: #000;
+}
+
+.banner-badge {
+    display: inline-block;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    padding: 3px 10px;
+    font-size: 11px;
+    letter-spacing: 0.07em;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    text-transform: uppercase;
+    color: #444;
+}
+
+.banner-book-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.banner-desc {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #444;
+    max-width: 520px;
+}
+
+.banner-actions {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.banner-read-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffb300;
+    color: #111;
+    border-radius: 999px;
+    padding: 7px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    text-decoration: none;
+}
+
+.banner-read-btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+.banner-read-btn:hover {
+    background: #ffc94f;
+    color: #000;
+}
+
+.banner-like-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #333;
+    cursor: pointer;
+}
+
+.banner-like-btn .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.banner-cover-col {
+    position: relative;
+    padding-top: 10px;
+}
+
+.banner-cover-col::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 420px;
+    height: 420px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--banner-accent-color, rgba(47, 128, 237, 0.18)) 0%, rgba(255, 255, 255, 0) 60%);
+    filter: blur(2px);
+    z-index: -1;
+}
+
+.scroll-down-indicator {
+    margin-top: 6px;
+    color: #444;
+    text-decoration: none;
+    font-size: 22px;
+    opacity: 0.8;
+}
+
+.scroll-down-indicator:hover {
+    opacity: 1;
+}
+
+@media (max-width: 991.98px) {
+    .digital-banner {
+        height: auto;
+        padding: 18px 0 14px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .digital-banner {
+        display: none;
+    }
+}
+
+/* === 3D CARD SLIDER BÊN PHẢI (giống hình mẫu 3D-Card Slider) === */
+.banner-cover-slider {
+    position: relative;
+    width: 380px;
+    height: 360px;
+    perspective: 1200px;
+    z-index: 1;
+}
+
+.banner-cover-track {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.banner-cover-card {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 230px;
+    height: 320px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.55);
+    transform-origin: center center;
+    transform: translate(-50%, -50%) scale(0.7);
+    opacity: 0;
+    /* mặc định ẩn */
+    transition:
+        transform 0.5s ease,
+        opacity 0.5s ease,
+        box-shadow 0.5s ease,
+        z-index 0.5s ease;
+}
+
+.banner-cover-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Card trung tâm: to, rõ như tấm ở giữa hình */
+.banner-cover-card.position-center {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    z-index: 3;
+}
+
+/* Card bên trái: nhỏ hơn, hơi nghiêng, mờ nhẹ */
+.banner-cover-card.position-left {
+    transform: translate(-90%, -50%) scale(0.8) rotateY(15deg);
+    opacity: 0.5;
+    z-index: 2;
+}
+
+/* Card bên phải: nhỏ hơn, hơi nghiêng, mờ nhẹ */
+.banner-cover-card.position-right {
+    transform: translate(-10%, -50%) scale(0.8) rotateY(-15deg);
+    opacity: 0.5;
+    z-index: 2;
+}
+
+/* Card khác (nếu có >3) ẩn */
+.banner-cover-card.position-hidden {
+    opacity: 0;
+    z-index: 1;
+}
+
+/* Nút điều hướng tròn hai bên */
+.banner-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+.banner-prev {
+    left: -18px;
+}
+
+.banner-next {
+    right: -18px;
+}
+
+.banner-nav .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.banner-nav:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 991.98px) {
+    .banner-cover-slider {
+        width: 300px;
+        height: 300px;
+    }
+
+    .banner-cover-card {
+        width: 200px;
+        height: 280px;
+    }
+}
+
+/* .slide::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
     bottom: -20px;
-    /* đẩy vùng hiệu ứng xuống một chút */
     height: 100px;
-    /* dải màu dày hơn, bạn có thể chỉnh 30–60px */
     pointer-events: none;
-    /* Màu đậm ở dưới, nhạt dần lên trên */
     background: linear-gradient(to top,
             rgba(255, 255, 255, 1) 0%,
-            /* dưới cùng trắng đậm */
             rgba(255, 255, 255, 0.7) 40%,
-            rgba(255, 255, 255, 0.0) 100%
-            /* phía trên trong suốt */
-        );
-}
+            rgba(255, 255, 255, 0.0) 100%);
+} */
 
 .slide.visible {
     opacity: 1;
@@ -46,7 +334,7 @@
 .scroll-down-indicator {
     margin-top: 8px;
     /* cách banner một chút */
-    color: #000;
+    color: #444;
     text-decoration: none;
     font-size: 0.9rem;
     gap: 4px;
@@ -143,7 +431,7 @@
 
 .scroll-down-indicator .material-symbols-outlined {
     font-size: 32px;
-    color: #000;
+    color: #444;
     animation: arrowBounce 1.2s infinite ease-in-out;
 }
 
@@ -524,4 +812,35 @@ body.snap-scroll {
 
 .back-to-top-bubble .material-symbols-outlined {
     font-size: 24px;
+}
+
+/* Bóng sách mờ phía sau cuốn đang active */
+.banner-cover-shadow {
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    width: 800px;
+    height: 550px;
+    transform: translate(-50%, -50%) scale(1.02);
+    border-radius: 32px;
+    overflow: hidden;
+    opacity: 0.32;
+    filter: blur(10px);
+    z-index: 0;
+    /* dưới card 3D nhưng trên nền loang */
+    pointer-events: none;
+}
+
+.banner-cover-shadow img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-cover-slider {
+    z-index: 1;
+}
+
+.banner-cover-col::before {
+    z-index: -1;
 }
