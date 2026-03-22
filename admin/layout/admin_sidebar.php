@@ -22,6 +22,24 @@ if (isset($_SESSION['user_id'])) {
 }
 ?>
 
+<?php
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+$isActive = static function (string $pattern) use ($currentPath): bool {
+    return $pattern !== '' && strpos($currentPath, $pattern) !== false;
+};
+
+$isHome = $isActive('/admin/adminMenu.php');
+$isDauSach = $isActive('/admin/QuanLy/Sach/DauSach/') || $isActive('/admin/QuanLy/Sach/CuonSach/');
+$isHoaDon = $isActive('/admin/QuanLy/HoaDon/');
+$isTaiKhoan = $isActive('/admin/QuanLy/TaiKhoan/');
+$isDocGia = $isActive('/admin/QuanLy/DocGia/');
+$isNhanVien = $isActive('/admin/QuanLy/NhanVien/');
+$isTacGia = $isActive('/admin/QuanLy/TacGia/');
+$isTheLoai = $isActive('/admin/QuanLy/Sach/TheLoai/');
+$isNxb = $isActive('/admin/QuanLy/Sach/NhaXuatBan/');
+$isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
+?>
+
 <link rel="stylesheet" href="/assets/css/header.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/admin_sidebar.css">
@@ -37,61 +55,61 @@ if (isset($_SESSION['user_id'])) {
     <nav class="admin-sidebar-nav">
         <ul>
             <li>
-                <a href="/admin/adminMenu.php">
+                <a href="/admin/adminMenu.php" class="<?php echo $isHome ? 'active' : ''; ?>">
                     <i class="fa-solid fa-house admin-nav-icon" aria-hidden="true"></i>
                     <span>Trang chủ</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">
+                <a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php" class="<?php echo $isDauSach ? 'active' : ''; ?>">
                     <i class="fa-solid fa-book admin-nav-icon" aria-hidden="true"></i>
                     <span>Đầu sách</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/HoaDon/QL_HoaDon.php">
+                <a href="/admin/QuanLy/HoaDon/QL_HoaDon.php" class="<?php echo $isHoaDon ? 'active' : ''; ?>">
                     <i class="fa-solid fa-receipt admin-nav-icon" aria-hidden="true"></i>
                     <span>Hóa đơn</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">
+                <a href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php" class="<?php echo $isTaiKhoan ? 'active' : ''; ?>">
                     <i class="fa-solid fa-user-gear admin-nav-icon" aria-hidden="true"></i>
                     <span>Tài khoản</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/DocGia/QL_DocGia.php">
+                <a href="/admin/QuanLy/DocGia/QL_DocGia.php" class="<?php echo $isDocGia ? 'active' : ''; ?>">
                     <i class="fa-solid fa-users admin-nav-icon" aria-hidden="true"></i>
                     <span>Độc giả</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">
+                <a href="/admin/QuanLy/NhanVien/QL_NhanVien.php" class="<?php echo $isNhanVien ? 'active' : ''; ?>">
                     <i class="fa-solid fa-user-tie admin-nav-icon" aria-hidden="true"></i>
                     <span>Nhân viên</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/TacGia/QL_TacGia.php">
+                <a href="/admin/QuanLy/TacGia/QL_TacGia.php" class="<?php echo $isTacGia ? 'active' : ''; ?>">
                     <i class="fa-solid fa-pen-nib admin-nav-icon" aria-hidden="true"></i>
                     <span>Tác giả</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">
+                <a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php" class="<?php echo $isTheLoai ? 'active' : ''; ?>">
                     <i class="fa-solid fa-tags admin-nav-icon" aria-hidden="true"></i>
                     <span>Thể loại</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">
+                <a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php" class="<?php echo $isNxb ? 'active' : ''; ?>">
                     <i class="fa-solid fa-building admin-nav-icon" aria-hidden="true"></i>
                     <span>NXB</span>
                 </a>
             </li>
             <li>
-                <a href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">
+                <a href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php" class="<?php echo $isNhaCungCap ? 'active' : ''; ?>">
                     <i class="fa-solid fa-truck admin-nav-icon" aria-hidden="true"></i>
                     <span>Nhà cung cấp</span>
                 </a>
