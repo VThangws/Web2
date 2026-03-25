@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../database/ConnectDB.php';
+include_once __DIR__ . '/../layout/login.php';
 
 // Lấy đối tượng kết nối mysqli từ ConnectDB
 $conn = ConnectDB::getInstance()->getConnection();
@@ -29,7 +30,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 ?>
-
+<link rel="stylesheet" href="/assets/css/login.css">
 <link rel="stylesheet" href="/assets/css/header.css">
 
 <header class="main-header">
@@ -74,13 +75,14 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
             <!-- Nút Đăng ký / Đăng nhập -->
-            <?php if ($user): ?>
+           <?php if ($user): ?>
                 <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
                     Xin chào, <?= htmlspecialchars($user['name'], ENT_QUOTES) ?>
                 </a>
             <?php else: ?>
-                <a href="/User-form/Login_Form/Register_Form.php" class="main-btn main-btn-outline">Đăng ký</a>
-                <a href="/User-form/Login_Form/Login_Form.php" class="main-btn main-btn-primary">Đăng nhập</a>
+                <button id="openLogin" class="main-btn main-btn-outline">
+                    Đăng nhập
+                <button>
             <?php endif; ?>
 
             <a href="#miniCart" data-bs-toggle="offcanvas" role="button" aria-controls="miniCart" class="main-icon-btn main-cart position-relative d-inline-flex align-items-center justify-content-center" style="text-decoration: none; margin-left: 10px;">
@@ -254,3 +256,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<script src="/assets/js/header.js" defer></script>
+<script src="/Login/login.js" defer></script>

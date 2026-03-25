@@ -4,12 +4,17 @@
     private $matkhau;
     private $manhomquyen;
     private $manv;
+    private $madocgia;
 
-    public function __construct($tendangnhap, $matkhau, $manhomquyen, $manv) {
+    public function __construct($tendangnhap, $matkhau, $manhomquyen,
+      $manv = NULL, 
+      $madocgia = NULL
+    ) {
       $this->tendangnhap = $tendangnhap;
       $this->matkhau = $matkhau;
       $this->manhomquyen = $manhomquyen;
       $this->manv = $manv;
+      $this->madocgia = $madocgia;
     }
 
     // getters
@@ -27,6 +32,10 @@
 
     public function getManv() {
       return $this->manv;
+    }
+
+    public function getMadocgia(){
+      return $this->madocgia;
     }
   }
 ?>
