@@ -305,24 +305,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('bannerCoverSlider');
     if (!genreSelect || !slider) return;
 
+    // Tìm hàm renderBooks trong home.js và sửa lại như sau:
     function renderBooks(books) {
         slider.innerHTML = `
-            <button class="banner-nav banner-prev" type="button">
-                <span class="material-symbols-outlined">chevron_left</span>
-            </button>
-            <div class="banner-cover-track"></div>
-            <button class="banner-nav banner-next" type="button">
-                <span class="material-symbols-outlined">chevron_right</span>
-            </button>
-        `;
+        <button class="banner-nav banner-prev" type="button">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <div class="banner-cover-track"></div>
+        <button class="banner-nav banner-next" type="button">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+    `;
 
         const track = slider.querySelector('.banner-cover-track');
+        // Tìm hàm renderBooks trong home.js và sửa lại đoạn card.innerHTML:
         books.forEach((b, idx) => {
             const card = document.createElement('div');
             card.className = 'banner-cover-card';
             card.dataset.index = String(idx);
+
             const imgSrc = b.anhbia ? `/assets/img/books/${b.anhbia}` : '/assets/img/categories/booknew.png';
-            card.innerHTML = `<img src="${imgSrc}" alt="${b.tensach || ''}">`;
+
+            // Thêm thẻ <a> bao quanh thẻ <img>
+            // Sử dụng madausach lấy từ file banner_books.php để tạo link
+            card.innerHTML = `
+                <a href="/index.php?page=book_detail&madausach=${encodeURIComponent(b.madausach)}" 
+                style="display: block; width: 100%; height: 100%; text-decoration: none;">
+                    <img src="${imgSrc}" alt="${b.tensach || ''}" style="width: 100%; height: 100%; object-fit: cover;">
+                </a>
+            `;
             track.appendChild(card);
         });
 

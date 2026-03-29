@@ -55,9 +55,9 @@
 
 .books-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px 18px;
-    max-width: 4 * 180px;
+    max-width: 4 * 200px;
     /* khoảng 4 card mỗi hàng, 180px là width card + gap ước lượng */
     margin-left: auto;
     margin-right: auto;

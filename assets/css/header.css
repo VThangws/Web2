@@ -142,6 +142,23 @@
   color: #000;
 }
 
+#btnSearchHeader {
+  background-color: #2ecc71;
+  /* Đổi mã màu nền tại đây */
+  color: #ffffff;
+  /* Đổi màu icon tại đây */
+  border: none;
+  /* Thêm transition nếu muốn hiệu ứng mượt mà khi hover */
+  transition: background-color 0.3s ease;
+}
+
+/* Đổi màu khi di chuột qua nút (hover) */
+#btnSearchHeader:hover {
+  background-color: #27ae60;
+  /* Màu nền khi hover */
+  color: #ffffff;
+}
+
 .search-suggest-box .ss-item:hover {
   background: #f5f5f5;
 }

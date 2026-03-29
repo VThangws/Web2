@@ -146,58 +146,58 @@ if ($totalPages > 0) {
             
             <span class="text-dark fw-bold"><?= htmlspecialchars($breadcrumbText) ?></span>
         </div>
-    </div>
-    <div class="books-grid-wrapper">
-        <div class="books-grid">
-            <?php if ($result && $result->num_rows > 0): ?>
-                <?php while ($book = $result->fetch_assoc()): ?>
-                    <div class="book-card">
-                        <a href="/index.php?page=book_detail&madausach=<?= htmlspecialchars($book['madausach'], ENT_QUOTES) ?>" style="text-decoration: none; color: inherit; display: block;">
-                            <div class="book-cover">
-                                <?php if (!empty($book['anhbia'])): ?>
-                                    <img src="/assets/img/books/<?= htmlspecialchars($book['anhbia'], ENT_QUOTES) ?>"
-                                         alt="<?= htmlspecialchars($book['tensach'], ENT_QUOTES) ?>">
-                                <?php else: ?>
-                                    <img src="/assets/img/categories/booknew.png" alt="<?= htmlspecialchars($book['tensach'], ENT_QUOTES) ?>">
-                                <?php endif; ?>
-                            </div>
-                            
-                            <div class="book-title">
-                                <?= htmlspecialchars($book['tensach'], ENT_QUOTES) ?>
-                            </div>
-                        </a>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p style="color:#fff; text-align: center; width: 100%;">Chưa có sách nào trong hệ thống hoặc không tìm thấy kết quả phù hợp.</p>
-            <?php endif; ?>
+    </div><div class="books-grid-wrapper">
+        <div id="books-list-content">
+            <div class="books-grid">
+                <?php if ($result && $result->num_rows > 0): ?>
+                    <?php while ($book = $result->fetch_assoc()): ?>
+                        <div class="book-card">
+                            <a href="/index.php?page=book_detail&madausach=<?= htmlspecialchars($book['madausach'], ENT_QUOTES) ?>" style="text-decoration: none; color: inherit; display: block;">
+                                <div class="book-cover">
+                                    <?php if (!empty($book['anhbia'])): ?>
+                                        <img src="/assets/img/books/<?= htmlspecialchars($book['anhbia'], ENT_QUOTES) ?>"
+                                             alt="<?= htmlspecialchars($book['tensach'], ENT_QUOTES) ?>">
+                                    <?php else: ?>
+                                        <img src="/assets/img/categories/booknew.png" alt="<?= htmlspecialchars($book['tensach'], ENT_QUOTES) ?>">
+                                    <?php endif; ?>
+                                </div>
+                                <div class="book-title">
+                                    <?= htmlspecialchars($book['tensach'], ENT_QUOTES) ?>
+                                </div>
+                            </a>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <p style="color:#000; text-align: center; width: 100%;">Chưa có sách nào trong hệ thống hoặc không tìm thấy kết quả phù hợp.</p>
+                <?php endif; ?>
+            </div>
         </div>
 
-        <?php if ($totalPages > 1): ?>
-            <div class="pagination-wrapper">
-                <div class="pagination-advanced">
-                    
-                    <?php if ($page > 1): ?>
-                        <a href="<?= buildPageUrl($page - 1) ?>" class="page-link prev-page" title="Trang trước">&larr;</a>
-                    <?php endif; ?>
-
-                    <?php foreach ($pagesToDisplay as $i): ?>
-                        <?php if ($i === '...'): ?>
-                            <span class="page-link ellipsis">...</span>
-                        <?php else: ?>
-                            <a href="<?= buildPageUrl($i) ?>" 
-                               class="page-link <?= ($i == $page) ? 'active' : '' ?>">
-                                <?= $i ?>
-                            </a>
+        <div id="pagination-content">
+            <?php if ($totalPages > 1): ?>
+                <div class="pagination-wrapper">
+                    <div class="pagination-advanced">
+                        <?php if ($page > 1): ?>
+                            <a href="<?= buildPageUrl($page - 1) ?>" class="page-link prev-page" data-page="<?= $page - 1 ?>">&larr;</a>
                         <?php endif; ?>
-                    <?php endforeach; ?>
 
-                    <?php if ($page < $totalPages): ?>
-                        <a href="<?= buildPageUrl($page + 1) ?>" class="page-link next-page" title="Trang sau">&rarr;</a>
-                    <?php endif; ?>
+                        <?php foreach ($pagesToDisplay as $i): ?>
+                            <?php if ($i === '...'): ?>
+                                <span class="page-link ellipsis">...</span>
+                            <?php else: ?>
+                                <a href="<?= buildPageUrl($i) ?>" 
+                                   class="page-link <?= ($i == $page) ? 'active' : '' ?>" data-page="<?= $i ?>">
+                                    <?= $i ?>
+                                </a>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
 
+                        <?php if ($page < $totalPages): ?>
+                            <a href="<?= buildPageUrl($page + 1) ?>" class="page-link next-page" data-page="<?= $page + 1 ?>">&rarr;</a>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
     </div>
 </div>

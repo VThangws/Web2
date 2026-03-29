@@ -8,6 +8,25 @@ if ($genreResult && $genreResult->num_rows > 0) {
         $homeGenres[] = $g;
     }
 }
+// 1. Đếm tổng số đầu sách (dausach)
+$queryBooks = "SELECT COUNT(*) as total FROM dausach";
+$resBooks = $homeConn->query($queryBooks);
+$totalBooks = ($resBooks) ? $resBooks->fetch_assoc()['total'] : 0;
+
+// 2. Đếm tổng số bạn đọc (docgia)
+$queryReaders = "SELECT COUNT(*) as total FROM docgia";
+$resReaders = $homeConn->query($queryReaders);
+$totalReaders = ($resReaders) ? $resReaders->fetch_assoc()['total'] : 0;
+
+// 3. Đếm số lượng tài liệu số (Giả sử dựa trên số lượng cuốn sách có trạng thái 'SanSang')
+$queryDigital = "SELECT COUNT(*) as total FROM cuonsach WHERE trangthai = 'SanSang'";
+$resDigital = $homeConn->query($queryDigital);
+$totalDigital = ($resDigital) ? $resDigital->fetch_assoc()['total'] : 0;
+
+// 4. Đếm số lượng thể loại (theloai)
+$queryCategories = "SELECT COUNT(*) as total FROM theloai";
+$resCategories = $homeConn->query($queryCategories);
+$totalCategories = ($resCategories) ? $resCategories->fetch_assoc()['total'] : 0;
 ?>
 
 <section class="d-md-block d-none">
@@ -313,8 +332,6 @@ if ($genreResult && $genreResult->num_rows > 0) {
 <!-- THỐNG KÊ NGẮN VỀ THƯ VIỆN -->
 <section class="py-5 bg-light reveal-section stats-section">
     <div class="container-md">
-        <div class="row text-center reveal-item section-title">
-        </div>
         <div class="row mb-4 text-center reveal-item section-title">
             <div class="col">
                 <h3 class="fw-bold">Thống kê hiện tại của thư viện</h3>
@@ -323,20 +340,28 @@ if ($genreResult && $genreResult->num_rows > 0) {
         </div>
         <div class="row text-center">
             <div class="col-md-3 col-6 mb-3 mb-md-0 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="10000">10.000+</h3>
+                <h3 class="fw-bold mb-1" data-target="<?= $totalBooks ?>">
+                    <?= number_format($totalBooks) ?>
+                </h3>
                 <p class="text-muted mb-0">Đầu sách</p>
             </div>
             <div class="col-md-3 col-6 mb-3 mb-md-0 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="3000">3.000+</h3>
+                <h3 class="fw-bold mb-1" data-target="<?= $totalReaders ?>">
+                    <?= number_format($totalReaders) ?>
+                </h3>
                 <p class="text-muted mb-0">Bạn đọc</p>
             </div>
             <div class="col-md-3 col-6 mb-3 mb-md-0 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="500">500+</h3>
-                <p class="text-muted mb-0">Tài liệu số</p>
+                <h3 class="fw-bold mb-1" data-target="<?= $totalDigital ?>">
+                    <?= number_format($totalDigital) ?>
+                </h3>
+                <p class="text-muted mb-0">Sách sẵn sàng</p>
             </div>
             <div class="col-md-3 col-6 reveal-item section-item">
-                <h3 class="fw-bold mb-1" data-target="20">20+</h3>
-                <p class="text-muted mb-0">Chủ đề chuyên ngành</p>
+                <h3 class="fw-bold mb-1" data-target="<?= $totalCategories ?>">
+                    <?= number_format($totalCategories) ?>
+                </h3>
+                <p class="text-muted mb-0">Thể loại</p>
             </div>
         </div>
     </div>
