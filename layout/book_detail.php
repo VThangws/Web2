@@ -49,6 +49,14 @@ try {
     if ($book) {
         $matheloai = $book['matheloai'];
 
+        // ĐẾM SỐ LƯỢNG SÁCH CÒN SẴN SÀNG ĐỂ MƯỢN
+        $sql_stock = "SELECT COUNT(*) as soluong_con FROM cuonsach WHERE madausach = ? AND trangthai = 'SanSang'";
+        $stmt_stock = $conn->prepare($sql_stock);
+        $stmt_stock->bind_param("s", $madausach);
+        $stmt_stock->execute();
+        $stock_data = $stmt_stock->get_result()->fetch_assoc();
+        $soluong_con = $stock_data ? $stock_data['soluong_con'] : 0;
+        
         // 3.2. Truy vấn Sách đề xuất CÙNG THỂ LOẠI
         $sql_related = "SELECT * FROM DauSach WHERE matheloai = ? AND madausach != ? LIMIT 5";
         $stmt_related = $conn->prepare($sql_related);
@@ -110,6 +118,14 @@ try {
                         ?>
                     </span>
                     <span class="average-rating-text text-muted ms-2 border-start ps-2"><?= $luot ?> Đánh giá</span>
+
+                    <span class="text-muted ms-2 border-start ps-2">
+                        <?php if ($soluong_con > 0): ?>
+                            Còn <strong class="text-success"><?= $soluong_con ?></strong> cuốn
+                        <?php else: ?>
+                            <strong class="text-danger">Tạm hết sách</strong>
+                        <?php endif; ?>
+                    </span>
                 </div>
 
                 <div class="book-info-grid mt-4">
@@ -166,97 +182,6 @@ try {
 
     <?php endif; ?>
 </div>
-
-<style>
-/* 1. CSS NÚT THÊM VÀO GIỎ HÀNG  */
-.btn-cart-custom {
-    background-color: #20c997;
-    color: white;
-    border: none;
-    padding: 12px 32px;
-    font-weight: 900;
-    font-size: 18px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 220px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(32, 201, 151, 0.3);
-}
-
-.btn-cart-custom:hover {
-    background-color: #1aa179;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(32, 201, 151, 0.4);
-}
-
-.btn-cart-custom:disabled {
-    background-color: #8ce1c6;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-/* 2. CSS CHO TOAST  */
-.notice-add-to-cart {
-    position: fixed; 
-    top: 50%;     
-    left: 50%;    
-    transform: translate(-50%, -50%) scale(0.9); 
-    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-    
-    border-radius: 16px; /* Bo góc mượt cho khối vuông */
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.15); 
-    background-color: #20c997; /* Đồng bộ màu xanh */
-    color: white; 
-    
-    /* ÉP 2 DÒNG BẰNG FLEXBOX */
-    display: flex;
-    flex-direction: column; 
-    align-items: center;    
-    justify-content: center; 
-    
-    padding: 30px 20px;
-    width: 220px; 
-    text-align: center; 
-    font-size: 18px;
-    font-weight: 900;
-    
-    z-index: 10000; 
-    opacity: 0; 
-    pointer-events: none; 
-}
-
-/* Vòng tròn trắng chứa icon */
-.notice-add-to-cart .checkmark {
-    margin-right: 0; 
-    margin-bottom: 16px; /* Đẩy chữ xích xuống dưới */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
-    color: #20c997; 
-    border-radius: 50%;
-    width: 48px; 
-    height: 48px;
-}
-
-.notice-add-to-cart .checkmark i {
-    font-size: 26px;
-}
-
-.notice-add-to-cart.opacity-100 {
-    opacity: 1 !important;
-    transform: translate(-50%, -50%) scale(1) !important;
-}
-.notice-add-to-cart.opacity-0 {
-    opacity: 0 !important;
-    z-index: -1;
-}
-</style>
 
 <div id="toast-cart" class="notice-add-to-cart opacity-0">
     <span class="checkmark"><i class="fa-solid fa-check"></i></span>
