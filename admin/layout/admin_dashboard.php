@@ -260,6 +260,10 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart',
+                },
                 plugins: {
                     legend: { display: false },
                 },
@@ -284,6 +288,12 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart',
+                    animateRotate: true,
+                    animateScale: true,
+                },
                 plugins: {
                     legend: { position: 'bottom' },
                 },
