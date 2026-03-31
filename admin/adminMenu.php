@@ -17,7 +17,6 @@ require_admin_login();
 
     <link rel="stylesheet" href="/assets/css/header.css">
     <link rel="stylesheet" href="/assets/css/slide.css">
-    <link rel="stylesheet" href="/assets/css/footer.css">
     <link rel="stylesheet" href="/assets/fonts/font.css">
     <link rel="stylesheet" href="/assets/css/books.css">
 </head>
@@ -25,7 +24,6 @@ require_admin_login();
 <?php
 include __DIR__ . '/layout/admin_sidebar.php';
 include __DIR__ . '/layout/admin_dashboard.php';
-include __DIR__ . '/../layout/footer.php';
 ?>
 
 

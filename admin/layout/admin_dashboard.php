@@ -155,7 +155,7 @@ try {
                             <div class="service-icon">📚</div>
                             <h5 class="fw-bold">Quản lý đầu sách</h5>
                             <p class="mb-3">Thêm/sửa/xóa đầu sách, ảnh và thông tin mô tả.</p>
-                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/DauSach/QL_DauSach.php">Mở phân hệ</a>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">Mở phân hệ</a>
                         </div>
                     </div>
 
@@ -202,8 +202,8 @@ try {
                             <p class="mb-3">Quản lý dữ liệu nền phục vụ tra cứu và phân loại.</p>
                             <div class="d-flex gap-2 flex-wrap">
                                 <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/TacGia/QL_TacGia.php">Tác giả</a>
-                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/TheLoai/QL_TheLoai.php">Thể loại</a>
-                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/NhaXuatBan/QL_NhaXuatBan.php">NXB</a>
+                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">Thể loại</a>
+                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">NXB</a>
                             </div>
                         </div>
                     </div>
