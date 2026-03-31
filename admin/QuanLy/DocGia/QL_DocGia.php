@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../auth.php';
 require_admin_login();
+require_admin_permission('DOCGIA');
 ?>
 <html lang="en">
 <head>
