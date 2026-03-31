@@ -23,14 +23,17 @@ class DocGiaDAO {
 
     // ==================== ĐĂNG KÝ ====================
     public function dangKy(DocGia $dg, $matkhau) {
+        $ho = trim($dg->getHodocgia());
+        $ten = trim($dg->getTendocgia());
+        $email = trim($dg->getEmail());
+        $quyen = "DG"; // Mã nhóm quyền cho Độc giả
+        
         if ($this->emailTonTai($dg->getEmail())) {
             return ['success' => false, 'message' => 'Email đã được sử dụng!'];
         }
-
-        $ho = $dg->getHodocgia();
-        $ten = $dg->getTendocgia();
-        $email = $dg->getEmail();
-        $quyen = "DG"; // Mã nhóm quyền cho Độc giả
+        if (strlen($matkhau) < 6) {
+            return ['success' => false, 'message' => 'Mật khẩu phải có ít nhất 6 ký tự!'];
+        }
 
         $ma  = $this->generateMa();
         $sql = "INSERT INTO docgia (madocgia, hodocgia, tendocgia, email)
@@ -71,10 +74,11 @@ class DocGiaDAO {
 
         $sql  = "UPDATE docgia SET sdt=?, ngaysinh=?, diachi=? WHERE madocgia=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("sss",
+        $stmt->bind_param("ssss",
             $sdt,
             $ngaysinh,
             $diachi,
+            $ma
         );
 
         if ($stmt->execute()) {
