@@ -261,8 +261,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: {
-                    duration: 1200,
+                    duration: 1400,
                     easing: 'easeOutQuart',
+                    delay: (ctx) => {
+                        // Delay each bar a bit so it feels "moving" on refresh
+                        if (ctx.type !== 'data' || ctx.mode !== 'default') return 0;
+                        return ctx.dataIndex * 80;
+                    },
+                },
+                animations: {
+                    // Force bars to animate from 0 every time the chart is created (refresh)
+                    y: {
+                        from: 0,
+                    },
                 },
                 plugins: {
                     legend: { display: false },
