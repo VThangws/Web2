@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth.php';
+require_admin_login();
 ?>
 <!DOCTYPE html>
 <html lang="vi">
