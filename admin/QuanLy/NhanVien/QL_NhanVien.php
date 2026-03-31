@@ -1,3 +1,8 @@
+<?php
+require_once __DIR__ . '/../../auth.php';
+require_admin_login();
+require_admin_permission('NHANVIEN');
+?>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">

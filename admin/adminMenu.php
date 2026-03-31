@@ -1,5 +1,7 @@
 <?php
-session_start();
+require_once __DIR__ . '/auth.php';
+require_admin_login();
+require_admin_permission('DASHBOARD');
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -16,7 +18,6 @@ session_start();
 
     <link rel="stylesheet" href="/assets/css/header.css">
     <link rel="stylesheet" href="/assets/css/slide.css">
-    <link rel="stylesheet" href="/assets/css/footer.css">
     <link rel="stylesheet" href="/assets/fonts/font.css">
     <link rel="stylesheet" href="/assets/css/books.css">
 </head>
@@ -24,7 +25,6 @@ session_start();
 <?php
 include __DIR__ . '/layout/admin_sidebar.php';
 include __DIR__ . '/layout/admin_dashboard.php';
-include __DIR__ . '/../layout/footer.php';
 ?>
 
 

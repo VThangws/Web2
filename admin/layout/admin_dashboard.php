@@ -155,7 +155,7 @@ try {
                             <div class="service-icon">📚</div>
                             <h5 class="fw-bold">Quản lý đầu sách</h5>
                             <p class="mb-3">Thêm/sửa/xóa đầu sách, ảnh và thông tin mô tả.</p>
-                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/DauSach/QL_DauSach.php">Mở phân hệ</a>
+                            <a class="btn btn-sm btn-primary" href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">Mở phân hệ</a>
                         </div>
                     </div>
 
@@ -202,8 +202,8 @@ try {
                             <p class="mb-3">Quản lý dữ liệu nền phục vụ tra cứu và phân loại.</p>
                             <div class="d-flex gap-2 flex-wrap">
                                 <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/TacGia/QL_TacGia.php">Tác giả</a>
-                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/TheLoai/QL_TheLoai.php">Thể loại</a>
-                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/NhaXuatBan/QL_NhaXuatBan.php">NXB</a>
+                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">Thể loại</a>
+                                <a class="btn btn-sm btn-outline-primary" href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">NXB</a>
                             </div>
                         </div>
                     </div>
@@ -260,6 +260,21 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1400,
+                    easing: 'easeOutQuart',
+                    delay: (ctx) => {
+                        // Delay each bar a bit so it feels "moving" on refresh
+                        if (ctx.type !== 'data' || ctx.mode !== 'default') return 0;
+                        return ctx.dataIndex * 80;
+                    },
+                },
+                animations: {
+                    // Force bars to animate from 0 every time the chart is created (refresh)
+                    y: {
+                        from: 0,
+                    },
+                },
                 plugins: {
                     legend: { display: false },
                 },
@@ -284,6 +299,12 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 1200,
+                    easing: 'easeOutQuart',
+                    animateRotate: true,
+                    animateScale: true,
+                },
                 plugins: {
                     legend: { position: 'bottom' },
                 },

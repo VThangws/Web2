@@ -21,5 +21,5 @@ if (ini_get('session.use_cookies')) {
 
 session_destroy();
 
-header('Location: /index.php?loggedout=1');
+header('Location: /admin/login.php?loggedout=1');
 exit;

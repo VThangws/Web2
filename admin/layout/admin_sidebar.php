@@ -3,23 +3,33 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../database/ConnectDB.php';
+require_once __DIR__ . '/../auth.php';
 
-$conn = ConnectDB::getInstance()->getConnection();
+// Sidebar is only used in admin area; ensure logged in.
+require_admin_login();
 
-$user = null;
-if (isset($_SESSION['user_id'])) {
-    $stmtUser = $conn->prepare('SELECT * FROM users WHERE user_id = ?');
-    if ($stmtUser) {
-        $stmtUser->bind_param('i', $_SESSION['user_id']);
-        $stmtUser->execute();
-        $resultUser = $stmtUser->get_result();
-        if ($resultUser && $resultUser->num_rows > 0) {
-            $user = $resultUser->fetch_assoc();
-        }
-        $stmtUser->close();
-    }
-}
+$admin = admin_current_user();
+$adminUsername = (string)($admin['tendangnhap'] ?? 'Admin');
+$adminRole = (string)($admin['manhomquyen'] ?? '');
+$adminManv = (string)($admin['manv'] ?? '');
+?>
+
+<?php
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+$isActive = static function (string $pattern) use ($currentPath): bool {
+    return $pattern !== '' && strpos($currentPath, $pattern) !== false;
+};
+
+$isHome = $isActive('/admin/adminMenu.php');
+$isDauSach = $isActive('/admin/QuanLy/Sach/DauSach/') || $isActive('/admin/QuanLy/Sach/CuonSach/');
+$isHoaDon = $isActive('/admin/QuanLy/HoaDon/');
+$isTaiKhoan = $isActive('/admin/QuanLy/TaiKhoan/');
+$isDocGia = $isActive('/admin/QuanLy/DocGia/');
+$isNhanVien = $isActive('/admin/QuanLy/NhanVien/');
+$isTacGia = $isActive('/admin/QuanLy/TacGia/');
+$isTheLoai = $isActive('/admin/QuanLy/Sach/TheLoai/');
+$isNxb = $isActive('/admin/QuanLy/Sach/NhaXuatBan/');
+$isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
 ?>
 
 <link rel="stylesheet" href="/assets/css/header.css">
@@ -36,72 +46,101 @@ if (isset($_SESSION['user_id'])) {
 
     <nav class="admin-sidebar-nav">
         <ul>
-            <li>
-                <a href="/admin/adminMenu.php">
-                    <i class="fa-solid fa-house admin-nav-icon" aria-hidden="true"></i>
-                    <span>Trang chủ</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php">
-                    <i class="fa-solid fa-book admin-nav-icon" aria-hidden="true"></i>
-                    <span>Đầu sách</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/HoaDon/QL_HoaDon.php">
-                    <i class="fa-solid fa-receipt admin-nav-icon" aria-hidden="true"></i>
-                    <span>Hóa đơn</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">
-                    <i class="fa-solid fa-user-gear admin-nav-icon" aria-hidden="true"></i>
-                    <span>Tài khoản</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/DocGia/QL_DocGia.php">
-                    <i class="fa-solid fa-users admin-nav-icon" aria-hidden="true"></i>
-                    <span>Độc giả</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/NhanVien/QL_NhanVien.php">
-                    <i class="fa-solid fa-user-tie admin-nav-icon" aria-hidden="true"></i>
-                    <span>Nhân viên</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/TacGia/QL_TacGia.php">
-                    <i class="fa-solid fa-pen-nib admin-nav-icon" aria-hidden="true"></i>
-                    <span>Tác giả</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php">
-                    <i class="fa-solid fa-tags admin-nav-icon" aria-hidden="true"></i>
-                    <span>Thể loại</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php">
-                    <i class="fa-solid fa-building admin-nav-icon" aria-hidden="true"></i>
-                    <span>NXB</span>
-                </a>
-            </li>
-            <li>
-                <a href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">
-                    <i class="fa-solid fa-truck admin-nav-icon" aria-hidden="true"></i>
-                    <span>Nhà cung cấp</span>
-                </a>
-            </li>
+            <?php if (admin_has_permission('DASHBOARD')): ?>
+                <li>
+                    <a href="/admin/adminMenu.php" class="<?php echo $isHome ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-house admin-nav-icon" aria-hidden="true"></i>
+                        <span>Trang chủ</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('SACH')): ?>
+                <li>
+                    <a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php" class="<?php echo $isDauSach ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-book admin-nav-icon" aria-hidden="true"></i>
+                        <span>Đầu sách</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('HOADON')): ?>
+                <li>
+                    <a href="/admin/QuanLy/HoaDon/QL_HoaDon.php" class="<?php echo $isHoaDon ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-receipt admin-nav-icon" aria-hidden="true"></i>
+                        <span>Hóa đơn</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('TAIKHOAN')): ?>
+                <li>
+                    <a href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php" class="<?php echo $isTaiKhoan ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-user-gear admin-nav-icon" aria-hidden="true"></i>
+                        <span>Tài khoản</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('DOCGIA')): ?>
+                <li>
+                    <a href="/admin/QuanLy/DocGia/QL_DocGia.php" class="<?php echo $isDocGia ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-users admin-nav-icon" aria-hidden="true"></i>
+                        <span>Độc giả</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('NHANVIEN')): ?>
+                <li>
+                    <a href="/admin/QuanLy/NhanVien/QL_NhanVien.php" class="<?php echo $isNhanVien ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-user-tie admin-nav-icon" aria-hidden="true"></i>
+                        <span>Nhân viên</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('TACGIA')): ?>
+                <li>
+                    <a href="/admin/QuanLy/TacGia/QL_TacGia.php" class="<?php echo $isTacGia ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-pen-nib admin-nav-icon" aria-hidden="true"></i>
+                        <span>Tác giả</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('THELOAI')): ?>
+                <li>
+                    <a href="/admin/QuanLy/Sach/TheLoai/QL_TheLoai.php" class="<?php echo $isTheLoai ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-tags admin-nav-icon" aria-hidden="true"></i>
+                        <span>Thể loại</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('NXB')): ?>
+                <li>
+                    <a href="/admin/QuanLy/Sach/NhaXuatBan/QL_NhaXuatBan.php" class="<?php echo $isNxb ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-building admin-nav-icon" aria-hidden="true"></i>
+                        <span>NXB</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('NHACUNGCAP')): ?>
+                <li>
+                    <a href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php" class="<?php echo $isNhaCungCap ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-truck admin-nav-icon" aria-hidden="true"></i>
+                        <span>Nhà cung cấp</span>
+                    </a>
+                </li>
+            <?php endif; ?>
         </ul>
     </nav>
 
     <div class="admin-sidebar-actions">
         <?php
-        $displayName = $user && isset($user['name']) ? (string)$user['name'] : 'Admin';
+        $displayName = $adminUsername;
         $initial = 'A';
         if (function_exists('mb_substr')) {
             $initial = mb_strtoupper(mb_substr(trim($displayName), 0, 1, 'UTF-8'), 'UTF-8');
@@ -119,6 +158,14 @@ if (isset($_SESSION['user_id'])) {
             </span>
         </div>
 
+        <?php if ($adminRole !== '' || $adminManv !== ''): ?>
+            <div class="text-muted small" style="padding: 0 12px;">
+                <?php if ($adminRole !== ''): ?>Quyền: <?= htmlspecialchars($adminRole, ENT_QUOTES) ?><?php endif; ?>
+                <?php if ($adminRole !== '' && $adminManv !== ''): ?> · <?php endif; ?>
+                <?php if ($adminManv !== ''): ?>NV: <?= htmlspecialchars($adminManv, ENT_QUOTES) ?><?php endif; ?>
+            </div>
+        <?php endif; ?>
+
         <a href="/admin/logout.php" class="main-btn main-btn-primary" aria-label="Đăng xuất">
             <i class="fa-solid fa-right-from-bracket"></i>
             <span class="ms-2">Đăng xuất</span>
@@ -130,8 +177,3 @@ if (isset($_SESSION['user_id'])) {
     // Make room for the fixed left sidebar across admin pages.
     if (document.body) document.body.classList.add('admin-has-sidebar');
 </script>
-
-<script>
-    window.user_id = <?= isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null' ?>;
-</script>
-<script src="/assets/js/header.js" defer></script>
