@@ -11,9 +11,9 @@ require_admin_permission('SACH');
 </head>
 <body>
   <?php
-    require_once "../../../model/DauSach.php";
-    require_once "../../../DAO/DauSachDAO.php";
-    require_once "../../../database/ConnectDB.php";
+    require_once "../../../../model/Sach/DauSach.php";
+    require_once "../../../../DAO/Sach/DauSachDAO.php";
+    require_once "../../../../database/KetNoiDB.php";
     $dao = new DauSachDAO();
     // lấy thông tin đầu sách
     $dausach = $dao->getDauSach($conn, $_REQUEST['madausach']);
