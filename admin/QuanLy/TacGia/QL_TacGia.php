@@ -71,7 +71,6 @@ error_reporting(E_ERROR | E_PARSE);
         // thực hiện cập nhật
         $dao->Sua($conn, $matacgia, $tentacgia);
       }
-    }
   ?>
   <div class="panel">
     <h2>Thông tin tác giả</h2>
