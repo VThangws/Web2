@@ -48,7 +48,6 @@ error_reporting(E_ERROR | E_PARSE);
           $dao->Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email);
         }
       }
-    }
   ?>
     <div class="panel KhungThongTin">
       <form method="GET" class="form-grid">
