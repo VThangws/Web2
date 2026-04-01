@@ -1,6 +1,4 @@
 <?php
-  require_once '../../../model/TheLoai.php';
-
   class TheLoaiDAO {
     public function Them($conn, $matheloai, $tentheloai) {
       $sql = "INSERT INTO theloai (matheloai, tentheloai) VALUES (?, ?)";

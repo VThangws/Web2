@@ -1,4 +1,6 @@
 <?php
+  require_once __DIR__ . '/../../model/Sach/DauSach.php';
+
   class DauSachDAO {
     public function Them($conn, $madausach, $tensach,
     $namxuatban, $donggia, $matacgia,
@@ -74,7 +76,7 @@
     }
 
     public function Sua_Khong_AnhBia($conn, $madausach, $tensach,
-    $namxuatban, $donggia, $matacgia,
+    $namxuatban, $dongia, $matacgia,
     $matheloai, $manxb, $mota) {
       $sql = "UPDATE dausach SET
       tensach=?,
@@ -86,7 +88,7 @@
       mota=?
       WHERE madausach=?";
       $stmt = $conn->prepare($sql);
-      $stmt->bind_param("ssssssss", $tensach, $namxuatban, $dongia, $matacgia,
+      $stmt->bind_param("ssssssss", $tensach, $namxuatban, $donggia, $matacgia,
       $matheloai, $manxb, $mota, $madausach);
 
       if($stmt->execute()) {
@@ -134,6 +136,29 @@
       $result['mota'],
       $result['anhbia']);
       return $dausach;
+    }
+
+    public function TimKiem($conn, $keyword) {
+      $danhsach = [];
+      $sql = "SELECT * FROM dausach WHERE madausach LIKE ? OR tensach LIKE ?";
+      $stmt = $conn->prepare($sql);
+      $searchTerm = "%" . $keyword . "%";
+      $stmt->bind_param("ss", $searchTerm, $searchTerm);
+      $stmt->execute();
+      $result = $stmt->get_result();
+      while($row = $result->fetch_assoc()) {
+        $item = new DauSach($row['madausach'],
+        $row['tensach'], 
+        $row['namxuatban'],
+        $row['dongia'],
+        $row['matacgia'],
+        $row['matheloai'],
+        $row['manxb'],
+        $row['mota'],
+        $row['anhbia']);
+        $danhsach[] = $item;
+      }
+      return $danhsach;
     }
   }
 ?>

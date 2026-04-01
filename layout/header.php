@@ -44,14 +44,14 @@ $docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên 
             </div>
 
             <div class="search-category-mini">
-                <a href="/index.php?page=books&loai=kinh-te">Kinh Tế</a>
-                <a href="/index.php?page=books&loai=van-hoc-trong-nuoc">Văn Học Trong Nước</a>
-                <a href="/index.php?page=books&loai=van-hoc-nuoc-ngoai">Văn Học Nước Ngoài</a>
-                <a href="/index.php?page=books&loai=doi-song">Đời Sống</a>
-                <a href="/index.php?page=books&loai=thieu-nhi">Thiếu Nhi</a>
-                <a href="/index.php?page=books&loai=phat-trien-ban-than">Phát Triển Bản Thân</a>
-                <a href="/index.php?page=books&loai=tin-hoc-ngoai-ngu">Tin Học Ngoại Ngữ</a>
-                <a href="/index.php?page=books&loai=chuyen-nganh">Chuyên Ngành</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="kinh-te">Kinh Tế</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="van-hoc-trong-nuoc">Văn Học Trong Nước</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="van-hoc-nuoc-ngoai">Văn Học Nước Ngoài</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="doi-song">Đời Sống</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="thieu-nhi">Thiếu Nhi</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="phat-trien-ban-than">Phát Triển Bản Thân</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="tin-hoc-ngoai-ngu">Tin Học Ngoại Ngữ</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="chuyen-nganh">Chuyên Ngành</a>
             </div>
         </div>
 
@@ -142,7 +142,7 @@ $docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên 
         <button type="button" class="btn btn-mini-close w-100 fw-bold py-2" data-bs-dismiss="offcanvas">Đóng</button>
     </div>
 </div>
-
+<script src="/assets/js/header.js" defer></script>
 <script>
     window.user_id = <?= $docgia ? json_encode($docgia->getMadocgia()) : 'null' ?>;
 </script>

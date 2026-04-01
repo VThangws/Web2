@@ -1127,6 +1127,59 @@ CREATE TABLE `nhomquyen` (
   `tennhomquyen` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Seed roles & permissions (RBAC)
+--
+INSERT INTO `danhmucchucnang` (`machucnang`, `tenchucnang`) VALUES
+('DASHBOARD', 'Bảng điều khiển'),
+('SACH', 'Quản lý sách'),
+('HOADON', 'Quản lý hóa đơn'),
+('TAIKHOAN', 'Quản lý tài khoản'),
+('DOCGIA', 'Quản lý độc giả'),
+('NHANVIEN', 'Quản lý nhân viên'),
+('TACGIA', 'Quản lý tác giả'),
+('THELOAI', 'Quản lý thể loại'),
+('NXB', 'Quản lý nhà xuất bản'),
+('NHACUNGCAP', 'Quản lý nhà cung cấp')
+ON DUPLICATE KEY UPDATE `tenchucnang` = VALUES(`tenchucnang`);
+
+INSERT INTO `nhomquyen` (`manhomquyen`, `tennhomquyen`) VALUES
+('ADMIN', 'Quản trị'),
+('STAFF', 'Nhân viên'),
+('KETOAN', 'Kế toán')
+ON DUPLICATE KEY UPDATE `tennhomquyen` = VALUES(`tennhomquyen`);
+
+-- ADMIN: full access
+INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
+('ADMIN', 'DASHBOARD', 'ALL'),
+('ADMIN', 'SACH', 'ALL'),
+('ADMIN', 'HOADON', 'ALL'),
+('ADMIN', 'TAIKHOAN', 'ALL'),
+('ADMIN', 'DOCGIA', 'ALL'),
+('ADMIN', 'NHANVIEN', 'ALL'),
+('ADMIN', 'TACGIA', 'ALL'),
+('ADMIN', 'THELOAI', 'ALL'),
+('ADMIN', 'NXB', 'ALL'),
+('ADMIN', 'NHACUNGCAP', 'ALL')
+ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
+
+-- STAFF: typical library ops (no account management)
+INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
+('STAFF', 'DASHBOARD', 'ALL'),
+('STAFF', 'SACH', 'ALL'),
+('STAFF', 'DOCGIA', 'ALL'),
+('STAFF', 'NHACUNGCAP', 'ALL'),
+('STAFF', 'NXB', 'ALL'),
+('STAFF', 'TACGIA', 'ALL'),
+('STAFF', 'THELOAI', 'ALL')
+ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
+
+-- KETOAN: invoices only
+INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
+('KETOAN', 'DASHBOARD', 'ALL'),
+('KETOAN', 'HOADON', 'ALL')
+ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
+
 -- --------------------------------------------------------
 
 --
@@ -1339,6 +1392,19 @@ CREATE TABLE `taikhoan` (
   `manv` varchar(50) DEFAULT NULL,
   `madocgia` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Seed account for team testing
+-- Username: admin
+-- Password: 123456
+-- manhomquyen/manv NULL => treated as super-admin by admin/auth.php
+--
+INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`) VALUES
+('admin', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN', NULL)
+ON DUPLICATE KEY UPDATE
+  `matkhau` = '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm',
+  `manhomquyen` = 'ADMIN',
+  `manv` = NULL;
 
 -- --------------------------------------------------------
 

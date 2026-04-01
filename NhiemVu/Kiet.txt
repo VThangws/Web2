@@ -8,3 +8,4 @@
 - Quản lý cuốn sách(r)
 - Quản lý phiếu nhập(Nhường Thắng)
 - Quản lý phiếu xuất(Nhường Thắng)
+error_reporting(E_ERROR | E_PARSE);

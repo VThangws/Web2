@@ -1,4 +1,6 @@
 <?php
+  require_once __DIR__ . '/../../model/Sach/CuonSach.php';
+
   class CuonSachDAO {
     public function Them($conn, $macuonsach,
     $madausach, $mavitri,
@@ -41,6 +43,23 @@
         echo "<script>alert('Đã cập nhật thông tin cuốn sách ".$macuonsach."');</script>";
       }
       else echo "<script>alert('Cập nhật thông tin cuốn sách không thành công!');</script>";
+    }
+
+    public function TimKiem($conn, $keyword) {
+      $danhsach = [];
+      $sql = "SELECT * FROM cuonsach WHERE macuonsach LIKE ? OR madausach LIKE ?";
+      $stmt = $conn->prepare($sql);
+      $searchTerm = "%" . $keyword . "%";
+      $stmt->bind_param("ss", $searchTerm, $searchTerm);
+      $stmt->execute();
+      $result = $stmt->get_result();
+      while($row = $result->fetch_assoc()) {
+        $cuonsach = new CuonSach($row['macuonsach'],
+        $row['madausach'], $row['mavitri'], $row['trangthai'],
+        $row['tinhtrang']);
+        $danhsach[] = $cuonsach;
+      }
+      return $danhsach;
     }
 
     public function LayToanBoDanhSach($conn) {
