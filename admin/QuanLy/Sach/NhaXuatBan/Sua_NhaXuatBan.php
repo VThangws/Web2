@@ -7,7 +7,8 @@ require_admin_permission('NXB');
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Sửa nhà xuất bản</title>
+  <link rel="icon" type="image/png" href="/assets/img/logo-library/library.png">
 </head>
 <body>
   <?php

@@ -7,7 +7,8 @@ require_admin_permission('SACH');
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Quản lý cuốn sách</title>
+  <link rel="icon" type="image/png" href="/assets/img/logo-library/library.png">
   <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
