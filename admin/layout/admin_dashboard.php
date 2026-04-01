@@ -163,7 +163,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">🧾</div>
                             <h5 class="fw-bold">Hóa đơn</h5>
-                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <p class="mb-3">Quản lý phiếu mượn/trả/phạt/nhập, xem chi tiết và in phiếu.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/HoaDon/QL_HoaDon.php">Mở phân hệ</a>
                         </div>
                     </div>
@@ -171,7 +171,7 @@ try {
                     <div class="col-md-6 reveal-item section-item">
                         <div class="benefit-card h-100">
                             <div class="service-icon">👥</div>
-                            <h5 class="fw-bold">Quản lý bạn đọc</h5>
+                            <h5 class="fw-bold">Quản lý độc giả</h5>
                             <p class="mb-3">Theo dõi và cập nhật thông tin độc giả.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/DocGia/QL_DocGia.php">Mở phân hệ</a>
                         </div>
@@ -181,7 +181,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">🧑‍💼</div>
                             <h5 class="fw-bold">Quản lý nhân viên</h5>
-                            <p class="mb-3">Quản lý tài khoản/nhân sự phục vụ hệ thống.</p>
+                            <p class="mb-3">Quản lý thông tin nhân viên phục vụ hệ thống.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/NhanVien/QL_NhanVien.php">Mở phân hệ</a>
                         </div>
                     </div>
@@ -190,7 +190,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">👤</div>
                             <h5 class="fw-bold">Tài khoản</h5>
-                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <p class="mb-3">Quản lý tài khoản đăng nhập và nhóm quyền.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Mở phân hệ</a>
                         </div>
                     </div>
@@ -212,7 +212,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">🚚</div>
                             <h5 class="fw-bold">Nhà cung cấp</h5>
-                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <p class="mb-3">Quản lý danh sách nhà cung cấp và thông tin liên hệ.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Mở phân hệ</a>
                         </div>
                     </div>

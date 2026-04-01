@@ -202,7 +202,6 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
 <main class="container-fluid py-4">
     <div class="container-md">
         <h2 class="fw-bold mb-2">Quản lý phiếu</h2>
-        <p class="text-muted mb-3">Danh sách/chi tiết/in phiếu theo database hiện tại.</p>
 
         <ul class="nav nav-pills gap-2 mb-3">
             <?php foreach ($allowedTypes as $k => $label): ?>

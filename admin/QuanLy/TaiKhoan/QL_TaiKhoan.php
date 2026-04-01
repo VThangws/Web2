@@ -281,7 +281,6 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
         <div class="d-flex flex-wrap gap-2 align-items-end justify-content-between mb-3">
             <div>
                 <h2 class="fw-bold mb-1">Tài khoản</h2>
-                <p class="text-muted mb-0">Quản lý dữ liệu bảng <span class="fw-semibold">taikhoan</span>.</p>
             </div>
         </div>
 
