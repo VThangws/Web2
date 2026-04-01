@@ -8,16 +8,20 @@ require_admin_permission('TACGIA');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý tác giả</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <?php
     require_once '../../../database/ConnectDB.php';
-    require_once '../../../DAO/TacGiaDAO.php';
+    require_once dirname(__DIR__, 3) . '/DAO/Sach/TacGiaDAO.php';
+    $conn = ConnectDB::getInstance()->getConnection();
     $dao = new TacGiaDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "GET") {
+      $luachon = $_GET['luachon'] ?? '';
       // chia trường hợp
-      if($_GET['luachon'] == "Them") {
+      if($luachon == "Them") {
         if(empty($_GET['matacgia']) ||
         empty($_GET['tentacgia'])) {
           echo "<script>alert('Thông tin tác giả không được để trống!');</script>";
@@ -31,26 +35,21 @@ require_admin_permission('TACGIA');
           $dao->Them($conn, $matacgia, $tentacgia);
         }
       }
-      else if($_GET['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy mã tác giả
         $matacgia = $_GET['matacgia'];
         $dao->Xoa($conn, $matacgia);
       }
-      else if($_GET['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // lấy thông tin tác giả từ form
         $matacgia = $_GET['matacgia'];
         $tentacgia = $_GET['tentacgia'];
         // thực hiện cập nhật
         $dao->Sua($conn, $matacgia, $tentacgia);
       }
-      else echo "<script>alert('Chào mừng đến với trang quản lý tác giả!');</script>";
+      // No welcome popup
     }
   ?>
-  <div class="KhungMenu">
-    <?php
-      require_once '../../Menu/AdminMenu.php';
-    ?>
-  </div>
   <div class="KhungThongTin">
     <form method="GET">
       <label for="matacgia">Mã tác giả</label>
