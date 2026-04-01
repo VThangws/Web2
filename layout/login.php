@@ -1,11 +1,4 @@
 <?php
-require_once __DIR__. '/../DAO/DocGiaDAO.php';
-require_once __DIR__. '/../model/DocGia.php';
-require_once __DIR__. '/../database/ConnectDB.php';
-
-$dao = new DocGiaDAO();
-$thongbao = '';
-
 if (isset($_POST['btn-register'])) {
     $dg = new DocGia(
         $_POST['hodocgia'],
@@ -29,20 +22,20 @@ if (isset($_POST['btn-register'])) {
 <link rel="stylesheet" href="/assets/css/login.css">
 <script src="https://kit.fontawesome.com/8cf433228b.js" crossorigin="anonymous"></script>
 
+    <div class="modal fade" id="loginModal" >
+        <div class="modal-dialog modal-top-right">
+            <div class="modal-content border-0 shadow-lg" id="modalContent">
+                <div class="modal-body text-center p-3" id="loginMessage">
+                    <!-- Nội dung sẽ được thêm bằng JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div class="container-fluid center-full">
     <div class="wrapper">
         <div class="close">
             <i class="fa-solid fa-xmark"></i>
-        </div>
-
-        <div class="modal fade" id="loginModal">
-            <div class="modal-dialog modal-top-right">
-                <div class="modal-content border-0 shadow-lg" id="modalContent">
-                    <div class="modal-body text-center p-3" id="loginMessage">
-                        <!-- Nội dung sẽ được thêm bằng JS -->
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div class="form-box login">

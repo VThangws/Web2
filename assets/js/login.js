@@ -6,22 +6,22 @@ const btnOpen = document.getElementById('openLogin');
 const btnX=document.querySelector('.close');
 
 //switch between login and register form
-registerLink.addEventListener('click', (e)=>{
+registerLink?.addEventListener('click', (e)=>{
     e.preventDefault();
     wrapper.classList.add('active');
 });
 //switch between login and register form
-loginLink.addEventListener('click', (e)=>{
+loginLink?.addEventListener('click', (e)=>{
     e.preventDefault();
     wrapper.classList.remove('active');
 }); 
 //open form login
-btnOpen.addEventListener('click',()=>{
+btnOpen?.addEventListener('click',()=>{
     wrapper.classList.add('active-popup')
     containerLogin.classList.add('active-popup');
 });
 //close form login
-btnX.addEventListener('click',()=>{
+btnX?.addEventListener('click',()=>{
     wrapper.classList.remove('active-popup');
     containerLogin.classList.remove('active-popup');
 });
@@ -29,29 +29,31 @@ btnX.addEventListener('click',()=>{
 // ===== PHẦN LOGIN AJAX =====
 const loginForm = document.getElementById('loginForm');
 
-loginForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    fetch('/ajax/loginAjax.php', {
-        method: 'POST',
-        body: new FormData(loginForm)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.status === "success") {
-            showModal(true, data.message);
-            // Chuyển trang sau 2 giây
-            setTimeout(() => {
-                location.reload(); // Hoặc chuyển đến trang khác nếu cần
-            }, 2000);
-        } else {
-            showModal(false, data.message);
-        }
-    })
-    .catch(() => {
-        showModal(false, "Lỗi kết nối, vui lòng thử lại!");
+if (loginForm) {
+    loginForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        fetch('./ajax/loginAjax.php', {
+            method: 'POST',
+            body: new FormData(loginForm)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                showModal(true, data.message);
+                // Chuyển trang sau 2 giây
+                setTimeout(() => {
+                    window.location.replace("/index.php");
+                }, 2000);
+            } else {
+                showModal(false, data.message);
+            }
+        })
+        .catch(() => {
+            showModal(false, "Lỗi kết nối, vui lòng thử lại!");
+        });
     });
-});
+}
 
 // ===== PHẦN Register AJAX =====
 const registerForm = document.getElementById('registerForm');

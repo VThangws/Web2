@@ -1,13 +1,12 @@
 <?php
-require_once __DIR__. '/../DAO/DocGiaDAO.php';
 require_once __DIR__. '/../model/DocGia.php';
-require_once __DIR__. '/../database/ConnectDB.php';
 
 // Bắt đầu session nếu chưa có
 if(session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
+require_once __DIR__. '/../database/ConnectDB.php';
+require_once __DIR__. '/../DAO/DocGiaDAO.php';
 // Set header JSON (QUAN TRỌNG!)
 header('Content-Type: application/json');
 

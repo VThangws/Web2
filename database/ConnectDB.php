@@ -8,7 +8,7 @@ class ConnectDB
     {
         $servername = 'localhost';
         $username   = 'root';
-        $password   = '';
+        $password   = '123456';
         $dbname     = 'db_quanlythuvien';
 
         $this->conn = new \mysqli($servername, $username, $password, $dbname);

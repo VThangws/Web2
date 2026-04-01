@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/model/DocGia.php';
+require_once __DIR__ . '/model/TaiKhoan.php';
 session_start();
 ?>
 <!DOCTYPE html>
