@@ -100,7 +100,6 @@ error_reporting(E_ERROR | E_PARSE);
         }
         else echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
       }
-    }
   ?>
   <div class="panel">
     <h2>Quản lý đọc giả</h2>
