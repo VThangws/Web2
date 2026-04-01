@@ -1398,7 +1398,7 @@ CREATE TABLE `taikhoan` (
 INSERT INTO `docgia`(`madocgia`, `hodocgia`, `tendocgia`, `email`, `sdt`, `ngaysinh`, `diachi`)
 VALUES('DG001', 'Nguyen', 'Van A', 'user@example.com', '0123456789', '2000-01-01', '123 Đường ABC, TP. HCM')
 ON DUPLICATE KEY UPDATE
-  `hodocgia` = 'Nguyen',
+  `hodocgia` = 'Nguyen',  
   `tendocgia` = 'Van A',
   `email` = 'user@example.com',
   `sdt` = '0123456789',

@@ -52,6 +52,31 @@ class DocGiaDAO {
         return $result;
     }
 
+    public function Xoa($conn, $madocgia) {
+        $sql = "DELETE FROM docgia WHERE madocgia=?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $madocgia);
+        if ($stmt->execute()) {
+            echo '<script>alert("Đã xóa đọc giả!");</script>';
+            return true;
+        } else {
+            echo '<script>alert("Xóa đọc giả không thành công!");</script>';
+            return false;
+        }
+    }
+
+
+
+    public function TimKiem($conn, $keyword) {
+        $sql = "SELECT * FROM docgia WHERE madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ?";
+        $stmt = $conn->prepare($sql);
+        $like = '%' . $keyword . '%';
+        $stmt->bind_param('sss', $like, $like, $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result;
+    }
+
 
 
 // =========================== DAO USERS =============================== // 
@@ -191,6 +216,11 @@ class DocGiaDAO {
             );
         }
         return null;
+    }
+
+    // wrapper tiếng Việt cho getByMa
+    public function Lay1DocGia($madocgia) {
+        return $this->getByMa($madocgia);
     }
 
     // ==================== HELPER ====================

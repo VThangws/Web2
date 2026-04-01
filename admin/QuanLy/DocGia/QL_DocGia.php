@@ -10,6 +10,7 @@ error_reporting(E_ERROR | E_PARSE);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý đọc giả</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <style>
     body{font-family:Arial,Helvetica,sans-serif;background:#f3f4f8;margin:0;padding:0;}
     .container{width:95%;max-width:1100px;margin:1rem auto;}
@@ -30,9 +31,16 @@ error_reporting(E_ERROR | E_PARSE);
     a.edit{background:#28a745;}
     a.delete{background:#dc3545;}
     #loadMoreBtn{margin-top:10px;}
+    .toggle-btn{display:inline-block;background:#28a745;color:#fff;border:none;border-radius:5px;padding:12px 24px;cursor:pointer;text-decoration:none;transition:all .2s ease;font-weight:500;font-size:1rem;margin-bottom:16px;}
+    .toggle-btn:hover{background:#218838;transform:translateY(-2px);box-shadow:0 4px 8px rgba(33,136,56,.3);}
+    @keyframes slideDown{from{opacity:0;max-height:0;overflow:hidden;transform:translateY(-20px);}to{opacity:1;max-height:1000px;overflow:visible;transform:translateY(0);}}
+    @keyframes slideUp{from{opacity:1;max-height:1000px;overflow:visible;transform:translateY(0);}to{opacity:0;max-height:0;overflow:hidden;transform:translateY(-20px);}}
+    .form-panel{animation:slideDown .4s ease-in-out forwards;}
+    .form-panel.hidden{display:none;animation:slideUp .4s ease-in-out forwards;}
   </style>
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <div class="container">
   <?php
     require_once '../../../database/KetNoiDB.php';
@@ -65,12 +73,7 @@ error_reporting(E_ERROR | E_PARSE);
                 $ngaysinh = $_GET['ngaysinh'];
                 $diachi = $_GET['diachi'];
 
-                $ok = $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
-                if ($ok) {
-                    echo "<script>alert('Thêm đọc giả thành công!');</script>";
-                } else {
-                    echo "<script>alert('Thêm đọc giả không thành công!');</script>";
-                }
+                $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
             }
         } elseif ($luachon === 'Sua') {
             $madocgia = $_GET['madocgia'] ?? '';
@@ -81,27 +84,32 @@ error_reporting(E_ERROR | E_PARSE);
             $ngaysinh = $_GET['ngaysinh'] ?? '';
             $diachi = $_GET['diachi'] ?? '';
 
-            $ok = $dao->Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
-            if ($ok) {
-                echo "<script>alert('Cập nhật đọc giả thành công!');</script>";
+            if (
+                empty($madocgia)
+                || empty($hodocgia)
+                || empty($tendocgia)
+                || empty($email)
+                || empty($sdt)
+                || empty($ngaysinh)
+                || empty($diachi)
+            ) {
+                echo "<script>alert('Thông tin đọc giả không được bỏ trống!');</script>";
             } else {
-                echo "<script>alert('Cập nhật đọc giả không thành công!');</script>";
+                $dao->Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
             }
         } elseif ($luachon === 'Xoa') {
             $madocgia = $_GET['madocgia'] ?? '';
-            $sql = 'DELETE FROM docgia WHERE madocgia=?';
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('s', $madocgia);
-            if ($stmt->execute()) {
-                echo '<script>alert("Đã xóa đọc giả!");</script>';
-            } else {
-                echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
+            if (!empty($madocgia)) {
+                $dao->Xoa($conn, $madocgia);
             }
         }
-        else echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
-      }
-  ?>
-  <div class="panel">
+    }
+
+    $query = isset($_GET['search']) && trim($_GET['search']) !== '' ? $dao->TimKiem($conn, $_GET['search']) : $dao->ToanBoDanhSach($conn);
+    ?>
+  <button class="toggle-btn" id="toggleFormBtn">+ Thêm đọc giả</button>
+  
+  <div class="panel form-panel hidden" id="formPanel">
     <h2>Quản lý đọc giả</h2>
     <div class="KhungThongTin">
       <form method="GET" class="form-grid">
@@ -136,13 +144,13 @@ error_reporting(E_ERROR | E_PARSE);
         <button type="submit" class="btn" name="luachon" value="Them">Thêm</button>
       </form>
     </div>
+  </div>
 
-    <div class="form-search" style="margin-top:12px;">
-      <form method="GET" style="display:flex; gap:10px; align-items:center;">
-        <input type="text" name="search" placeholder="Tìm theo mã/họ/tên" style="flex:1;padding:8px;border:1px solid #bbb;border-radius:4px;">
-        <button type="submit" class="btn">Tìm kiếm</button>
-      </form>
-    </div>
+  <div class="form-search" style="margin-top:12px;">
+    <form method="GET" style="display:flex; gap:10px; align-items:center;">
+      <input type="text" name="search" placeholder="Tìm theo mã/họ/tên" style="flex:1;padding:8px;border:1px solid #bbb;border-radius:4px;">
+      <button type="submit" class="btn">Tìm kiếm</button>
+    </form>
   </div>
 
   <div class="panel">
@@ -162,7 +170,6 @@ error_reporting(E_ERROR | E_PARSE);
         </thead>
         <tbody>
           <?php
-            $query = isset($_GET['search']) && trim($_GET['search']) !== '' ? $dao->TimKiem($conn, $_GET['search']) : $dao->ToanBoDanhSach($conn);
             while($row = $query->fetch_assoc()) {
               echo '<tr>';
               echo '<td>'.htmlspecialchars($row['madocgia']).'</td>';
@@ -199,6 +206,7 @@ error_reporting(E_ERROR | E_PARSE);
       if(currentLimit>=total){moreBtn.style.display='none';}else{moreBtn.style.display='inline-block';moreBtn.textContent=`Xem thêm ${Math.min(rowsPerPage,total-currentLimit)} mục`;}
     }
     document.addEventListener('DOMContentLoaded',()=>{const moreBtn=document.getElementById('loadMoreBtn');if(moreBtn){moreBtn.addEventListener('click',()=>{currentLimit+=rowsPerPage;updateRowsVisibility();});}updateRowsVisibility();});
+    document.addEventListener('DOMContentLoaded',function(){const toggleBtn=document.getElementById('toggleFormBtn');const formPanel=document.getElementById('formPanel');toggleBtn.addEventListener('click',function(){formPanel.classList.toggle('hidden');if(formPanel.classList.contains('hidden')){toggleBtn.textContent='+ Thêm đọc giả';}else{toggleBtn.textContent='✕ Đóng form';formPanel.scrollIntoView({behavior:'smooth',block:'start'});}});});
   </script>
 </body>
 </html>

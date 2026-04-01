@@ -24,6 +24,7 @@ session_start();
     <link rel="stylesheet" href="./assets/css/books.css">
 </head>
 <body>
+<?php include 'layout/offline_check.php'; ?>
 <?php
 // Header luôn xuất hiện trên mọi trang
 include __DIR__ . '/layout/header.php';
