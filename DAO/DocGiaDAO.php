@@ -163,5 +163,37 @@ class DocGiaDAO {
         $row  = $stmt->get_result()->fetch_assoc();
         return $row['total'] > 0;
     }
+
+    // ==================== LEGACY API (CHO TRANG ADMIN CŨ) ====================
+    public function ToanBoDanhSach($conn) {
+        $db = ($conn instanceof mysqli) ? $conn : $this->conn;
+        return $db->query('SELECT madocgia, hodocgia, tendocgia, email, sdt, ngaysinh, diachi FROM docgia ORDER BY madocgia ASC');
+    }
+
+    public function Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi) {
+        $db = ($conn instanceof mysqli) ? $conn : $this->conn;
+        $sql = 'INSERT INTO docgia (madocgia, hodocgia, tendocgia, email, sdt, ngaysinh, diachi) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        $stmt = $db->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('sssssss', $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
+
+    public function Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi) {
+        $db = ($conn instanceof mysqli) ? $conn : $this->conn;
+        $sql = 'UPDATE docgia SET hodocgia=?, tendocgia=?, email=?, sdt=?, ngaysinh=?, diachi=? WHERE madocgia=?';
+        $stmt = $db->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('sssssss', $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi, $madocgia);
+        $ok = $stmt->execute();
+        $stmt->close();
+        return $ok;
+    }
 }
 ?>

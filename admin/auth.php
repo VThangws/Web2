@@ -42,10 +42,16 @@ function admin_current_role(): ?string
     return $role === '' ? null : $role;
 }
 
+function admin_is_super_admin(): bool
+{
+    $u = admin_current_user();
+    return isset($u['tendangnhap']) && is_string($u['tendangnhap']) && $u['tendangnhap'] === 'admin';
+}
+
 /**
  * Permission model:
  * - If table ctquyen has no rows: allow all (no permissions configured yet)
- * - If user has no manhomquyen: allow all (treat as super-admin)
+ * - If user is super-admin (username=admin): allow all
  * - Else: allow only if ctquyen contains (manhomquyen, machucnang) and optional hanhdong match.
  */
 function admin_has_permission(string $machucnang, ?string $hanhdong = null): bool
@@ -59,10 +65,11 @@ function admin_has_permission(string $machucnang, ?string $hanhdong = null): boo
         return true;
     }
 
-    $role = admin_current_role();
-    if ($role === null) {
+    if (admin_is_super_admin()) {
         return true;
     }
+
+    $role = admin_current_role();
 
     try {
         $conn = ConnectDB::getInstance()->getConnection();
@@ -71,6 +78,10 @@ function admin_has_permission(string $machucnang, ?string $hanhdong = null): boo
         $res = $conn->query('SELECT 1 FROM ctquyen LIMIT 1');
         if (!$res || $res->num_rows === 0) {
             return true;
+        }
+
+        if ($role === null) {
+            return false;
         }
 
         if ($hanhdong !== null) {
@@ -83,7 +94,7 @@ function admin_has_permission(string $machucnang, ?string $hanhdong = null): boo
                  LIMIT 1"
             );
             if ($stmt === false) {
-                return true; // fail-open for school project stability
+                return false;
             }
             $stmt->bind_param('sss', $role, $machucnang, $hanhdong);
         } else {
@@ -94,7 +105,7 @@ function admin_has_permission(string $machucnang, ?string $hanhdong = null): boo
                  LIMIT 1"
             );
             if ($stmt === false) {
-                return true;
+                return false;
             }
             $stmt->bind_param('ss', $role, $machucnang);
         }
@@ -104,7 +115,7 @@ function admin_has_permission(string $machucnang, ?string $hanhdong = null): boo
         $stmt->close();
         return $ok;
     } catch (Throwable $e) {
-        return true; // fail-open
+        return false;
     }
 }
 

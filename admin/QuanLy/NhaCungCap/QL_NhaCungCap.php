@@ -99,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $q = get_str($_GET, 'q');
 $edit = get_str($_GET, 'edit');
+$openForm = get_str($_GET, 'openForm');
 
 $editingRow = null;
 if ($edit !== '') {
@@ -111,14 +112,17 @@ if ($edit !== '') {
     }
 }
 
+$showForm = ($editingRow !== null) || ($err !== '') || ($openForm === '1');
+
 $rows = [];
 try {
     if ($q !== '') {
         $like = '%' . $q . '%';
         $stmt = $conn->prepare(
-            'SELECT mancc, tenncc, diachincc, sdt, email FROM nhacungcap\n'
-            . 'WHERE mancc LIKE ? OR tenncc LIKE ?\n'
-            . 'ORDER BY tenncc ASC\n'
+            'SELECT mancc, tenncc, diachincc, sdt, email '
+            . 'FROM nhacungcap '
+            . 'WHERE mancc LIKE ? OR tenncc LIKE ? '
+            . 'ORDER BY tenncc ASC '
             . 'LIMIT 300'
         );
         if (!$stmt) {
@@ -160,6 +164,11 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
             <div>
                 <h2 class="fw-bold mb-1">Nhà cung cấp</h2>
             </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#nccFormCollapse" aria-expanded="<?= $showForm ? 'true' : 'false' ?>" aria-controls="nccFormCollapse">
+                    Thêm mới
+                </button>
+            </div>
         </div>
 
         <?php if ($msg !== ''): ?>
@@ -169,59 +178,54 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
             <div class="alert alert-danger"><?= h($err) ?></div>
         <?php endif; ?>
 
-        <div class="card shadow-sm mb-3">
-            <div class="card-header fw-semibold"><?= $editingRow ? 'Cập nhật nhà cung cấp' : 'Thêm nhà cung cấp' ?></div>
-            <div class="card-body">
-                <form class="row g-2" method="post">
-                    <input type="hidden" name="mode" value="<?= $editingRow ? 'update' : 'add' ?>">
+        <div class="collapse <?= $showForm ? 'show' : '' ?>" id="nccFormCollapse">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold"><?= $editingRow ? 'Cập nhật nhà cung cấp' : 'Thêm nhà cung cấp' ?></div>
+                <div class="card-body">
+                    <form class="row g-2" method="post">
+                        <input type="hidden" name="mode" value="<?= $editingRow ? 'update' : 'add' ?>">
 
-                    <div class="col-12 col-md-3">
-                        <label class="form-label mb-1">Mã NCC</label>
-                        <input class="form-control" name="mancc" value="<?= h((string)($editingRow['mancc'] ?? '')) ?>" <?= $editingRow ? 'readonly' : '' ?> placeholder="VD: NCC_ABC">
-                    </div>
-                    <div class="col-12 col-md-5">
-                        <label class="form-label mb-1">Tên NCC</label>
-                        <input class="form-control" name="tenncc" value="<?= h((string)($editingRow['tenncc'] ?? '')) ?>" placeholder="Tên nhà cung cấp">
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label class="form-label mb-1">Email</label>
-                        <input class="form-control" name="email" value="<?= h((string)($editingRow['email'] ?? '')) ?>" placeholder="email@domain.com">
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <label class="form-label mb-1">Địa chỉ</label>
-                        <input class="form-control" name="diachincc" value="<?= h((string)($editingRow['diachincc'] ?? '')) ?>" placeholder="Địa chỉ nhà cung cấp">
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <label class="form-label mb-1">SĐT</label>
-                        <input class="form-control" name="sdt" value="<?= h((string)($editingRow['sdt'] ?? '')) ?>" placeholder="Số điện thoại">
-                    </div>
-                    <div class="col-12 d-flex gap-2">
-                        <button class="btn btn-primary" type="submit"><?= $editingRow ? 'Lưu cập nhật' : 'Thêm mới' ?></button>
-                        <?php if ($editingRow): ?>
-                            <a class="btn btn-outline-secondary" href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Hủy sửa</a>
-                        <?php endif; ?>
-                    </div>
-                </form>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1">Mã NCC</label>
+                            <input class="form-control" name="mancc" value="<?= h((string)($editingRow['mancc'] ?? '')) ?>" <?= $editingRow ? 'readonly' : '' ?> placeholder="VD: NCC_ABC">
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <label class="form-label mb-1">Tên NCC</label>
+                            <input class="form-control" name="tenncc" value="<?= h((string)($editingRow['tenncc'] ?? '')) ?>" placeholder="Tên nhà cung cấp">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1">Email</label>
+                            <input class="form-control" name="email" value="<?= h((string)($editingRow['email'] ?? '')) ?>" placeholder="email@domain.com">
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <label class="form-label mb-1">Địa chỉ</label>
+                            <input class="form-control" name="diachincc" value="<?= h((string)($editingRow['diachincc'] ?? '')) ?>" placeholder="Địa chỉ nhà cung cấp">
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1">SĐT</label>
+                            <input class="form-control" name="sdt" value="<?= h((string)($editingRow['sdt'] ?? '')) ?>" placeholder="Số điện thoại">
+                        </div>
+                        <div class="col-12 d-flex gap-2">
+                            <button class="btn btn-primary" type="submit"><?= $editingRow ? 'Lưu cập nhật' : 'Thêm mới' ?></button>
+                            <?php if ($editingRow): ?>
+                                <a class="btn btn-outline-secondary" href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Hủy sửa</a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
         <div class="card shadow-sm">
             <div class="card-header">
                 <form class="row g-2 align-items-center" method="get">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input class="form-control" name="q" value="<?= h($q) ?>" placeholder="Tìm theo mã NCC hoặc tên NCC">
+                            <button class="btn btn-outline-primary" type="submit" aria-label="Tìm">
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            </button>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-2 d-grid">
-                        <button class="btn btn-outline-primary" type="submit">Tìm</button>
-                    </div>
-                    <div class="col-12 col-md-2 d-grid">
-                        <a class="btn btn-outline-secondary" href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Xóa lọc</a>
-                    </div>
-                    <div class="col-12 col-md-2 text-md-end text-muted small">
-                        <?= number_format(count($rows)) ?> dòng
                     </div>
                 </form>
             </div>

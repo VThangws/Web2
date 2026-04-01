@@ -28,11 +28,19 @@ $isTacGia = $isActive('/admin/QuanLy/TacGia/');
 $isTheLoai = $isActive('/admin/QuanLy/Sach/TheLoai/');
 $isNxb = $isActive('/admin/QuanLy/Sach/NhaXuatBan/');
 $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
+$isThongKe = $isActive('/admin/QuanLy/ThongKe/');
 ?>
 
 <link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="/assets/fonts/font.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/admin_sidebar.css">
+
+<style>
+    .admin-sidebar {
+        font-family: 'Oswald', sans-serif !important;
+    }
+</style>
 
 <aside class="admin-sidebar" aria-label="Menu quản trị">
     <div class="admin-sidebar-header">
@@ -48,7 +56,7 @@ $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
                 <li>
                     <a href="/admin/adminMenu.php" class="<?php echo $isHome ? 'active' : ''; ?>">
                         <i class="fa-solid fa-house admin-nav-icon" aria-hidden="true"></i>
-                        <span>Trang chủ</span>
+                        <span>Trang quản trị</span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -130,6 +138,14 @@ $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
                     <a href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php" class="<?php echo $isNhaCungCap ? 'active' : ''; ?>">
                         <i class="fa-solid fa-truck admin-nav-icon" aria-hidden="true"></i>
                         <span>Nhà cung cấp</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (admin_has_permission('THONGKE')): ?>
+                <li>
+                    <a href="/admin/QuanLy/ThongKe/thongke.php" class="<?php echo $isThongKe ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-chart-line admin-nav-icon" aria-hidden="true"></i>
+                        <span>Thống kê</span>
                     </a>
                 </li>
             <?php endif; ?>
