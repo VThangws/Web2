@@ -10,6 +10,7 @@ error_reporting(E_ERROR | E_PARSE);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý Thể loại</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../style.css" />
   <style>
     body {font-family: Arial, Helvetica, sans-serif; background-color: #f2f3f8; margin: 0; padding: 0;}
@@ -32,6 +33,8 @@ error_reporting(E_ERROR | E_PARSE);
   </style>
 </head>
 <body>
+
+  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
 
   <div class="container">
 

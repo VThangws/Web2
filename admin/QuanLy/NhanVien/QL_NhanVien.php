@@ -9,6 +9,7 @@ require_admin_permission('NHANVIEN');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý nhân viên</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../style.css" />
   <style>
     * {box-sizing: border-box;}
@@ -64,8 +65,10 @@ require_admin_permission('NHANVIEN');
   </style>
 </head>
 <body>
+    <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <?php
-    require_once '../../../database/ConnectDB.php';
+    require_once '../../../database/KetNoiDB.php';
+    require_once '../../../model/NhanVien.php';
     require_once '../../../DAO/NhanVienDAO.php';
     $dao = new NhanVienDAO();
 
@@ -147,11 +150,7 @@ require_admin_permission('NHANVIEN');
                     <label for="ngaysinh">Ngày sinh</label>
                     <input type="date" id="ngaysinh" name="ngaysinh" required>
                 </div>
-                <div class="full form-actions">
-                    <label><input type="radio" name="luachon" value="Them" required> Thêm nhân viên mới</label>
-                    <label><input type="radio" name="luachon" value="Sua" required> Sửa thông tin nhân viên</label>
-                    <button type="submit" class="btn">OK</button>
-                </div>
+                <button type="submit" class="btn" value="Them" name="luachon">Thêm nhân viên</button>
             </form>
         </div>
 

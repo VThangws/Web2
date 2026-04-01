@@ -10,6 +10,7 @@ error_reporting(E_ERROR | E_PARSE);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý tác giả</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <style>
     body {font-family: Arial, Helvetica, sans-serif; background: #f3f4f8; margin: 0; padding: 0;}
     .container {width: 95%; max-width: 1100px; margin: 1rem auto;}
@@ -32,6 +33,7 @@ error_reporting(E_ERROR | E_PARSE);
   </style>
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <div class="container">
   <?php
     require_once '../../../database/KetNoiDB.php';
@@ -40,7 +42,7 @@ error_reporting(E_ERROR | E_PARSE);
     $dao = new TacGiaDAO();
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $luachon = $_GET['luachon'] ?? '';
+        $luachon = $_GET['luachon'];
 
         if ($luachon === 'Them') {
             if (empty($_GET['matacgia']) || empty($_GET['tentacgia'])) {
@@ -50,13 +52,6 @@ error_reporting(E_ERROR | E_PARSE);
                 $tentacgia = $_GET['tentacgia'];
                 $dao->Them($conn, $matacgia, $tentacgia);
             }
-        } elseif ($luachon === 'Xoa') {
-            $matacgia = $_GET['matacgia'] ?? '';
-            $dao->Xoa($conn, $matacgia);
-        } elseif ($luachon === 'Sua') {
-            $matacgia = $_GET['matacgia'] ?? '';
-            $tentacgia = $_GET['tentacgia'] ?? '';
-            $dao->Sua($conn, $matacgia, $tentacgia);
         }
       }
       else if($luachon == "Xoa") {

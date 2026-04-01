@@ -9,9 +9,11 @@ error_reporting(E_ERROR | E_PARSE);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý Nhà xuất bản</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../style.css" />
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
   <div class="container">
   <?php
     require_once '../../../../model/Sach/NhaXuatBan.php';
@@ -19,39 +21,59 @@ error_reporting(E_ERROR | E_PARSE);
     require_once '../../../../database/KetNoiDB.php';
     $dao = new NhaXuatBanDAO();
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $luachon = $_GET['luachon'] ?? '';
+    $manxb = $_GET['manxb'] ?? '';
+    $tennxb = $_GET['tennxb'] ?? '';
+    $diachi = $_GET['diachi'] ?? '';
+    $sdt = $_GET['sdt'] ?? '';
+    $email = $_GET['email'] ?? '';
 
-        // thực hiện sửa
-        $dao->Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email);
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') 
+      $luachon = $_GET['luachon'] ?? '';
+
+      if ($luachon === 'Them') {
+        if (empty($manxb) || empty($tennxb) || empty($diachi) || empty($sdt) || empty($email)) {
+          echo "<script>alert('Vui lòng điền đầy đủ thông tin nhà xuất bản.');</script>";
+        } else {
+          $dao->Them($conn, $manxb, $tennxb, $diachi, $sdt, $email);
+          // reset các giá trị để tránh lặp lại khi reload
+          $manxb = $tennxb = $diachi = $sdt = $email = '';
+        }
+      } elseif ($luachon === 'Xoa') {
+        if (!empty($manxb)) {
+          $dao->Xoa($conn, $manxb);
+          $manxb = $tennxb = $diachi = $sdt = $email = '';
+        }
+      } elseif ($luachon === 'Sua') {
+        if (empty($manxb) || empty($tennxb) || empty($diachi) || empty($sdt) || empty($email)) {
+          echo "<script>alert('Vui lòng điền đầy đủ thông tin khi sửa nhà xuất bản.');</script>";
+        } else {
+          $dao->Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email);
+        }
       }
   ?>
     <div class="panel KhungThongTin">
       <form method="GET" class="form-grid">
         <div>
           <label for="manxb">Mã nhà xuất bản</label>
-          <input type="text" id="manxb" name="manxb" required>
+          <input type="text" id="manxb" name="manxb" required value="<?php echo htmlspecialchars($manxb); ?>">
         </div>
         <div>
           <label for="tennxb">Tên nhà xuất bản</label>
-          <input type="text" id="tennxb" name="tennxb" required>
+          <input type="text" id="tennxb" name="tennxb" required value="<?php echo htmlspecialchars($tennxb); ?>">
         </div>
         <div>
           <label for="diachi">Địa chỉ</label>
-          <input type="text" id="diachi" name="diachi" required>
+          <input type="text" id="diachi" name="diachi" required value="<?php echo htmlspecialchars($diachi); ?>">
         </div>
         <div>
           <label for="sdt">Số điện thoại</label>
-          <input type="text" id="sdt" name="sdt" required>
+          <input type="text" id="sdt" name="sdt" required value="<?php echo htmlspecialchars($sdt); ?>">
         </div>
         <div>
           <label for="email">Email</label>
-          <input type="text" id="email" name="email" required>
+          <input type="text" id="email" name="email" required value="<?php echo htmlspecialchars($email); ?>">
         </div>
-        <div class="full" style="display: flex; justify-content: flex-end; gap: 10px;">
-          <input type="radio" id="luachon" name="luachon" value="Them" checked style="display: none;">
-          <button class="btn" type="submit">Thêm</button>
-        </div>
+        <button class="btn" type="submit" name="luachon" value="Them">Thêm</button>
       </form>
     </div>
 

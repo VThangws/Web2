@@ -10,6 +10,7 @@ error_reporting(E_ERROR | E_PARSE);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý đọc giả</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <style>
     body{font-family:Arial,Helvetica,sans-serif;background:#f3f4f8;margin:0;padding:0;}
     .container{width:95%;max-width:1100px;margin:1rem auto;}
@@ -33,6 +34,7 @@ error_reporting(E_ERROR | E_PARSE);
   </style>
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <div class="container">
   <?php
     require_once '../../../database/KetNoiDB.php';
@@ -65,12 +67,7 @@ error_reporting(E_ERROR | E_PARSE);
                 $ngaysinh = $_GET['ngaysinh'];
                 $diachi = $_GET['diachi'];
 
-                $ok = $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
-                if ($ok) {
-                    echo "<script>alert('Thêm đọc giả thành công!');</script>";
-                } else {
-                    echo "<script>alert('Thêm đọc giả không thành công!');</script>";
-                }
+                $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
             }
         } elseif ($luachon === 'Sua') {
             $madocgia = $_GET['madocgia'] ?? '';
@@ -81,26 +78,29 @@ error_reporting(E_ERROR | E_PARSE);
             $ngaysinh = $_GET['ngaysinh'] ?? '';
             $diachi = $_GET['diachi'] ?? '';
 
-            $ok = $dao->Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
-            if ($ok) {
-                echo "<script>alert('Cập nhật đọc giả thành công!');</script>";
+            if (
+                empty($madocgia)
+                || empty($hodocgia)
+                || empty($tendocgia)
+                || empty($email)
+                || empty($sdt)
+                || empty($ngaysinh)
+                || empty($diachi)
+            ) {
+                echo "<script>alert('Thông tin đọc giả không được bỏ trống!');</script>";
             } else {
-                echo "<script>alert('Cập nhật đọc giả không thành công!');</script>";
+                $dao->Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
             }
         } elseif ($luachon === 'Xoa') {
             $madocgia = $_GET['madocgia'] ?? '';
-            $sql = 'DELETE FROM docgia WHERE madocgia=?';
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('s', $madocgia);
-            if ($stmt->execute()) {
-                echo '<script>alert("Đã xóa đọc giả!");</script>';
-            } else {
-                echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
+            if (!empty($madocgia)) {
+                $dao->Xoa($conn, $madocgia);
             }
         }
-        else echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
-      }
-  ?>
+    }
+
+    $query = isset($_GET['search']) && trim($_GET['search']) !== '' ? $dao->TimKiem($conn, $_GET['search']) : $dao->ToanBoDanhSach($conn);
+    ?>
   <div class="panel">
     <h2>Quản lý đọc giả</h2>
     <div class="KhungThongTin">
@@ -162,7 +162,6 @@ error_reporting(E_ERROR | E_PARSE);
         </thead>
         <tbody>
           <?php
-            $query = isset($_GET['search']) && trim($_GET['search']) !== '' ? $dao->TimKiem($conn, $_GET['search']) : $dao->ToanBoDanhSach($conn);
             while($row = $query->fetch_assoc()) {
               echo '<tr>';
               echo '<td>'.htmlspecialchars($row['madocgia']).'</td>';
