@@ -1,6 +1,9 @@
 - Quản lý tài khoản
-- Quản lý phiếu nhập
-- Quản lý phiếu xuất
-- Quản lý phiếu mượn
-- Quản lý phiếu trả
+- Quản lý hóa đơn:
++ phiếu nhập
++ phiếu xuất
++ phiếu mượn
++ phiếu trả
 - Quản lý nhà cung cấp
+- Thống kê
+- Giao diện admin

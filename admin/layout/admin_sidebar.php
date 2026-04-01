@@ -10,8 +10,6 @@ require_admin_login();
 
 $admin = admin_current_user();
 $adminUsername = (string)($admin['tendangnhap'] ?? 'Admin');
-$adminRole = (string)($admin['manhomquyen'] ?? '');
-$adminManv = (string)($admin['manv'] ?? '');
 ?>
 
 <?php
@@ -30,16 +28,24 @@ $isTacGia = $isActive('/admin/QuanLy/TacGia/');
 $isTheLoai = $isActive('/admin/QuanLy/Sach/TheLoai/');
 $isNxb = $isActive('/admin/QuanLy/Sach/NhaXuatBan/');
 $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
+$isThongKe = $isActive('/admin/QuanLy/ThongKe/');
 ?>
 
 <link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="/assets/fonts/font.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <link rel="stylesheet" href="/assets/css/admin_sidebar.css">
+
+<style>
+    .admin-sidebar {
+        font-family: 'Oswald', sans-serif !important;
+    }
+</style>
 
 <aside class="admin-sidebar" aria-label="Menu quản trị">
     <div class="admin-sidebar-header">
         <a href="/admin/adminMenu.php" class="d-flex align-items-center gap-2 text-decoration-none">
-            <img src="/assets/img/logo-library/library.png" alt="Library Logo">
+            <i class="fa-solid fa-book-open-reader admin-brand-icon" aria-hidden="true"></i>
             <span class="admin-sidebar-title">Quản lý thư viện</span>
         </a>
     </div>
@@ -50,7 +56,7 @@ $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
                 <li>
                     <a href="/admin/adminMenu.php" class="<?php echo $isHome ? 'active' : ''; ?>">
                         <i class="fa-solid fa-house admin-nav-icon" aria-hidden="true"></i>
-                        <span>Trang chủ</span>
+                        <span>Trang quản trị</span>
                     </a>
                 </li>
             <?php endif; ?>
@@ -135,6 +141,14 @@ $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
                     </a>
                 </li>
             <?php endif; ?>
+            <?php if (admin_has_permission('THONGKE')): ?>
+                <li>
+                    <a href="/admin/QuanLy/ThongKe/thongke.php" class="<?php echo $isThongKe ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-chart-line admin-nav-icon" aria-hidden="true"></i>
+                        <span>Thống kê</span>
+                    </a>
+                </li>
+            <?php endif; ?>
         </ul>
     </nav>
 
@@ -157,14 +171,6 @@ $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
                 <?= htmlspecialchars($displayName, ENT_QUOTES) ?>
             </span>
         </div>
-
-        <?php if ($adminRole !== '' || $adminManv !== ''): ?>
-            <div class="text-muted small" style="padding: 0 12px;">
-                <?php if ($adminRole !== ''): ?>Quyền: <?= htmlspecialchars($adminRole, ENT_QUOTES) ?><?php endif; ?>
-                <?php if ($adminRole !== '' && $adminManv !== ''): ?> · <?php endif; ?>
-                <?php if ($adminManv !== ''): ?>NV: <?= htmlspecialchars($adminManv, ENT_QUOTES) ?><?php endif; ?>
-            </div>
-        <?php endif; ?>
 
         <a href="/admin/logout.php" class="main-btn main-btn-primary" aria-label="Đăng xuất">
             <i class="fa-solid fa-right-from-bracket"></i>

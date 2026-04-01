@@ -25,7 +25,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $conn = ConnectDB::getInstance()->getConnection();
 
-        $sql = 'SELECT tendangnhap, matkhau, manhomquyen, manv FROM taikhoan WHERE tendangnhap = ? LIMIT 1';
+        $hasMadocgiaCol = false;
+        try {
+            $check = $conn->prepare(
+                "SELECT 1
+                 FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = 'taikhoan'
+                   AND COLUMN_NAME = 'madocgia'
+                 LIMIT 1"
+            );
+            if ($check) {
+                $check->execute();
+                $hasMadocgiaCol = ($check->get_result()->num_rows > 0);
+                $check->close();
+            }
+        } catch (Throwable $e) {
+            $hasMadocgiaCol = false;
+        }
+
+        $sql = $hasMadocgiaCol
+            ? 'SELECT tendangnhap, matkhau, manhomquyen, manv, madocgia FROM taikhoan WHERE tendangnhap = ? LIMIT 1'
+            : 'SELECT tendangnhap, matkhau, manhomquyen, manv FROM taikhoan WHERE tendangnhap = ? LIMIT 1';
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {
             $error = 'Không thể kết nối đăng nhập (prepare failed).';
@@ -48,22 +69,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($ok && is_array($row)) {
-                session_regenerate_id(true);
-                $_SESSION['admin_user'] = [
-                    'tendangnhap' => $row['tendangnhap'],
-                    'manhomquyen' => $row['manhomquyen'],
-                    'manv' => $row['manv'],
-                ];
+                if ($hasMadocgiaCol && isset($row['madocgia']) && is_string($row['madocgia']) && trim($row['madocgia']) !== '') {
+                    $error = 'Tài khoản này không có quyền quản trị.';
+                } else {
+                    session_regenerate_id(true);
+                    $_SESSION['admin_user'] = [
+                        'tendangnhap' => $row['tendangnhap'],
+                        'manhomquyen' => $row['manhomquyen'],
+                        'manv' => $row['manv'],
+                        'madocgia' => $hasMadocgiaCol ? ($row['madocgia'] ?? null) : null,
+                    ];
 
-                // Chặn redirect ra ngoài domain
-                if ($next === '' || str_starts_with($next, 'http://') || str_starts_with($next, 'https://')) {
-                    $next = '/admin/adminMenu.php';
+                    // Chặn redirect ra ngoài domain
+                    if ($next === '' || str_starts_with($next, 'http://') || str_starts_with($next, 'https://')) {
+                        $next = '/admin/adminMenu.php';
+                    }
+                    header('Location: ' . $next);
+                    exit;
                 }
-                header('Location: ' . $next);
-                exit;
+            } else {
+                $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
             }
-
-            $error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
         }
     }
 }
@@ -76,6 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Admin Login - Hệ thống quản lý thư viện</title>
 
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/fonts/font.css">
     <link rel="icon" type="image/png" href="/assets/img/logo-library/library.png">
 </head>
 <body class="bg-light">
