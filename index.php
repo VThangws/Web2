@@ -42,6 +42,9 @@ if (isset($_GET['page'])) {
         case 'cart':
             include __DIR__ . '/layout/cart.php';
             break;
+        case 'taikhoan':
+            include __DIR__ . '/layout/taikhoan.php';
+            break;
         // ...các trang khác nếu có...
         default:
             include __DIR__ . '/layout/home.php';
