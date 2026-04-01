@@ -71,9 +71,18 @@ $totalCategories = ($resCategories) ? $resCategories->fetch_assoc()['total'] : 0
                 </div>
 
                 <!-- Cột cover bên phải: slider có nút chuyển trái/phải -->
-                <div class="col-lg-5 col-md-5 banner-cover-col d-flex justify-content-center justify-content-lg-end">
+                <div class="col-lg-5 col-md-5 banner-cover-col d-flex justify-content-center justify-content-lg-end position-relative">
                     <div class="banner-cover-slider" id="bannerCoverSlider">
-                        <!-- JS sẽ render các thẻ banner-cover-card dựa trên thể loại chọn -->
+                        <button class="banner-nav banner-prev" id="prevBtn" type="button">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        
+                        <div class="banner-cover-track">
+                            </div>
+
+                        <button class="banner-nav banner-next" id="nextBtn" type="button">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
                     </div>
                 </div>
             </div>

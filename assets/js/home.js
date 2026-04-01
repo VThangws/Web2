@@ -307,18 +307,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tìm hàm renderBooks trong home.js và sửa lại như sau:
     function renderBooks(books) {
+        // Chỉ reset nội dung của track, giữ nguyên 2 nút điều hướng nếu đã có trong HTML cứng
+        // Hoặc render lại đầy đủ như sau:
         slider.innerHTML = `
-        <button class="banner-nav banner-prev" type="button">
-            <span class="material-symbols-outlined">chevron_left</span>
-        </button>
-        <div class="banner-cover-track"></div>
-        <button class="banner-nav banner-next" type="button">
-            <span class="material-symbols-outlined">chevron_right</span>
-        </button>
-    `;
+    <button class="banner-nav banner-prev" id="prevBtn" type="button">
+        <span class="material-symbols-outlined">chevron_left</span>
+    </button>
+    <div class="banner-cover-track"></div>
+    <button class="banner-nav banner-next" id="nextBtn" type="button">
+        <span class="material-symbols-outlined">chevron_right</span>
+    </button>
+`;
 
         const track = slider.querySelector('.banner-cover-track');
-        // Tìm hàm renderBooks trong home.js và sửa lại đoạn card.innerHTML:
+
+        if (books.length === 0) {
+            track.innerHTML = '<p class="text-white">Không có sách trong thể loại này.</p>';
+            return;
+        }
+
         books.forEach((b, idx) => {
             const card = document.createElement('div');
             card.className = 'banner-cover-card';
@@ -326,18 +333,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const imgSrc = b.anhbia ? `/assets/img/books/${b.anhbia}` : '/assets/img/categories/booknew.png';
 
-            // Thêm thẻ <a> bao quanh thẻ <img>
-            // Sử dụng madausach lấy từ file banner_books.php để tạo link
             card.innerHTML = `
-                <a href="/index.php?page=book_detail&madausach=${encodeURIComponent(b.madausach)}" 
-                style="display: block; width: 100%; height: 100%; text-decoration: none;">
-                    <img src="${imgSrc}" alt="${b.tensach || ''}" style="width: 100%; height: 100%; object-fit: cover;">
-                </a>
-            `;
+        <a href="/index.php?page=book_detail&madausach=${encodeURIComponent(b.madausach)}" 
+           style="display: block; width: 100%; height: 100%; text-decoration: none;">
+            <img src="${imgSrc}" alt="${b.tensach || ''}" style="width: 100%; height: 100%; object-fit: cover;">
+        </a>
+    `;
             track.appendChild(card);
         });
 
-        // Khởi động lại 3D carousel sau khi render
+        // Quan trọng: Sau khi render xong phải gọi lại hàm khởi tạo Carousel
         initBannerCarousel();
     }
 
@@ -416,6 +421,7 @@ function updateBannerShadow(centerCard) {
 }
 
 // Khởi tạo carousel 3D cho banner-cover-slider
+// Khởi tạo carousel 3D cho banner-cover-slider với logic dừng 10s khi thao tác
 function initBannerCarousel() {
     const slider = document.querySelector('.banner-cover-slider');
     if (!slider) return;
@@ -427,6 +433,8 @@ function initBannerCarousel() {
     const nextBtn = slider.querySelector('.banner-next');
 
     let current = 0;
+    let timer = null; // Quản lý vòng lặp tự động (1.5s)
+    let resumeTimeout = null; // Quản lý việc chờ 10s sau khi bấm
 
     function updatePositions() {
         const n = cards.length;
@@ -442,7 +450,9 @@ function initBannerCarousel() {
             else card.classList.add('position-hidden');
         });
 
-        updateBannerShadow(cards[center]);
+        if (typeof updateBannerShadow === 'function') {
+            updateBannerShadow(cards[center]);
+        }
     }
 
     function goNext() {
@@ -455,23 +465,40 @@ function initBannerCarousel() {
         updatePositions();
     }
 
-    updatePositions();
+    // Hàm bắt đầu vòng lặp tự động 1.5s
+    function startAutoPlay() {
+        if (timer) clearInterval(timer);
+        timer = setInterval(goNext, 1500);
+    }
 
-    let timer = setInterval(goNext, 1500);
+    // Hàm dừng tất cả các timer
+    function stopAutoPlay() {
+        if (timer) clearInterval(timer);
+        if (resumeTimeout) clearTimeout(resumeTimeout);
+    }
 
+    // Hàm xử lý khi ní bấm nút
+    function handleInteraction(action) {
+        stopAutoPlay(); // Dừng chạy tự động ngay lập tức
+        action(); // Thực hiện chuyển slide (Next/Prev)
+
+        // Bắt đầu đếm ngược 10 giây để chạy lại
+        resumeTimeout = setTimeout(() => {
+            startAutoPlay();
+        }, 5000);
+    }
+
+    // Gán sự kiện onclick cho nút bấm
     if (nextBtn) {
-        nextBtn.onclick = () => {
-            clearInterval(timer);
-            goNext();
-        };
+        nextBtn.onclick = () => handleInteraction(goNext);
     }
     if (prevBtn) {
-        prevBtn.onclick = () => {
-            clearInterval(timer);
-            goPrev();
-        };
+        prevBtn.onclick = () => handleInteraction(goPrev);
     }
-}
 
+    // Khởi tạo ban đầu
+    updatePositions();
+    startAutoPlay();
+}
 // Gọi initBannerCarousel một lần khi DOM ready (trong trường hợp đã có sẵn card cứng)
 document.addEventListener('DOMContentLoaded', initBannerCarousel);
