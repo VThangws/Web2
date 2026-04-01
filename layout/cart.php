@@ -101,8 +101,8 @@ $cart_empty = empty($_SESSION['cart']);
                     <strong class="text-danger" id="total-price"><?= number_format($total_price, 0, ',', '.') ?> VNĐ</strong>
                 </div>
                 
-                <a href="/index.php?page=pay" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6">
-                    THANH TOÁN
+                <a href="/index.php?page=checkout" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6">
+                    XÁC NHẬN MƯỢN SÁCH
                 </a>
                 <a href="/index.php?page=books" class="btn btn-cart-secondary w-100 py-2 fs-6">
                     TIẾP TỤC TÌM KIẾM SÁCH
