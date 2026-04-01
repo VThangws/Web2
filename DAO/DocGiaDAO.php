@@ -148,20 +148,23 @@ class DocGiaDAO {
     // ==================== CẬP NHẬT THÔNG TIN ====================
     public function capNhatThongTin(DocGia $dg) {
 
+        $hodocgia = $dg->getHodocgia();
+        $tendocgia = $dg->getTendocgia();
         $sdt = $dg->getSdt();
         $ngaysinh = $dg->getNgaysinh();
         $diachi = $dg->getDiachi();
         $ma = $dg->getMadocgia();
 
-        $sql  = "UPDATE docgia SET sdt=?, ngaysinh=?, diachi=? WHERE madocgia=?";
+        $sql = "UPDATE docgia SET hodocgia=?, tendocgia=?, sdt=?, ngaysinh=?, diachi=? WHERE madocgia=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssss",
+        $stmt->bind_param("ssssss",
+            $hodocgia,
+            $tendocgia,
             $sdt,
             $ngaysinh,
             $diachi,
             $ma
         );
-
         if ($stmt->execute()) {
             return ['success' => true, 'message' => 'Cập nhật thành công!'];
         }

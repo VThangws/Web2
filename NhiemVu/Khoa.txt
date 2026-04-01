@@ -1,6 +1,5 @@
+update lại db cái rồi mới chạy đc
+
 user test
     user@example.com
-    123456
-   
-
-
+    password

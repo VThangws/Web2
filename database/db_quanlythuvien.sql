@@ -1406,7 +1406,7 @@ ON DUPLICATE KEY UPDATE
   `diachi` = '123 Đường ABC, TP. HCM';
 /* TAI KHOAN */
 INSERT INTO `taikhoan`(`tendangnhap`, `matkhau`, `manhomquyen`, `madocgia`)
-VALUES('user@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG', 'DG', 'DG001')
+VALUES('demo1@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG', 'DG', 'DG001')
 ON DUPLICATE KEY UPDATE
   `matkhau` = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG',
   `manhomquyen` = 'DG',
