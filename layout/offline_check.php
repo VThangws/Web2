@@ -4,7 +4,7 @@
     <p style="color: #666; max-width: 400px; padding: 0 20px;">Vui lòng kiểm tra lại đường truyền INTERNET.</p>
 </div>
 
-<script src="assets/js/lottie.min.js"></script>
+<script src="/assets/js/lottie.min.js"></script>
 
 <script>
 (function() {
