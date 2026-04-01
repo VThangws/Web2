@@ -12,12 +12,10 @@ require_admin_permission('SACH');
     <link rel="icon" type="image/png" href="/assets/img/logo-library/library.png">
 </head>
 <body>
-    <?php
-    require_once dirname(__DIR__, 4) . '/model/Sach/DauSach.php';
-    require_once dirname(__DIR__, 4) . '/DAO/Sach/DauSachDAO.php';
-    require_once dirname(__DIR__, 4) . '/database/ConnectDB.php';
-
-    $conn = ConnectDB::getInstance()->getConnection();
+  <?php
+    require_once "../../../../model/Sach/DauSach.php";
+    require_once "../../../../DAO/Sach/DauSachDAO.php";
+    require_once "../../../../database/KetNoiDB.php";
     $dao = new DauSachDAO();
 
     $madausach = $_REQUEST['madausach'] ?? '';

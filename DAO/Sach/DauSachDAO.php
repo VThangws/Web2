@@ -76,7 +76,7 @@
     }
 
     public function Sua_Khong_AnhBia($conn, $madausach, $tensach,
-    $namxuatban, $donggia, $matacgia,
+    $namxuatban, $dongia, $matacgia,
     $matheloai, $manxb, $mota) {
       $sql = "UPDATE dausach SET
       tensach=?,
@@ -136,6 +136,29 @@
       $result['mota'],
       $result['anhbia']);
       return $dausach;
+    }
+
+    public function TimKiem($conn, $keyword) {
+      $danhsach = [];
+      $sql = "SELECT * FROM dausach WHERE madausach LIKE ? OR tensach LIKE ?";
+      $stmt = $conn->prepare($sql);
+      $searchTerm = "%" . $keyword . "%";
+      $stmt->bind_param("ss", $searchTerm, $searchTerm);
+      $stmt->execute();
+      $result = $stmt->get_result();
+      while($row = $result->fetch_assoc()) {
+        $item = new DauSach($row['madausach'],
+        $row['tensach'], 
+        $row['namxuatban'],
+        $row['dongia'],
+        $row['matacgia'],
+        $row['matheloai'],
+        $row['manxb'],
+        $row['mota'],
+        $row['anhbia']);
+        $danhsach[] = $item;
+      }
+      return $danhsach;
     }
   }
 ?>

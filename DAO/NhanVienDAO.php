@@ -43,5 +43,27 @@
       $result = $stmt->get_result();
       return $result;
     }
+
+    public function TimKiem($conn, $keyword) {
+      $sql = "SELECT * FROM nhanvien WHERE manv LIKE ? OR honv LIKE ? OR tennv LIKE ?";
+      $stmt = $conn->prepare($sql);
+      $term = "%" . $keyword . "%";
+      $stmt->bind_param("sss", $term, $term, $term);
+      $stmt->execute();
+      return $stmt->get_result();
+    }
+
+    public function Lay1NhanVien($conn, $manv) {
+      $sql = "SELECT * FROM nhanvien WHERE manv=?";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("s", $manv);
+      $stmt->execute();
+      $result = $stmt->get_result();
+      if($row = $result->fetch_assoc()) {
+        $nv = new NhanVien($row['manv'], $row['honv'], $row['tennv'], $row['gioitinh'], $row['sdt'], $row['ngaysinh']);
+        return $nv;
+      }
+      return null;
+    }
   }
 ?>
