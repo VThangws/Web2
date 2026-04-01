@@ -11,7 +11,6 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -1146,7 +1145,8 @@ ON DUPLICATE KEY UPDATE `tenchucnang` = VALUES(`tenchucnang`);
 INSERT INTO `nhomquyen` (`manhomquyen`, `tennhomquyen`) VALUES
 ('ADMIN', 'Quản trị'),
 ('STAFF', 'Nhân viên'),
-('KETOAN', 'Kế toán')
+('KETOAN', 'Kế toán'),
+('DG', 'Độc giả')
 ON DUPLICATE KEY UPDATE `tennhomquyen` = VALUES(`tennhomquyen`);
 
 -- ADMIN: full access
@@ -1393,6 +1393,24 @@ CREATE TABLE `taikhoan` (
   `madocgia` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+/* account user test*/
+/* DOC GIA */
+INSERT INTO `docgia`(`madocgia`, `hodocgia`, `tendocgia`, `email`, `sdt`, `ngaysinh`, `diachi`)
+VALUES('DG001', 'Nguyen', 'Van A', 'user@example.com', '0123456789', '2000-01-01', '123 Đường ABC, TP. HCM')
+ON DUPLICATE KEY UPDATE
+  `hodocgia` = 'Nguyen',
+  `tendocgia` = 'Van A',
+  `email` = 'user@example.com',
+  `sdt` = '0123456789',
+  `ngaysinh` = '2000-01-01',
+  `diachi` = '123 Đường ABC, TP. HCM';
+/* TAI KHOAN */
+INSERT INTO `taikhoan`(`tendangnhap`, `matkhau`, `manhomquyen`, `madocgia`)
+VALUES('user@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG', 'DG', 'DG001')
+ON DUPLICATE KEY UPDATE
+  `matkhau` = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG',
+  `manhomquyen` = 'DG',
+  `madocgia` = 'DG001';
 --
 -- Seed account for team testing
 -- Username: admin
