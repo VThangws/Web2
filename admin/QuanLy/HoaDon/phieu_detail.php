@@ -34,7 +34,7 @@ function fmt_dt(?string $value): string
 }
 
 $allowedTypes = [
-    'muon' => 'Phiếu mượn (phiếu xuất sách)',
+    'muon' => 'Phiếu mượn',
     'tra' => 'Phiếu trả',
     'phat' => 'Phiếu phạt',
     'nhap' => 'Phiếu nhập',

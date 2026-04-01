@@ -25,6 +25,7 @@ session_start();
     <link rel="stylesheet" href="/assets/css/cart.css">
 </head>
 <body>
+<?php include 'layout/offline_check.php'; ?>
 <?php
 // Header luôn xuất hiện trên mọi trang
 include __DIR__ . '/layout/header.php';
@@ -42,6 +43,9 @@ if (isset($_GET['page'])) {
             break;
         case 'cart':
             include __DIR__ . '/layout/cart.php';
+            break;
+        case 'taikhoan':
+            include __DIR__ . '/layout/taikhoan.php';
             break;
         // ...các trang khác nếu có...
         default:

@@ -41,5 +41,15 @@
       $result = $stmt->get_result();
       return $result;
     }
+
+    public function TimKiem($conn, $keyword) {
+      $keyword = "%" . $keyword . "%";
+      $sql = "SELECT * FROM tacgia WHERE matacgia LIKE ? OR tentacgia LIKE ?";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("ss", $keyword, $keyword);
+      $stmt->execute();
+      $result = $stmt->get_result();
+      return $result;
+    }
   }
 ?>

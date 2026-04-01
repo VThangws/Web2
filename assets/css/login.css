@@ -1,10 +1,10 @@
-*{
+* {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-.center-full{
+.center-full {
     position: fixed;
     top: 0;
     left: 0;
@@ -15,18 +15,19 @@
     min-height: 100vh;
     opacity: 0;
     visibility: hidden;
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease;
     z-index: 1001;
 }
 
-.center-full.active-popup{
+.center-full.active-popup {
     opacity: 1;
     visibility: visible;
 }
 
-.wrapper{
+.wrapper {
     position: relative;
     width: 400px;
     height: 440px;
@@ -38,47 +39,47 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
-    transition: transform .25s ease,height .2s ease;
+    transition: transform .25s ease, height .2s ease;
     transform: scale(0.7);
     z-index: 1002;
 }
 
-.center-full.active-popup .wrapper{
+.center-full.active-popup .wrapper {
     transform: scale(1);
 }
 
-.wrapper.active{
+.wrapper.active {
     height: 520px;
 }
 
-.wrapper .form-box{
+.wrapper .form-box {
     width: 100%;
     padding: 40px;
-    
+
 }
 
-.wrapper .form-box.login{
+.wrapper .form-box.login {
     transition: transform .18s ease;
     transform: translateX(0);
 }
 
-.wrapper.active .form-box.login{ 
+.wrapper.active .form-box.login {
     transition: none;
     transform: translateX(-400px);
 }
 
-.wrapper .form-box.register{
+.wrapper .form-box.register {
     position: absolute;
     transition: none;
     transform: translateX(400px);
-} 
+}
 
-.wrapper.active .form-box.register{
-    transition: transform .18s ease ;
+.wrapper.active .form-box.register {
+    transition: transform .18s ease;
     transform: translateX(0);
 }
 
-.close{
+.close {
     position: absolute;
     top: 0;
     right: 0;
@@ -86,7 +87,7 @@
     width: 45px;
     background-color: burlywood;
     color: white;
-    border-bottom-left-radius:15px ;
+    border-bottom-left-radius: 15px;
     font-size: 1.8em;
     display: flex;
     justify-content: center;
@@ -96,12 +97,12 @@
     z-index: 1003;
 }
 
-.close:hover{
+.close:hover {
     opacity: 1 !important;
     color: white;
 }
 
-.form-box h2{
+.form-box h2 {
     text-align: center;
 }
 
@@ -115,24 +116,24 @@
 
 /* class riêng để control margin đều cho tất cả các hàng */
 .mb-input .input-box {
-   margin: 20px 0 0 0;
+    margin: 20px 0 0 0;
 }
 
 .input-box input:focus~label,
-.input-box input:valid~label{
+.input-box input:valid~label {
     top: -5px;
 }
 
-.input-box label{
+.input-box label {
     position: absolute;
-    left:5px;
+    left: 5px;
     top: 50%;
-    pointer-events: none; 
+    pointer-events: none;
     transform: translateY(-50%);
     transition: 0.5s;
 }
 
-.input-box input{
+.input-box input {
     width: 100%;
     height: 100%;
     background: transparent;
@@ -140,23 +141,23 @@
     outline: none;
 }
 
-.remember-forgot{
+.remember-forgot {
     display: flex;
     justify-content: space-between;
     margin: -15px 0px 15px;
 }
 
-.remember-forgot label input{
+.remember-forgot label input {
     accent-color: black;
     margin-right: 5px;
 }
 
-.remember-forgot a{
+.remember-forgot a {
     color: black;
     text-decoration: none;
 }
 
-.btn.btn-custom{
+.btn.btn-custom {
     background-color: burlywood;
     width: 100%;
     border-radius: 5px;
@@ -166,26 +167,26 @@
     outline: none;
 }
 
-.btn.btn-custom:hover{
+.btn.btn-custom:hover {
     background-color: white;
     color: black;
     transition: 0.75s;
     cursor: pointer;
 }
 
-.login-register{
+.login-register {
     display: grid;
     place-content: center;
     margin: 15px;
 }
 
-.login-register p a{
+.login-register p a {
     color: black;
     text-decoration: none;
-    
+
 }
 
-.login-register p a:hover{
+.login-register p a:hover {
     text-decoration: underline;
 }
 

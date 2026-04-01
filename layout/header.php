@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../database/ConnectDB.php';
-include_once __DIR__ . '/../layout/login.php';
+require_once __DIR__ . '/../layout/login.php';
 
 // Lấy đối tượng kết nối mysqli từ ConnectDB
 $conn = ConnectDB::getInstance()->getConnection();
@@ -68,7 +68,7 @@ $docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên 
             </div>
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($docgia): ?>
-                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline"> <!-- chưa xong -->
+                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
                     Xin chào, <?= htmlspecialchars($docgia->getTendocgia(), ENT_QUOTES) ?>
                 </a>
                 <a href="/ajax/logout.php" class="main-btn main-btn-outline">Đăng xuất</a>

@@ -90,6 +90,30 @@ if (registerForm) {
     });
 }
 
+// ===== PHẦN Update Profile AJAX =====
+document.getElementById('btn-save').addEventListener('click', function() {
+    const formData = new FormData();
+    formData.append('hodocgia', document.querySelector('input[name="hodocgia"]').value);
+    formData.append('tendocgia', document.querySelector('input[name="tendocgia"]').value);
+    formData.append('email', document.querySelector('input[name="email"]').value);
+    formData.append('ngaysinh', document.querySelector('input[name="ngaysinh"]').value);
+    formData.append('diachi', document.querySelector('input[name="diachi"]').value);
+
+    fetch('ajax/updateProfile.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        const msg = document.getElementById('updateMessage');
+        if(data.success){
+            msg.innerHTML = '<span class="text-success">Cập nhật thành công!</span>';
+            setTimeout(()=>location.reload(), 1000);
+        } else {
+            msg.innerHTML = '<span class="text-danger">'+data.message+'</span>';
+        }
+    });
+});
 
 // ===== MODAL NOTICE =====
 function showModal(isSuccess, message) {

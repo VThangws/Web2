@@ -179,3 +179,28 @@
     color: #68a2ff;
     /* Đổi màu khi hover */
 }
+
+.error-wrapper-full {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 500px;
+    /* Đảm bảo đủ khoảng trống để căn giữa dọc */
+}
+
+.pagination-advanced .page-link.ellipsis {
+    color: #b0b0b0;
+    /* Màu xám nhạt */
+    cursor: default;
+    /* Không hiển thị bàn tay khi di chuột */
+    pointer-events: none;
+    /* Ngăn chặn việc click vào */
+    padding: 6px 5px;
+}
+
+.pagination-advanced .page-link.active {
+    color: #68a2ff;
+    /* Màu xanh khi đang ở trang đó */
+    font-weight: bold;
+}

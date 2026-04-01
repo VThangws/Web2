@@ -1,0 +1,115 @@
+    body {
+        height: 100%;
+        margin: 0;
+        font-family: 'Roboto', sans-serif;
+        background: #f4f6f5; /* Chuyển màu nền sang hơi ám xanh lục cực nhẹ cho đồng bộ */
+    }
+
+    .container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+    }
+
+    .profile-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08); /* Làm bóng đổ mờ và nhẹ hơn */
+        overflow: hidden;
+        width: 100%;
+        max-width: 500px;
+        transition: transform 0.3s;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+    }
+
+    /* Đổi sang Gradient Xanh Mộc (Sage Green) dịu mắt */
+    .profile-header {
+        background: linear-gradient(135deg, #81a3a0 0%, #5c807d 100%); 
+        padding: 40px 20px;
+        text-align: center;
+        color: white;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 5px solid white;
+        margin: 0 auto 20px;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 50px;
+        color: #5c807d; /* Đồng bộ màu icon avatar */
+    }
+
+    .profile-body {
+        padding: 30px 30px 40px 30px;
+    }
+
+    .info-group {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eef0ef; /* Đường viền nhạt hơn */
+    }
+
+    .info-group:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .info-label {
+        color: #889492; /* Chữ label nhạt và ám xanh nhẹ */
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 5px;
+        display: flex;
+        align-items: center;
+    }
+
+    .info-label i {
+        margin-right: 10px;
+        color: #719692; /* Màu icon dịu nhẹ */
+        width: 20px;
+    }
+
+    .info-value {
+        font-size: 16px;
+        color: #333d3c;
+        font-weight: 500;
+        padding-left: 30px;
+    }
+
+    .badge-reader {
+        background: rgba(255, 255, 255, 0.2); /* Đổi sang nền kính mờ thay vì gradient để bớt chói */
+        padding: 6px 20px;
+        border-radius: 25px;
+        display: inline-block;
+        margin-top: 10px;
+        color: white;
+        font-weight: 600;
+        backdrop-filter: blur(5px);
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #81a3a0 0%, #5c807d 100%);
+        border: none;
+        padding: 12px 40px;
+        border-radius: 25px;
+        color: white;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(92, 128, 125, 0.3); /* Bóng đổ tiệp màu và nhạt hơn */
+    }

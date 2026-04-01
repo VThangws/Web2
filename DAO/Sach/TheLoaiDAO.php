@@ -24,6 +24,23 @@
       return $theloais;
     }
 
+    public function TimKiem($conn, $keyword) {
+      $keyword = "%" . $keyword . "%";
+      $sql = "SELECT * FROM theloai WHERE matheloai LIKE ? OR tentheloai LIKE ?";
+      $stmt = $conn->prepare($sql);
+      $stmt->bind_param("ss", $keyword, $keyword);
+      $stmt->execute();
+      $result = $stmt->get_result();
+      $theloais = [];
+      if ($result->num_rows > 0) {
+        while($row = $result->fetch_assoc()) {
+          $theloai = new TheLoai($row['matheloai'], $row['tentheloai']);
+          $theloais[] = $theloai;
+        }
+      }
+      return $theloais;
+    }
+
     public function Xoa($conn, $matheloai) {
       $sql = "DELETE FROM theloai WHERE matheloai = ?";
       $stmt = $conn->prepare($sql);
