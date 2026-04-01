@@ -40,7 +40,7 @@ error_reporting(E_ERROR | E_PARSE);
     $dao = new TacGiaDAO();
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $luachon = $_GET['luachon'] ?? '';
+        $luachon = $_GET['luachon'];
 
         if ($luachon === 'Them') {
             if (empty($_GET['matacgia']) || empty($_GET['tentacgia'])) {
@@ -50,13 +50,6 @@ error_reporting(E_ERROR | E_PARSE);
                 $tentacgia = $_GET['tentacgia'];
                 $dao->Them($conn, $matacgia, $tentacgia);
             }
-        } elseif ($luachon === 'Xoa') {
-            $matacgia = $_GET['matacgia'] ?? '';
-            $dao->Xoa($conn, $matacgia);
-        } elseif ($luachon === 'Sua') {
-            $matacgia = $_GET['matacgia'] ?? '';
-            $tentacgia = $_GET['tentacgia'] ?? '';
-            $dao->Sua($conn, $matacgia, $tentacgia);
         }
       }
       else if($luachon == "Xoa") {
@@ -71,7 +64,6 @@ error_reporting(E_ERROR | E_PARSE);
         // thực hiện cập nhật
         $dao->Sua($conn, $matacgia, $tentacgia);
       }
-    }
   ?>
   <div class="panel">
     <h2>Thông tin tác giả</h2>

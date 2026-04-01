@@ -65,7 +65,8 @@ require_admin_permission('NHANVIEN');
 </head>
 <body>
   <?php
-    require_once '../../../database/ConnectDB.php';
+    require_once '../../../database/KetNoiDB.php';
+    require_once '../../../model/NhanVien.php';
     require_once '../../../DAO/NhanVienDAO.php';
     $dao = new NhanVienDAO();
 
@@ -147,11 +148,7 @@ require_admin_permission('NHANVIEN');
                     <label for="ngaysinh">Ngày sinh</label>
                     <input type="date" id="ngaysinh" name="ngaysinh" required>
                 </div>
-                <div class="full form-actions">
-                    <label><input type="radio" name="luachon" value="Them" required> Thêm nhân viên mới</label>
-                    <label><input type="radio" name="luachon" value="Sua" required> Sửa thông tin nhân viên</label>
-                    <button type="submit" class="btn">OK</button>
-                </div>
+                <button type="submit" class="btn" value="Them" name="luachon">Thêm nhân viên</button>
             </form>
         </div>
 
