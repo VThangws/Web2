@@ -16,7 +16,11 @@ require_admin_permission('SACH');
     require_once "../../../../database/KetNoiDB.php";
     $dao = new DauSachDAO();
     // lấy thông tin đầu sách
-    $dausach = $dao->getDauSach($conn, $_REQUEST['madausach']);
+    $madausach = $_REQUEST['madausach'] ?? '';
+    if ($madausach === '') {
+      die('Thiếu mã đầu sách');
+    }
+    $dausach = $dao->getDauSach($conn, $madausach);
   ?>
   <div class="KhungThongTin">
     <form action="QL_DauSach.php" method="post" enctype="multipart/form-data">

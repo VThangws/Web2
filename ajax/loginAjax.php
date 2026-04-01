@@ -1,0 +1,40 @@
+<?php
+require_once __DIR__. '/../DAO/DocGiaDAO.php';
+require_once __DIR__. '/../model/DocGia.php';
+require_once __DIR__. '/../database/ConnectDB.php';
+
+// Bắt đầu session nếu chưa có
+if(session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Set header JSON (QUAN TRỌNG!)
+header('Content-Type: application/json');
+
+$dao = new DocGiaDAO();
+$email = trim($_POST['email'] ?? "");
+$matkhau = trim($_POST['matkhau'] ?? "");
+
+// Kiểm tra rỗng
+if ($email === "" || $matkhau === "") {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Vui lòng nhập đầy đủ email và mật khẩu"
+    ]);
+    exit;
+}
+$user = $dao->dangNhap($email, $matkhau);
+if ($user) {
+    $_SESSION['docgia'] = $user;
+    
+    echo json_encode([
+        "status" => "success",
+        "message" => "Chào mừng bạn " . $user->getTendocgia() . " đến với thư viện",
+    ]);
+} else {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Sai email hoặc mật khẩu"
+    ]);
+}
+?>

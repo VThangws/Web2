@@ -37,10 +37,13 @@ error_reporting(E_ERROR | E_PARSE);
     require_once '../../../database/KetNoiDB.php';
     require_once '../../../model/DocGia.php';
     require_once '../../../DAO/DocGiaDAO.php';
+
+    $conn = ConnectDB::getInstance()->getConnection();
     $dao = new DocGiaDAO();
     if($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $luachon = $_GET['luachon'] ?? '';
       // thêm
-      if($_GET['luachon'] == "Them") {
+      if($luachon == "Them") {
         if(empty($_GET['madocgia']) ||
         empty($_GET['hodocgia'])||
         empty($_GET['tendocgia'])||
@@ -68,7 +71,7 @@ error_reporting(E_ERROR | E_PARSE);
           echo "<script>alert('Thêm đọc giả thành công!');</script>";
         }
       }
-      else if($_GET['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // lấy dữ liệu đọc giả từ form
         $madocgia = $_GET['madocgia'];
         $hodocgia = $_GET['hodocgia'];
@@ -83,7 +86,7 @@ error_reporting(E_ERROR | E_PARSE);
         $tendocgia, $email, $sdt,
         $ngaysinh, $diachi);
       }
-      else if($_GET['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy mã đọc giả để xóa
         $madocgia = $_GET['madocgia'];
         // thực hiện chức năng xóa đọc giả

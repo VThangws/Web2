@@ -42,14 +42,5 @@
       $result = $stmt->get_result();
       return $result;
     }
-
-    public function TimKiem($conn, $keyword) {
-      $sql = "SELECT * FROM docgia WHERE madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ?";
-      $stmt = $conn->prepare($sql);
-      $term = "%" . $keyword . "%";
-      $stmt->bind_param("sss", $term, $term, $term);
-      $stmt->execute();
-      return $stmt->get_result();
-    }
   }
 ?>

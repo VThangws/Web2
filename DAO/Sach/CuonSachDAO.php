@@ -1,4 +1,6 @@
 <?php
+  require_once __DIR__ . '/../../model/Sach/CuonSach.php';
+
   class CuonSachDAO {
     public function Them($conn, $macuonsach,
     $madausach, $mavitri,

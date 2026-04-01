@@ -1336,8 +1336,22 @@ CREATE TABLE `taikhoan` (
   `tendangnhap` varchar(50) NOT NULL,
   `matkhau` varchar(255) DEFAULT NULL,
   `manhomquyen` varchar(50) DEFAULT NULL,
-  `manv` varchar(50) DEFAULT NULL
+  `manv` varchar(50) DEFAULT NULL,
+  `madocgia` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Seed account for team testing
+-- Username: admin
+-- Password: 123456
+-- manhomquyen/manv NULL => treated as super-admin by admin/auth.php
+--
+INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`) VALUES
+('admin', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', NULL, NULL)
+ON DUPLICATE KEY UPDATE
+  `matkhau` = '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm',
+  `manhomquyen` = NULL,
+  `manv` = NULL;
 
 -- --------------------------------------------------------
 
@@ -1522,6 +1536,7 @@ ALTER TABLE `tacgia`
 ALTER TABLE `taikhoan`
   ADD PRIMARY KEY (`tendangnhap`),
   ADD KEY `fk_taikhoan_nhanvien` (`manv`),
+  ADD KEY `fk_taikhoan_docgia` (`madocgia`),
   ADD KEY `fk_taikhoan_nhomquyen` (`manhomquyen`);
 
 --
@@ -1623,6 +1638,7 @@ ALTER TABLE `phieutra`
 --
 ALTER TABLE `taikhoan`
   ADD CONSTRAINT `fk_taikhoan_nhanvien` FOREIGN KEY (`manv`) REFERENCES `nhanvien` (`manv`),
+  ADD CONSTRAINT `fk_taikhoan_docgia` FOREIGN KEY (`madocgia`) REFERENCES `docgia` (`madocgia`),
   ADD CONSTRAINT `fk_taikhoan_nhomquyen` FOREIGN KEY (`manhomquyen`) REFERENCES `nhomquyen` (`manhomquyen`);
 COMMIT;
 

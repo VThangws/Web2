@@ -39,8 +39,9 @@ error_reporting(E_ERROR | E_PARSE);
     $dao = new TacGiaDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "GET") {
+      $luachon = $_GET['luachon'] ?? '';
       // chia trường hợp
-      if($_GET['luachon'] == "Them") {
+      if($luachon == "Them") {
         if(empty($_GET['matacgia']) ||
         empty($_GET['tentacgia'])) {
           echo "<script>alert('Thông tin tác giả không được để trống!');</script>";
@@ -54,12 +55,12 @@ error_reporting(E_ERROR | E_PARSE);
           $dao->Them($conn, $matacgia, $tentacgia);
         }
       }
-      else if($_GET['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy mã tác giả
         $matacgia = $_GET['matacgia'];
         $dao->Xoa($conn, $matacgia);
       }
-      else if($_GET['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // lấy thông tin tác giả từ form
         $matacgia = $_GET['matacgia'];
         $tentacgia = $_GET['tentacgia'];

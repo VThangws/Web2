@@ -1,0 +1,226 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.center-full{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    opacity: 0;
+    visibility: hidden;
+    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    z-index: 997;
+}
+
+.center-full.active-popup{
+    opacity: 1;
+    visibility: visible;
+}
+
+.wrapper{
+    position: relative;
+    width: 400px;
+    height: 440px;
+    background: transparent;
+    background-color: white;
+    border-radius: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: transform .25s ease,height .2s ease;
+    transform: scale(0.7);
+    z-index: 998;
+}
+
+.center-full.active-popup .wrapper{
+    transform: scale(1);
+}
+
+.wrapper.active{
+    height: 520px;
+}
+
+.wrapper .form-box{
+    width: 100%;
+    padding: 40px;
+    
+}
+
+.wrapper .form-box.login{
+    transition: transform .18s ease;
+    transform: translateX(0);
+}
+
+.wrapper.active .form-box.login{ 
+    transition: none;
+    transform: translateX(-400px);
+}
+
+.wrapper .form-box.register{
+    position: absolute;
+    transition: none;
+    transform: translateX(400px);
+} 
+
+.wrapper.active .form-box.register{
+    transition: transform .18s ease ;
+    transform: translateX(0);
+}
+
+.close{
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 45px;
+    width: 45px;
+    background-color: burlywood;
+    color: white;
+    border-bottom-left-radius:15px ;
+    font-size: 1.8em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    opacity: 1;
+    z-index: 999;
+}
+
+.close:hover{
+    opacity: 1 !important;
+    color: white;
+}
+
+.form-box h2{
+    text-align: center;
+}
+
+.input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid black;
+    margin: 30px 0;
+}
+
+/* class riêng để control margin đều cho tất cả các hàng */
+.mb-input .input-box {
+   margin: 20px 0 0 0;
+}
+
+.input-box input:focus~label,
+.input-box input:valid~label{
+    top: -5px;
+}
+
+.input-box label{
+    position: absolute;
+    left:5px;
+    top: 50%;
+    pointer-events: none; 
+    transform: translateY(-50%);
+    transition: 0.5s;
+}
+
+.input-box input{
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.remember-forgot{
+    display: flex;
+    justify-content: space-between;
+    margin: -15px 0px 15px;
+}
+
+.remember-forgot label input{
+    accent-color: black;
+    margin-right: 5px;
+}
+
+.remember-forgot a{
+    color: black;
+    text-decoration: none;
+}
+
+.btn.btn-custom{
+    background-color: burlywood;
+    width: 100%;
+    border-radius: 5px;
+    color: white;
+    height: 35px;
+    border: none;
+    outline: none;
+}
+
+.btn.btn-custom:hover{
+    background-color: white;
+    color: black;
+    transition: 0.75s;
+    cursor: pointer;
+}
+
+.login-register{
+    display: grid;
+    place-content: center;
+    margin: 15px;
+}
+
+.login-register p a{
+    color: black;
+    text-decoration: none;
+    
+}
+
+.login-register p a:hover{
+    text-decoration: underline;
+}
+
+/*  css cho modal notice   */
+.modal-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.modal-error {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    color: white;
+}
+
+/* Modal nằm trên bên phải */
+.modal-top-right {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    margin: 0;
+    max-width: 350px;
+}
+
+/* Animation chạy vào từ phải */
+.modal.fade .modal-top-right {
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-top-right {
+    transform: translateX(0);
+}
+
+#loginMessage h4 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 18px;
+}

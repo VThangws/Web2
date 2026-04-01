@@ -20,7 +20,8 @@ error_reporting(E_ERROR | E_PARSE);
     $dao = new NhaXuatBanDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "GET") {
-      if($_GET['luachon'] == "Them") {
+      $luachon = $_GET['luachon'] ?? '';
+      if($luachon == "Them") {
         if(empty($_GET['manxb']) ||
         empty($_GET['tennxb']) ||
         empty($_GET['diachi']) ||
@@ -40,13 +41,13 @@ error_reporting(E_ERROR | E_PARSE);
           $dao->Them($conn, $manxb, $tennxb, $diachi, $sdt, $email);
         }
       }
-      else if($_GET['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy mã nhà xuất bản
         $manxb = $_GET['manxb'];
         // thực hiện xóa thông tin nhà xuất bản
         $dao->Xoa($conn, $manxb);
       }
-      else if($_GET['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // lấy thông tin sửa
         $manxb = $_GET['manxb'];
         $tennxb = $_GET['tennxb'];

@@ -28,6 +28,7 @@ require_admin_permission('SACH');
   </style>
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
   <?php
     require_once "../../../../database/KetNoiDB.php";
     require_once "../../../../model/Sach/CuonSach.php";
@@ -35,36 +36,36 @@ require_admin_permission('SACH');
     $dao = new CuonSachDAO();
     
     if($_SERVER['REQUEST_METHOD'] == "GET" || $_SERVER['REQUEST_METHOD'] == "POST") {
-      // lấy thông tin mới của cuốn sách
-      $macuonsach = $_REQUEST['macuonsach'];
-      $madausach = $_REQUEST['madausach'];
-      $mavitri = $_REQUEST['mavitri'];
-      $trangthai = $_REQUEST['trangthai'];
-      $tinhtrang = $_REQUEST['tinhtrang'];
-      if($_REQUEST['luachon'] == "Them") {
-        // thực hiện thêm cuốn sách mới
-        $dao->Them($conn, $macuonsach, $madausach, $mavitri,
-        $trangthai, $tinhtrang);
+      $luachon = $_REQUEST['luachon'] ?? '';
+      if($luachon == "Them" || $luachon == "Sua") {
+        // lấy thông tin mới của cuốn sách
+        $macuonsach = $_REQUEST['macuonsach'] ?? '';
+        $madausach = $_REQUEST['madausach'] ?? '';
+        $mavitri = $_REQUEST['mavitri'] ?? '';
+        $trangthai = $_REQUEST['trangthai'] ?? '';
+        $tinhtrang = $_REQUEST['tinhtrang'] ?? '';
+
+        if($luachon == "Them") {
+          // thực hiện thêm cuốn sách mới
+          $dao->Them($conn, $macuonsach, $madausach, $mavitri,
+          $trangthai, $tinhtrang);
+        }
+        else {
+          // thực hiện sửa thông tin cuốn sách
+          $dao->Sua($conn, $macuonsach, $madausach, $mavitri,
+          $trangthai, $tinhtrang);
+        }
       }
-      else if($_REQUEST['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // thực hiện xóa cuốn sách
-        $macuonsach = $_REQUEST['macuonsach'];
-        $dao->Xoa($conn, $macuonsach);
-      }
-      else if($_REQUEST['luachon'] == "Sua") {
-        // thực hiện sửa thông tin cuốn sách
-        $dao->Sua($conn, $macuonsach, $madausach, $mavitri,
-        $trangthai, $tinhtrang);
+        $macuonsach = $_REQUEST['macuonsach'] ?? '';
+        if($macuonsach !== '') {
+          $dao->Xoa($conn, $macuonsach);
+        }
       }
     }
   ?>
-  <div class="container">
-    <div class="panel KhungMenu">
-      <?php
-        require_once "../../../Menu/AdminMenu.php";
-      ?>
-    </div>
-    <div class="panel KhungThongTin">
+  <div class="KhungThongTin">
     <form method="get">
       <label for="macuonsach">Mã cuốn sách</label>
       <input type="text" id="macuonsach" name="macuonsach" /><br>

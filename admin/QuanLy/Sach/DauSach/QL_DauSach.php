@@ -65,6 +65,7 @@ require_admin_permission('SACH');
   </style>
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
   <?php
     // Tắt tất cả báo cáo lỗi
     error_reporting(0);
@@ -74,7 +75,9 @@ require_admin_permission('SACH');
     $dao = new DauSachDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "POST" || $_SERVER['REQUEST_METHOD'] == "GET") {
-      if($_REQUEST['luachon'] == "Them") {
+      $luachon = $_REQUEST['luachon'] ?? '';
+
+      if($luachon == "Them") {
         // Lấy thông tin đầu sách
         $madausach = $_POST['madausach'];
         $tensach = $_POST['tensach'];
@@ -89,7 +92,7 @@ require_admin_permission('SACH');
         $filename = pathinfo($_FILES['anhbia']['name'], PATHINFO_FILENAME);
         $target_file = $target_dir . $filename . $madausach . ".png";
         $filename_to_save = $filename . $madausach . ".png";
-        echo $target_file;
+        // echo $target_file;
         // lưu hình ảnh
         if(move_uploaded_file($_FILES['anhbia']['tmp_name'], $target_file)) {
           echo "Đã tải ảnh bìa lên!";
@@ -101,14 +104,14 @@ require_admin_permission('SACH');
         $dao->Them($conn, $madausach, $tensach, $namsanxuat, $dongia,
          $matacgia, $matheloai, $manxb, $mota, $filename_to_save);
       }
-      else if($_REQUEST['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy mã đầu sách để xóa sách
         $madausach = $_REQUEST['madausach'];
-        echo $madausach;
+        // echo $madausach;
         // thực hiện xóa sách
         $dao->Xoa($conn, $madausach);
       }
-      else if($_REQUEST['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // Lấy thông tin ảnh bìa cũ
         $dausach = $dao->getDauSach($conn, $_REQUEST['madausach']);
         // lấy thông tin mới của đầu sách
