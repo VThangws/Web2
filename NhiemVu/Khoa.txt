@@ -1,11 +1,6 @@
-chạy lệnh trong db
-    INSERT INTO nhomquyen (manhomquyen, tennhomquyen) 
-    VALUES 
-        ('DG', 'Độc giả'),
-        ('NV', 'Nhân viên');
-với chạy lại cái db nha
-
-rồi đăng ký tài khoản mới dùng đc
+user test
+    user@example.com
+    123456
    
 
 
