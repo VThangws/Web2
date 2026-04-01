@@ -22,6 +22,7 @@ session_start();
     <link rel="stylesheet" href="./assets/css/footer.css">
     <link rel="stylesheet" href="./assets/fonts/font.css">
     <link rel="stylesheet" href="./assets/css/books.css">
+    <link rel="stylesheet" href="/assets/css/cart.css">
 </head>
 <body>
 <?php

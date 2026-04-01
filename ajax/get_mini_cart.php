@@ -1,15 +1,17 @@
 <?php
 session_start();
 $html = '';
-$total_items = 0;
+$total_items = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 $total_price = 0;
 
 if (empty($_SESSION['cart'])) {
     $html .= '<div class="text-center py-5 text-muted">';
     $html .= '<i class="fa-solid fa-cart-arrow-down mb-3" style="font-size: 3rem;"></i><br>Giỏ hàng đang trống</div>';
 } else {
+    // Gắn class custom-cart-scroll
+    $html .= '<div class="custom-cart-scroll">';
+
     foreach ($_SESSION['cart'] as $ma => $item) {
-        $total_items += $item['soluong'];
         $total_price += ($item['dongia'] * $item['soluong']);
         
         $anh = htmlspecialchars($item['anhbia'] ?: 'demo.jpg');
@@ -39,9 +41,11 @@ if (empty($_SESSION['cart'])) {
             </button>
         </div>';
     }
-    
-    // Khuyến mãi thêm dòng tính Tổng Tiền ở đáy giỏ Mini
-    $html .= '<div class="d-flex justify-content-between fw-bold fs-6 mt-3 pt-2">
+
+    $html .= '</div>';
+
+    // Tổng tiền
+    $html .= '<div class="d-flex justify-content-between fw-bold fs-5 mt-4 pt-3 border-top">
                 <span>Tổng tiền:</span>
                 <span class="text-danger">'.number_format($total_price, 0, ',', '.').' đ</span>
               </div>';
