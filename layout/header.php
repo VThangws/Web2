@@ -1,12 +1,12 @@
 <?php
 require_once __DIR__ . '/../model/DocGia.php';
 require_once __DIR__ . '/../model/TaiKhoan.php';
-require_once __DIR__ . '/../database/ConnectDB.php';
-include_once __DIR__ . '/../layout/login.php';
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+require_once __DIR__ . '/../database/ConnectDB.php';
+include_once __DIR__ . '/../layout/login.php';
 
 // Lấy đối tượng kết nối mysqli từ ConnectDB
 $conn = ConnectDB::getInstance()->getConnection();
@@ -100,8 +100,6 @@ $docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên 
     </div> -->
 </header>
 
-</header>
-
 <div class="offcanvas offcanvas-end shadow" tabindex="-1" id="miniCart" aria-labelledby="miniCartLabel" style="width: 360px;">
     <div class="offcanvas-header border-bottom">
         <h5 class="offcanvas-title fw-bold fs-6" id="miniCartLabel">Sản phẩm trong giỏ (<span id="mini-cart-count"><?= $so_luong_gio_hang ?></span>)</h5>
@@ -146,7 +144,7 @@ $docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên 
 </div>
 <script src="/assets/js/header.js" defer></script>
 <script>
-    window.user_id = <?= isset($_SESSION['docgia']) ? json_encode($_SESSION['docgia']->getMadocgia()) : 'null' ?>;
+    window.user_id = <?= $docgia ? json_encode($docgia->getMadocgia()) : 'null' ?>;
 </script>
 
 <script>
@@ -250,4 +248,3 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 <script src="/assets/js/header.js" defer></script>
-<script src="/Login/login.js" defer></script>

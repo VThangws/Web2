@@ -1,33 +1,18 @@
 <?php
-require_once __DIR__. '/../DAO/DocGiaDAO.php';
-require_once __DIR__. '/../model/DocGia.php';
-require_once __DIR__. '/../database/ConnectDB.php';
-
-$dao = new DocGiaDAO();
-$thongbao = '';
-
-if (isset($_POST['btn-register'])) {
-    $dg = new DocGia(
-        $_POST['hodocgia'],
-        $_POST['tendocgia'],
-        $_POST['email'],
-        null, // sdt
-        null, // ngaysinh
-        null  // diachi
-    );
-    $matkhau = $_POST['matkhau'];
-
-    $result = $dao->dangKy($dg, $matkhau);
-    if($result['success']){
-        $thongbao = 'Đăng ký thành công!';
-    } else {
-        $thongbao = $result["message"];
-    }
-}
 ?>
 
 <link rel="stylesheet" href="/assets/css/login.css">
 <script src="https://kit.fontawesome.com/8cf433228b.js" crossorigin="anonymous"></script>
+
+    <div class="modal fade" id="loginModal" >
+        <div class="modal-dialog modal-top-right">
+            <div class="modal-content border-0 shadow-lg" id="modalContent">
+                <div class="modal-body text-center p-3" id="loginMessage">
+                    <!-- Nội dung sẽ được thêm bằng JS -->
+                </div>
+            </div>
+        </div>
+    </div>
 
 <div class="container-fluid center-full">
     <div class="wrapper">
@@ -35,19 +20,9 @@ if (isset($_POST['btn-register'])) {
             <i class="fa-solid fa-xmark"></i>
         </div>
 
-        <div class="modal fade" id="loginModal">
-            <div class="modal-dialog modal-top-right">
-                <div class="modal-content border-0 shadow-lg" id="modalContent">
-                    <div class="modal-body text-center p-3" id="loginMessage">
-                        <!-- Nội dung sẽ được thêm bằng JS -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="form-box login">
             <h2>Đăng Nhập</h2>
-            <form id="loginForm" method="POST" action="">
+            <form id="loginForm">
                 <div class="input-box">
                     <input type="email" name="email" required>
                     <label>Email</label>
@@ -69,7 +44,7 @@ if (isset($_POST['btn-register'])) {
 
         <div class="form-box register">
             <h2>Đăng Ký</h2>
-            <form id="registerForm" method="POST" action="">
+            <form id="registerForm">
                <div class="row g-0 mb-input">
                     <div class="col-6 pe-2">
                         <div class="input-box">
