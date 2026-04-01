@@ -1339,6 +1339,19 @@ CREATE TABLE `taikhoan` (
   `manv` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Seed account for team testing
+-- Username: admin
+-- Password: 123456
+-- manhomquyen/manv NULL => treated as super-admin by admin/auth.php
+--
+INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`) VALUES
+('admin', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', NULL, NULL)
+ON DUPLICATE KEY UPDATE
+  `matkhau` = '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm',
+  `manhomquyen` = NULL,
+  `manv` = NULL;
+
 -- --------------------------------------------------------
 
 --
