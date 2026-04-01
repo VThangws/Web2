@@ -11,17 +11,12 @@ require_once __DIR__ . '/../layout/login.php';
 // Lấy đối tượng kết nối mysqli từ ConnectDB
 $conn = ConnectDB::getInstance()->getConnection();
 
-$so_luong_gio_hang = 0;
-if (isset($_SESSION['cart'])) {
-    foreach ($_SESSION['cart'] as $item) {
-        $so_luong_gio_hang += $item['soluong'];
-    }
-}
-// Xử lý thông tin người dùng (Độc giả/Thủ thư)
+$so_luong_gio_hang = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
 
-$docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên không cần phải query lại database, chỉ cần lấy từ session
-
+// Lấy thông tin user từ Session
+$docgia = $_SESSION['docgia'] ?? null;
 ?>
+
 <link rel="stylesheet" href="/assets/css/login.css">
 <link rel="stylesheet" href="/assets/css/header.css">
 
@@ -108,34 +103,6 @@ $docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên 
     
     <div class="offcanvas-body" id="mini-cart-body">
         </div>
-    
-    <style>
-    .btn-mini-checkout {
-        background-color: #20c997;
-        color: white;
-        border: 1px solid #20c997;
-        border-radius: 50px;
-        transition: background-color 0.2s ease, border-color 0.2s ease;
-    }
-    .btn-mini-checkout:hover {
-        background-color: #1aa179;
-        border-color: #1aa179;
-        color: white;
-    }
-
-    .btn-mini-close {
-        background-color: white;
-        color: #20c997;
-        border: 1px solid #20c997;
-        border-radius: 50px;
-        transition: background-color 0.2s ease, color 0.2s ease;
-    }
-    .btn-mini-close:hover {
-        background-color: #eafaf5;
-        color: #1aa179;
-        border-color: #1aa179;
-    }
-    </style>
 
     <div class="offcanvas-footer border-top p-3 bg-white">
         <a href="/index.php?page=cart" class="btn btn-mini-checkout w-100 fw-bold mb-3 py-2">Chi tiết giỏ hàng</a>
