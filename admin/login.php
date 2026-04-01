@@ -59,7 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $dbPassword = $row['matkhau'] ?? null;
             $ok = false;
 
-            // Hỗ trợ cả mật khẩu hash (password_hash) và dạng plain text (demo/đồ án).
             if (is_string($dbPassword) && $dbPassword !== '') {
                 if (password_verify($matkhau, $dbPassword)) {
                     $ok = true;
@@ -80,7 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'madocgia' => $hasMadocgiaCol ? ($row['madocgia'] ?? null) : null,
                     ];
 
-                    // Chặn redirect ra ngoài domain
                     if ($next === '' || str_starts_with($next, 'http://') || str_starts_with($next, 'https://')) {
                         $next = '/admin/adminMenu.php';
                     }
@@ -111,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="col-12 col-md-7 col-lg-5">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
-                        <h1 class="h4 mb-3 text-center">Đăng nhập Admin</h1>
+                        <h1 class="h4 mb-3 text-center">Đăng nhập</h1>
 
                         <?php if ($error !== ''): ?>
                             <div class="alert alert-danger" role="alert">

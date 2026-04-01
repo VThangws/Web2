@@ -4,8 +4,6 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../auth.php';
-
-// Sidebar is only used in admin area; ensure logged in.
 require_admin_login();
 
 $admin = admin_current_user();
@@ -180,6 +178,5 @@ $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
 </aside>
 
 <script>
-    // Make room for the fixed left sidebar across admin pages.
     if (document.body) document.body.classList.add('admin-has-sidebar');
 </script>

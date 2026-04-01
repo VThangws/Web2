@@ -1,5 +1,4 @@
 <?php
-// admin_statistics.php chỉ chứa NỘI DUNG trang thống kê (không include header/footer)
 ?>
 
 <?php
@@ -80,11 +79,9 @@ try {
     $stats['borrowedCopies'] = $countScalar($conn, "SELECT COUNT(*) FROM cuonsach WHERE trangthai='DangMuon'");
     $stats['readers'] = $countScalar($conn, 'SELECT COUNT(*) FROM docgia');
 
-    // Borrow stats within date range
     $fromTs = $statsFrom . ' 00:00:00';
     $toTs = $statsTo . ' 23:59:59';
 
-    // Status counts
     if ($stmt = $conn->prepare('SELECT trangthai, COUNT(*) AS cnt FROM phieumuon WHERE ngaymuon BETWEEN ? AND ? GROUP BY trangthai')) {
         $stmt->bind_param('ss', $fromTs, $toTs);
         $stmt->execute();
@@ -99,7 +96,6 @@ try {
         $stmt->close();
     }
 
-    // Daily borrow counts
     $dailyMap = [];
     if ($stmt = $conn->prepare('SELECT DATE(ngaymuon) AS d, COUNT(*) AS cnt FROM phieumuon WHERE ngaymuon BETWEEN ? AND ? GROUP BY DATE(ngaymuon) ORDER BY d ASC')) {
         $stmt->bind_param('ss', $fromTs, $toTs);
@@ -132,7 +128,6 @@ try {
         $cursor->modify('+1 day');
     }
 
-    // Top borrowed titles
     $sqlTopBooks = "SELECT ds.madausach, ds.tensach, COUNT(*) AS cnt
                     FROM ctphieumuon ct
                     JOIN phieumuon pm ON pm.mamuon = ct.mamuon
@@ -149,7 +144,7 @@ try {
         $stmt->close();
     }
 
-    // Top readers
+
     $sqlTopReaders = "SELECT pm.madocgia,
                              CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,'')) AS ten_docgia,
                              COUNT(*) AS cnt
@@ -193,7 +188,6 @@ try {
         }
     }
 } catch (Throwable $e) {
-    // Nếu DB chưa sẵn sàng, trang thống kê vẫn render với số 0.
 }
 ?>
 

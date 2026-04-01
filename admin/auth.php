@@ -48,12 +48,6 @@ function admin_is_super_admin(): bool
     return isset($u['tendangnhap']) && is_string($u['tendangnhap']) && $u['tendangnhap'] === 'admin';
 }
 
-/**
- * Permission model:
- * - If table ctquyen has no rows: allow all (no permissions configured yet)
- * - If user is super-admin (username=admin): allow all
- * - Else: allow only if ctquyen contains (manhomquyen, machucnang) and optional hanhdong match.
- */
 function admin_has_permission(string $machucnang, ?string $hanhdong = null): bool
 {
     if (!admin_is_logged_in()) {
