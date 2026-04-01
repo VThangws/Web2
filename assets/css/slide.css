@@ -670,6 +670,17 @@ body.snap-scroll {
     transition-delay: 1.2s;
 }
 
+/* Áp dụng hiệu ứng hover cho cả hình ảnh trong bộ sưu tập */
+.reveal-item img {
+    transition: all 0.3s ease;
+}
+
+.reveal-item img:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
 .type-text::after {
     content: "|";
     animation: blink 1s infinite;

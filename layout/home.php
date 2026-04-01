@@ -258,19 +258,19 @@ $totalCategories = ($resCategories) ? $resCategories->fetch_assoc()['total'] : 0
         </div>
         <div class="row g-4">
             <div class="col-md-4 reveal-item section-item">
-                <div class="h-100 p-3 border rounded-3 bg-white">
+                <div class="p-3 border rounded-3 h-100 benefit-card">
                     <h5 class="fw-bold mb-2">Sinh viên & học sinh</h5>
                     <p class="mb-0">Tài liệu tham khảo, giáo trình, sách kỹ năng mềm hỗ trợ học tập và định hướng nghề nghiệp.</p>
                 </div>
             </div>
             <div class="col-md-4 reveal-item section-item">
-                <div class="h-100 p-3 border rounded-3 bg-white">
+                <div class="p-3 border rounded-3 h-100 benefit-card">
                     <h5 class="fw-bold mb-2">Giảng viên & nhà nghiên cứu</h5>
                     <p class="mb-0">Kho luận văn, tài liệu chuyên ngành, tạp chí khoa học phục vụ nghiên cứu và giảng dạy.</p>
                 </div>
             </div>
             <div class="col-md-4 reveal-item section-item">
-                <div class="h-100 p-3 border rounded-3 bg-white">
+                <div class="p-3 border rounded-3 h-100 benefit-card">
                     <h5 class="fw-bold mb-2">Bạn đọc yêu sách</h5>
                     <p class="mb-0">Sách văn học, kỹ năng, kinh tế, công nghệ, đời sống giúp mở rộng hiểu biết và thư giãn.</p>
                 </div>
@@ -287,26 +287,26 @@ $totalCategories = ($resCategories) ? $resCategories->fetch_assoc()['total'] : 0
                 <h3 class="fw-bold">Bắt đầu với thư viện trong 3 bước</h3>
             </div>
         </div>
-        <div class="row g-4 text-center">
-            <div class="col-md-4 reveal-item section-item">
-                <div class="p-3 border rounded-3 h-100">
+        <div class="row g-4 text-center d-flex justify-content-center">
+            <div class="col-md-4 col-sm-12 reveal-item section-item">
+                <div class="p-4 border rounded-3 h-100 benefit-card shadow-sm">
                     <h1 class="fw-bold text-primary mb-2">1</h1>
                     <h6 class="fw-bold mb-2">Đăng ký tài khoản</h6>
-                    <p class="small mb-0">Tạo tài khoản bạn đọc bằng email hoặc mã số sinh viên để sử dụng đầy đủ chức năng.</p>
+                    <p class="small mb-0 text-muted">Tạo tài khoản bạn đọc bằng email hoặc mã số sinh viên để sử dụng đầy đủ chức năng.</p>
                 </div>
             </div>
-            <div class="col-md-4 reveal-item section-item">
-                <div class="p-3 border rounded-3 h-100">
+            <div class="col-md-4 col-sm-12 reveal-item section-item">
+                <div class="p-4 border rounded-3 h-100 benefit-card shadow-sm">
                     <h1 class="fw-bold text-primary mb-2">2</h1>
                     <h6 class="fw-bold mb-2">Tra cứu tài liệu</h6>
-                    <p class="small mb-0">Sử dụng thanh tìm kiếm hoặc bộ lọc để tìm sách, tài liệu phù hợp với nhu cầu.</p>
+                    <p class="small mb-0 text-muted">Sử dụng thanh tìm kiếm hoặc bộ lọc để tìm sách, tài liệu phù hợp với nhu cầu.</p>
                 </div>
             </div>
-            <div class="col-md-4 reveal-item section-item">
-                <div class="p-3 border rounded-3 h-100">
+            <div class="col-md-4 col-sm-12 reveal-item section-item">
+                <div class="p-4 border rounded-3 h-100 benefit-card shadow-sm">
                     <h1 class="fw-bold text-primary mb-2">3</h1>
                     <h6 class="fw-bold mb-2">Mượn và theo dõi</h6>
-                    <p class="small mb-0">Gửi yêu cầu mượn, theo dõi tình trạng và nhận thông báo nhắc trả sách đúng hạn.</p>
+                    <p class="small mb-0 text-muted">Gửi yêu cầu mượn, theo dõi tình trạng và nhận thông báo nhắc trả sách đúng hạn.</p>
                 </div>
             </div>
         </div>
