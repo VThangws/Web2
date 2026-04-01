@@ -88,7 +88,7 @@
       mota=?
       WHERE madausach=?";
       $stmt = $conn->prepare($sql);
-      $stmt->bind_param("ssssssss", $tensach, $namxuatban, $donggia, $matacgia,
+      $stmt->bind_param("ssssssss", $tensach, $namxuatban, $dongia, $matacgia,
       $matheloai, $manxb, $mota, $madausach);
 
       if($stmt->execute()) {

@@ -9,6 +9,7 @@ require_admin_permission('NHANVIEN');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý nhân viên</title>
+    <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../style.css" />
   <style>
     * {box-sizing: border-box;}
@@ -108,6 +109,7 @@ require_admin_permission('NHANVIEN');
   </style>
 </head>
 <body>
+    <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <?php
     require_once '../../../database/KetNoiDB.php';
     require_once '../../../model/NhanVien.php';

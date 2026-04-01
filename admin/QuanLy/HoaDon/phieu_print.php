@@ -34,7 +34,7 @@ function fmt_dt(?string $value): string
 }
 
 $allowedTypes = [
-    'muon' => 'PHIẾU MƯỢN (PHIẾU XUẤT SÁCH)',
+    'muon' => 'PHIẾU MƯỢN',
     'tra' => 'PHIẾU TRẢ',
     'phat' => 'PHIẾU PHẠT',
     'nhap' => 'PHIẾU NHẬP',

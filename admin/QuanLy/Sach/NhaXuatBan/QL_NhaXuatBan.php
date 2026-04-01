@@ -9,6 +9,7 @@ error_reporting(E_ERROR | E_PARSE);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý Nhà xuất bản</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../style.css" />
   <style>
     .container {width: 95%; max-width: 1300px; margin: 1rem auto;}
@@ -72,6 +73,7 @@ error_reporting(E_ERROR | E_PARSE);
   </style>
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
   <div class="container">
   <?php
     require_once '../../../../model/Sach/NhaXuatBan.php';
@@ -85,7 +87,7 @@ error_reporting(E_ERROR | E_PARSE);
     $sdt = $_GET['sdt'] ?? '';
     $email = $_GET['email'] ?? '';
 
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') 
       $luachon = $_GET['luachon'] ?? '';
 
       if ($luachon === 'Them') {
@@ -108,7 +110,6 @@ error_reporting(E_ERROR | E_PARSE);
           $dao->Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email);
         }
       }
-    }
   ?>
     <button class="toggle-btn" id="toggleFormBtn">+ Thêm nhà xuất bản</button>
     
