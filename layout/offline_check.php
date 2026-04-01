@@ -1,7 +1,7 @@
 <div id="offline-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #ffffff; z-index: 2147483647; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; font-family: 'Oswald', sans-serif;">
     <div id="lottie-offline-container" style="width: 350px; height: 350px;"></div>
     <h2 style="color: #20c997; font-weight: 700; text-transform: uppercase;">Mất kết nối Internet rồi bạn ơi!</h2>
-    <p style="color: #666; max-width: 400px; padding: 0 20px;">Vui lòng kiểm tra lại đường truyền để tiếp tục sử dụng ASAG Library.</p>
+    <p style="color: #666; max-width: 400px; padding: 0 20px;">Vui lòng kiểm tra lại đường truyền INTERNET.</p>
 </div>
 
 <script src="assets/js/lottie.min.js"></script>
