@@ -1,22 +1,4 @@
 <?php
-if (isset($_POST['btn-register'])) {
-    $dg = new DocGia(
-        $_POST['hodocgia'],
-        $_POST['tendocgia'],
-        $_POST['email'],
-        null, // sdt
-        null, // ngaysinh
-        null  // diachi
-    );
-    $matkhau = $_POST['matkhau'];
-
-    $result = $dao->dangKy($dg, $matkhau);
-    if($result['success']){
-        $thongbao = 'Đăng ký thành công!';
-    } else {
-        $thongbao = $result["message"];
-    }
-}
 ?>
 
 <link rel="stylesheet" href="/assets/css/login.css">
@@ -40,7 +22,7 @@ if (isset($_POST['btn-register'])) {
 
         <div class="form-box login">
             <h2>Đăng Nhập</h2>
-            <form id="loginForm" method="POST" action="">
+            <form id="loginForm">
                 <div class="input-box">
                     <input type="email" name="email" required>
                     <label>Email</label>
@@ -62,7 +44,7 @@ if (isset($_POST['btn-register'])) {
 
         <div class="form-box register">
             <h2>Đăng Ký</h2>
-            <form id="registerForm" method="POST" action="">
+            <form id="registerForm">
                <div class="row g-0 mb-input">
                     <div class="col-6 pe-2">
                         <div class="input-box">

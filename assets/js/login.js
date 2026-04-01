@@ -58,35 +58,37 @@ if (loginForm) {
 // ===== PHẦN Register AJAX =====
 const registerForm = document.getElementById('registerForm');
 
-registerForm?.addEventListener('submit', (e) => {
-    e.preventDefault();
+if (registerForm) {
+    registerForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
 
-    const email = registerForm.querySelector('input[name="email"]').value.trim();
-    if (!isValidEmail(email)) {
-        showModal(false, 'Email không đúng định dạng!');
-        return; // dừng lại, không fetch
-    }
-
-    fetch('/ajax/registerAjax.php', {
-        method: 'POST',
-        body: new FormData(registerForm)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            // Hiện thông báo thành công
-            showModal('success', 'Đăng ký thành công! Mã của bạn: ' + data.madocgia);
-            
-            // Chuyển sang form đăng nhập sau 2 giây
-            setTimeout(() => {
-                wrapper.classList.remove('active');
-            }, 2000);
-        } else {
-            showModal('error', data.message);
+        const email = registerForm.querySelector('input[name="email"]').value.trim();
+        if (!isValidEmail(email)) {
+            showModal(false, 'Email không đúng định dạng!');
+            return; // dừng lại, không fetch
         }
-    })
-    .catch(err => console.error('Lỗi:', err));
-});
+
+        fetch('./ajax/registerAjax.php', {
+            method: 'POST',
+            body: new FormData(registerForm)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Hiện thông báo thành công
+                showModal('success', 'Đăng ký thành công! Mã của bạn: ' + data.madocgia);
+                
+                // Chuyển sang form đăng nhập sau 2 giây
+                setTimeout(() => {
+                    wrapper.classList.remove('active');
+                }, 2000);
+            } else {
+                showModal('error', data.message);
+            }
+        })
+        .catch(err => console.error('Lỗi:', err));
+    });
+}
 
 
 // ===== MODAL NOTICE =====

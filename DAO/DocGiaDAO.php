@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../database/ConnectDB.php';
+require_once __DIR__ . '/../model/DocGia.php';
 class DocGiaDAO {
     private $conn;
     public function __construct() {
@@ -54,25 +56,15 @@ class DocGiaDAO {
 
 // =========================== DAO USERS =============================== // 
     // ==================== SINH MÃ TỰ ĐỘNG ====================
-    private function generateMa() {
-    $sql  = "SELECT MAX(madocgia) as maxMa FROM docgia";
-    $stmt = $this->conn->prepare($sql);
-    $stmt->execute();
-    $row  = $stmt->get_result()->fetch_assoc();
+   private function generateMa() {
+        $sql  = "SELECT MAX(madocgia) as maxMa FROM docgia";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute();
+        $row  = $stmt->get_result()->fetch_assoc();
 
-    if ($row && $row['maxMa']) {
-        // Lấy số phía sau DG
-        $so = (int) substr($row['maxMa'], 2);
-        $so++;
-    } else {
-        $so = 1;
+        $soTiepTheo = isset($row['maxMa']) ? (int)substr($row['maxMa'], 2) + 1 : 1;
+        return 'DG' . str_pad($soTiepTheo, 3, '0', STR_PAD_LEFT);
     }
-
-    // DG001, DG002, DG003
-    $ma = 'DG' . str_pad($so, 3, '0', STR_PAD_LEFT);
-
-    return $ma;
-}
 
     // ==================== ĐĂNG KÝ ====================
     public function dangKy(DocGia $dg, $matkhau) {
