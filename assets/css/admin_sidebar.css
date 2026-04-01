@@ -1,4 +1,4 @@
-/* Admin sidebar layout (used by admin/layout/admin_header.php) */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
 
 :root {
     --admin-sidebar-width: 240px;
@@ -50,6 +50,7 @@ body.admin-has-sidebar .search-header-bar {
     z-index: 1100;
     display: flex;
     flex-direction: column;
+    font-family: Roboto, Arial, sans-serif;
 }
 
 .admin-sidebar-header {
@@ -64,6 +65,16 @@ body.admin-has-sidebar .search-header-bar {
 .admin-sidebar-header img {
     height: 44px;
     display: block;
+}
+
+.admin-sidebar-header .admin-brand-icon {
+    font-size: 30px;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
 }
 
 .admin-sidebar-title {

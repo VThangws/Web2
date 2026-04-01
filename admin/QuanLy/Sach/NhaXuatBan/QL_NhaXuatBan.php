@@ -19,41 +19,8 @@ error_reporting(E_ERROR | E_PARSE);
     require_once '../../../../database/KetNoiDB.php';
     $dao = new NhaXuatBanDAO();
 
-    if($_SERVER['REQUEST_METHOD'] == "GET") {
-      $luachon = $_GET['luachon'] ?? '';
-      if($luachon == "Them") {
-        if(empty($_GET['manxb']) ||
-        empty($_GET['tennxb']) ||
-        empty($_GET['diachi']) ||
-        empty($_GET['sdt']) ||
-        empty($_GET['email'])) {
-          echo "<script>alert('Thông tin nhà xuất bản không được để trống!');</script>";
-        }
-        else {
-          // lấy thông tin nhà xuất bản từ form
-          $manxb = $_GET['manxb'];
-          $tennxb = $_GET['tennxb'];
-          $diachi = $_GET['diachi'];
-          $sdt = $_GET['sdt'];
-          $email = $_GET['email'];
-          
-          // thực hiện thêm thông tin nhà xuất bản
-          $dao->Them($conn, $manxb, $tennxb, $diachi, $sdt, $email);
-        }
-      }
-      else if($luachon == "Xoa") {
-        // lấy mã nhà xuất bản
-        $manxb = $_GET['manxb'];
-        // thực hiện xóa thông tin nhà xuất bản
-        $dao->Xoa($conn, $manxb);
-      }
-      else if($luachon == "Sua") {
-        // lấy thông tin sửa
-        $manxb = $_GET['manxb'];
-        $tennxb = $_GET['tennxb'];
-        $diachi = $_GET['diachi'];
-        $sdt = $_GET['sdt'];
-        $email = $_GET['email'];
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $luachon = $_GET['luachon'] ?? '';
 
         // thực hiện sửa
         $dao->Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email);

@@ -4,7 +4,8 @@ require_admin_login();
 require_admin_permission('DOCGIA');
 error_reporting(E_ERROR | E_PARSE);
 ?>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,61 +41,62 @@ error_reporting(E_ERROR | E_PARSE);
 
     $conn = ConnectDB::getInstance()->getConnection();
     $dao = new DocGiaDAO();
-    if($_SERVER['REQUEST_METHOD'] == 'GET') {
-      $luachon = $_GET['luachon'] ?? '';
-      // thêm
-      if($luachon == "Them") {
-        if(empty($_GET['madocgia']) ||
-        empty($_GET['hodocgia'])||
-        empty($_GET['tendocgia'])||
-        empty($_GET['email'])||
-        empty($_GET['sdt'])||
-        empty($_GET['ngaysinh'])||
-        empty($_GET['diachi'])) {
-          echo "<script>alert('Thông tin đọc giả không được bỏ trống!');</script>";
-        }
-        else {
-          // lấy thông tin đọc giả
-          $madocgia = $_GET['madocgia'];
-          $hodocgia = $_GET['hodocgia'];
-          $tendocgia = $_GET['tendocgia'];
-          $email = $_GET['email'];
-          $sdt = $_GET['sdt'];
-          $ngaysinh = $_GET['ngaysinh'];
-          $diachi = $_GET['diachi'];
 
-          // thực hiện thêm
-          $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, 
-          $email, $sdt, $ngaysinh, $diachi);
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $luachon = $_GET['luachon'] ?? '';
 
-          // thông báo thành công
-          echo "<script>alert('Thêm đọc giả thành công!');</script>";
-        }
-      }
-      else if($luachon == "Sua") {
-        // lấy dữ liệu đọc giả từ form
-        $madocgia = $_GET['madocgia'];
-        $hodocgia = $_GET['hodocgia'];
-        $tendocgia = $_GET['tendocgia'];
-        $email = $_GET['email'];
-        $sdt = $_GET['sdt'];
-        $ngaysinh = $_GET['ngaysinh'];
-        $diachi = $_GET['diachi'];
+        if ($luachon === 'Them') {
+            if (
+                empty($_GET['madocgia'])
+                || empty($_GET['hodocgia'])
+                || empty($_GET['tendocgia'])
+                || empty($_GET['email'])
+                || empty($_GET['sdt'])
+                || empty($_GET['ngaysinh'])
+                || empty($_GET['diachi'])
+            ) {
+                echo "<script>alert('Thông tin đọc giả không được bỏ trống!');</script>";
+            } else {
+                $madocgia = $_GET['madocgia'];
+                $hodocgia = $_GET['hodocgia'];
+                $tendocgia = $_GET['tendocgia'];
+                $email = $_GET['email'];
+                $sdt = $_GET['sdt'];
+                $ngaysinh = $_GET['ngaysinh'];
+                $diachi = $_GET['diachi'];
 
-        // thực hiện cập nhật
-        $dao->Sua($conn, $madocgia, $hodocgia, 
-        $tendocgia, $email, $sdt,
-        $ngaysinh, $diachi);
-      }
-      else if($luachon == "Xoa") {
-        // lấy mã đọc giả để xóa
-        $madocgia = $_GET['madocgia'];
-        // thực hiện chức năng xóa đọc giả
-        $sql = "DELETE FROM docgia WHERE madocgia=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $madocgia);
-        if($stmt->execute()) {
-          echo '<script>alert("Đã xóa đọc giả!");</script>';
+                $ok = $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
+                if ($ok) {
+                    echo "<script>alert('Thêm đọc giả thành công!');</script>";
+                } else {
+                    echo "<script>alert('Thêm đọc giả không thành công!');</script>";
+                }
+            }
+        } elseif ($luachon === 'Sua') {
+            $madocgia = $_GET['madocgia'] ?? '';
+            $hodocgia = $_GET['hodocgia'] ?? '';
+            $tendocgia = $_GET['tendocgia'] ?? '';
+            $email = $_GET['email'] ?? '';
+            $sdt = $_GET['sdt'] ?? '';
+            $ngaysinh = $_GET['ngaysinh'] ?? '';
+            $diachi = $_GET['diachi'] ?? '';
+
+            $ok = $dao->Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
+            if ($ok) {
+                echo "<script>alert('Cập nhật đọc giả thành công!');</script>";
+            } else {
+                echo "<script>alert('Cập nhật đọc giả không thành công!');</script>";
+            }
+        } elseif ($luachon === 'Xoa') {
+            $madocgia = $_GET['madocgia'] ?? '';
+            $sql = 'DELETE FROM docgia WHERE madocgia=?';
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param('s', $madocgia);
+            if ($stmt->execute()) {
+                echo '<script>alert("Đã xóa đọc giả!");</script>';
+            } else {
+                echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
+            }
         }
         else echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
       }

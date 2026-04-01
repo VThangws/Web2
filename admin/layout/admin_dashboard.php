@@ -1,8 +1,10 @@
 <?php
-// admin_dashboard.php chỉ chứa NỘI DUNG trang admin (không include header/footer)
+// admin_dashboard.php chỉ chứa NỘI DUNG trang quản trị (không include header/footer)
 ?>
 
 <?php
+require_once __DIR__ . '/../../database/ConnectDB.php';
+
 $stats = [
     'titles' => 0,
     'copies' => 0,
@@ -10,17 +12,9 @@ $stats = [
     'readers' => 0,
 ];
 
-$chartCategoryLabels = [];
-$chartCategoryCounts = [];
-
-$chartStatusLabels = [];
-$chartStatusCounts = [];
-
 try {
-    $conn = @new mysqli('localhost', 'root', '', 'db_quanlythuvien');
-    if ($conn->connect_error) {
-        throw new RuntimeException('DB connect failed');
-    }
+    $conn = ConnectDB::getInstance()->getConnection();
+    $conn->set_charset('utf8mb4');
 
     $countScalar = static function (mysqli $conn, string $sql): int {
         $result = $conn->query($sql);
@@ -35,35 +29,8 @@ try {
     $stats['copies'] = $countScalar($conn, 'SELECT COUNT(*) FROM cuonsach');
     $stats['borrowedCopies'] = $countScalar($conn, "SELECT COUNT(*) FROM cuonsach WHERE trangthai='DangMuon'");
     $stats['readers'] = $countScalar($conn, 'SELECT COUNT(*) FROM docgia');
-
-    $sqlCategory = "
-        SELECT tl.tentheloai AS label, COUNT(ds.madausach) AS cnt
-        FROM theloai tl
-        LEFT JOIN dausach ds ON ds.matheloai = tl.matheloai
-        GROUP BY tl.matheloai, tl.tentheloai
-        ORDER BY cnt DESC, tl.tentheloai ASC
-    ";
-    if ($result = $conn->query($sqlCategory)) {
-        while ($row = $result->fetch_assoc()) {
-            $chartCategoryLabels[] = (string) ($row['label'] ?? '');
-            $chartCategoryCounts[] = (int) ($row['cnt'] ?? 0);
-        }
-    }
-
-    $sqlStatus = "
-        SELECT COALESCE(trangthai, 'Khác') AS label, COUNT(*) AS cnt
-        FROM cuonsach
-        GROUP BY trangthai
-        ORDER BY cnt DESC
-    ";
-    if ($result = $conn->query($sqlStatus)) {
-        while ($row = $result->fetch_assoc()) {
-            $chartStatusLabels[] = (string) ($row['label'] ?? '');
-            $chartStatusCounts[] = (int) ($row['cnt'] ?? 0);
-        }
-    }
 } catch (Throwable $e) {
-    // Nếu DB chưa sẵn sàng, dashboard vẫn render với số 0.
+    // Nếu DB chưa sẵn sàng, trang vẫn render với số 0.
 }
 ?>
 
@@ -71,11 +38,14 @@ try {
     <div class="container-md">
         <div class="d-flex flex-wrap gap-2 align-items-end justify-content-between mb-3 section-title">
             <div>
-                <h2 class="fw-bold mb-1">Thống kê</h2>
-                <p class="text-muted mb-0">Số liệu tổng hợp từ hệ thống thư viện</p>
+                <h2 class="fw-bold mb-1">Trang quản trị thư viện</h2>
+                <p class="text-muted mb-0">Tổng quan nhanh và lối tắt các phân hệ quản lý</p>
             </div>
-            <div>
-                <a href="#admin-actions" class="btn btn-primary">Vào phân hệ quản lý</a>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="/admin/QuanLy/ThongKe/thongke.php" class="btn btn-primary">
+                    <i class="fa-solid fa-chart-line me-2" aria-hidden="true"></i>
+                    <span>Thống kê</span>
+                </a>
             </div>
         </div>
 
@@ -113,35 +83,6 @@ try {
                 </div>
             </div>
         </div>
-
-        <div class="row g-3">
-            <div class="col-lg-7 reveal-item section-item">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <h5 class="fw-bold mb-0">Đầu sách theo thể loại</h5>
-                            <span class="text-muted small">(theo số lượng đầu sách)</span>
-                        </div>
-                        <div style="height: 320px;">
-                            <canvas id="adminChartCategory" aria-label="Biểu đồ thể loại"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5 reveal-item section-item">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <h5 class="fw-bold mb-0">Trạng thái cuốn sách</h5>
-                            <span class="text-muted small">(tổng hợp)</span>
-                        </div>
-                        <div style="height: 320px;">
-                            <canvas id="adminChartCopyStatus" aria-label="Biểu đồ trạng thái"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -163,7 +104,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">🧾</div>
                             <h5 class="fw-bold">Hóa đơn</h5>
-                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <p class="mb-3">Quản lý phiếu mượn/trả/phạt/nhập, xem chi tiết và in phiếu.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/HoaDon/QL_HoaDon.php">Mở phân hệ</a>
                         </div>
                     </div>
@@ -171,7 +112,7 @@ try {
                     <div class="col-md-6 reveal-item section-item">
                         <div class="benefit-card h-100">
                             <div class="service-icon">👥</div>
-                            <h5 class="fw-bold">Quản lý bạn đọc</h5>
+                            <h5 class="fw-bold">Quản lý độc giả</h5>
                             <p class="mb-3">Theo dõi và cập nhật thông tin độc giả.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/DocGia/QL_DocGia.php">Mở phân hệ</a>
                         </div>
@@ -181,7 +122,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">🧑‍💼</div>
                             <h5 class="fw-bold">Quản lý nhân viên</h5>
-                            <p class="mb-3">Quản lý tài khoản/nhân sự phục vụ hệ thống.</p>
+                            <p class="mb-3">Quản lý thông tin nhân viên phục vụ hệ thống.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/NhanVien/QL_NhanVien.php">Mở phân hệ</a>
                         </div>
                     </div>
@@ -190,7 +131,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">👤</div>
                             <h5 class="fw-bold">Tài khoản</h5>
-                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <p class="mb-3">Quản lý tài khoản đăng nhập và nhóm quyền.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Mở phân hệ</a>
                         </div>
                     </div>
@@ -212,7 +153,7 @@ try {
                         <div class="benefit-card h-100">
                             <div class="service-icon">🚚</div>
                             <h5 class="fw-bold">Nhà cung cấp</h5>
-                            <p class="mb-3">Trang giao diện (backend sẽ bổ sung sau).</p>
+                            <p class="mb-3">Quản lý danh sách nhà cung cấp và thông tin liên hệ.</p>
                             <a class="btn btn-sm btn-primary" href="/admin/QuanLy/NhaCungCap/QL_NhaCungCap.php">Mở phân hệ</a>
                         </div>
                     </div>
@@ -233,85 +174,4 @@ try {
 <div id="back-to-top" class="back-to-top-bubble">
     <span class="material-symbols-outlined">chevron_line_up</span>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof Chart === 'undefined') return;
-
-    const categoryLabels = <?php echo json_encode($chartCategoryLabels, JSON_UNESCAPED_UNICODE); ?>;
-    const categoryCounts = <?php echo json_encode($chartCategoryCounts, JSON_UNESCAPED_UNICODE); ?>;
-
-    const statusLabels = <?php echo json_encode($chartStatusLabels, JSON_UNESCAPED_UNICODE); ?>;
-    const statusCounts = <?php echo json_encode($chartStatusCounts, JSON_UNESCAPED_UNICODE); ?>;
-
-    const categoryCanvas = document.getElementById('adminChartCategory');
-    if (categoryCanvas) {
-        new Chart(categoryCanvas, {
-            type: 'bar',
-            data: {
-                labels: categoryLabels,
-                datasets: [{
-                    label: 'Số đầu sách',
-                    data: categoryCounts,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 1400,
-                    easing: 'easeOutQuart',
-                    delay: (ctx) => {
-                        // Delay each bar a bit so it feels "moving" on refresh
-                        if (ctx.type !== 'data' || ctx.mode !== 'default') return 0;
-                        return ctx.dataIndex * 80;
-                    },
-                },
-                animations: {
-                    // Force bars to animate from 0 every time the chart is created (refresh)
-                    y: {
-                        from: 0,
-                    },
-                },
-                plugins: {
-                    legend: { display: false },
-                },
-                scales: {
-                    x: { ticks: { autoSkip: false } },
-                    y: { beginAtZero: true, precision: 0 },
-                },
-            },
-        });
-    }
-
-    const statusCanvas = document.getElementById('adminChartCopyStatus');
-    if (statusCanvas) {
-        new Chart(statusCanvas, {
-            type: 'doughnut',
-            data: {
-                labels: statusLabels,
-                datasets: [{
-                    data: statusCounts,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: {
-                    duration: 1200,
-                    easing: 'easeOutQuart',
-                    animateRotate: true,
-                    animateScale: true,
-                },
-                plugins: {
-                    legend: { position: 'bottom' },
-                },
-            },
-        });
-    }
-});
-</script>
-
 <script src="/assets/js/home.js" defer></script>

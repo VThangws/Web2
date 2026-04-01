@@ -3,7 +3,8 @@ require_once __DIR__ . '/../../../auth.php';
 require_admin_login();
 require_admin_permission('SACH');
 ?>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,41 +29,36 @@ require_admin_permission('SACH');
   </style>
 </head>
 <body>
-  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
-  <?php
-    require_once "../../../../database/KetNoiDB.php";
-    require_once "../../../../model/Sach/CuonSach.php";
-    require_once "../../../../DAO/Sach/CuonSachDAO.php";
-    $dao = new CuonSachDAO();
-    
-    if($_SERVER['REQUEST_METHOD'] == "GET" || $_SERVER['REQUEST_METHOD'] == "POST") {
-      $luachon = $_REQUEST['luachon'] ?? '';
-      if($luachon == "Them" || $luachon == "Sua") {
-        // lấy thông tin mới của cuốn sách
-        $macuonsach = $_REQUEST['macuonsach'] ?? '';
-        $madausach = $_REQUEST['madausach'] ?? '';
-        $mavitri = $_REQUEST['mavitri'] ?? '';
-        $trangthai = $_REQUEST['trangthai'] ?? '';
-        $tinhtrang = $_REQUEST['tinhtrang'] ?? '';
+    <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
 
-        if($luachon == "Them") {
-          // thực hiện thêm cuốn sách mới
-          $dao->Them($conn, $macuonsach, $madausach, $mavitri,
-          $trangthai, $tinhtrang);
+    <?php
+    require_once __DIR__ . '/../../../../database/KetNoiDB.php';
+    require_once __DIR__ . '/../../../../model/Sach/CuonSach.php';
+    require_once __DIR__ . '/../../../../DAO/Sach/CuonSachDAO.php';
+
+    $dao = new CuonSachDAO();
+
+    if ($_SERVER['REQUEST_METHOD'] === 'GET' || $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $luachon = $_REQUEST['luachon'] ?? '';
+
+        if ($luachon === 'Them' || $luachon === 'Sua') {
+            $macuonsach = $_REQUEST['macuonsach'] ?? '';
+            $madausach = $_REQUEST['madausach'] ?? '';
+            $mavitri = $_REQUEST['mavitri'] ?? '';
+            $trangthai = $_REQUEST['trangthai'] ?? '';
+            $tinhtrang = $_REQUEST['tinhtrang'] ?? '';
+
+            if ($luachon === 'Them') {
+                $dao->Them($conn, $macuonsach, $madausach, $mavitri, $trangthai, $tinhtrang);
+            } else {
+                $dao->Sua($conn, $macuonsach, $madausach, $mavitri, $trangthai, $tinhtrang);
+            }
+        } elseif ($luachon === 'Xoa') {
+            $macuonsach = $_REQUEST['macuonsach'] ?? '';
+            if ($macuonsach !== '') {
+                $dao->Xoa($conn, $macuonsach);
+            }
         }
-        else {
-          // thực hiện sửa thông tin cuốn sách
-          $dao->Sua($conn, $macuonsach, $madausach, $mavitri,
-          $trangthai, $tinhtrang);
-        }
-      }
-      else if($luachon == "Xoa") {
-        // thực hiện xóa cuốn sách
-        $macuonsach = $_REQUEST['macuonsach'] ?? '';
-        if($macuonsach !== '') {
-          $dao->Xoa($conn, $macuonsach);
-        }
-      }
     }
   ?>
   <div class="KhungThongTin">

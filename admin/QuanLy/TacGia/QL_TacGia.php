@@ -4,6 +4,7 @@ require_admin_login();
 require_admin_permission('TACGIA');
 error_reporting(E_ERROR | E_PARSE);
 ?>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -38,21 +39,24 @@ error_reporting(E_ERROR | E_PARSE);
     require_once '../../../DAO/Sach/TacGiaDAO.php';
     $dao = new TacGiaDAO();
 
-    if($_SERVER['REQUEST_METHOD'] == "GET") {
-      $luachon = $_GET['luachon'] ?? '';
-      // chia trường hợp
-      if($luachon == "Them") {
-        if(empty($_GET['matacgia']) ||
-        empty($_GET['tentacgia'])) {
-          echo "<script>alert('Thông tin tác giả không được để trống!');</script>";
-        }
-        else {
-          // lấy thông tin tác giả
-          $matacgia = $_GET['matacgia'];
-          $tentacgia = $_GET['tentacgia'];
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $luachon = $_GET['luachon'] ?? '';
 
-          // thực hiện thêm mới tác giả
-          $dao->Them($conn, $matacgia, $tentacgia);
+        if ($luachon === 'Them') {
+            if (empty($_GET['matacgia']) || empty($_GET['tentacgia'])) {
+                echo "<script>alert('Thông tin tác giả không được để trống!');</script>";
+            } else {
+                $matacgia = $_GET['matacgia'];
+                $tentacgia = $_GET['tentacgia'];
+                $dao->Them($conn, $matacgia, $tentacgia);
+            }
+        } elseif ($luachon === 'Xoa') {
+            $matacgia = $_GET['matacgia'] ?? '';
+            $dao->Xoa($conn, $matacgia);
+        } elseif ($luachon === 'Sua') {
+            $matacgia = $_GET['matacgia'] ?? '';
+            $tentacgia = $_GET['tentacgia'] ?? '';
+            $dao->Sua($conn, $matacgia, $tentacgia);
         }
       }
       else if($luachon == "Xoa") {

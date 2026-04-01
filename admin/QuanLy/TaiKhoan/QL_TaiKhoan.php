@@ -55,6 +55,30 @@ function nhomquyen_exists(mysqli $conn, string $manhomquyen): bool
     return $ok;
 }
 
+function column_exists(mysqli $conn, string $table, string $column): bool
+{
+    try {
+        $stmt = $conn->prepare(
+            "SELECT 1
+             FROM INFORMATION_SCHEMA.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND COLUMN_NAME = ?
+             LIMIT 1"
+        );
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('ss', $table, $column);
+        $stmt->execute();
+        $ok = $stmt->get_result()->num_rows > 0;
+        $stmt->close();
+        return $ok;
+    } catch (Throwable $e) {
+        return false;
+    }
+}
+
 $msg = get_str($_GET, 'msg');
 $err = get_str($_GET, 'err');
 
@@ -90,6 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($tendangnhap === '') {
                 throw new RuntimeException('Thiếu tên đăng nhập.');
             }
+            if ($tendangnhap === 'admin') {
+                throw new RuntimeException('Không thể xóa tài khoản admin.');
+            }
             if ($currentUsername !== '' && $tendangnhap === $currentUsername) {
                 throw new RuntimeException('Không thể xóa tài khoản đang đăng nhập.');
             }
@@ -119,6 +146,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($tendangnhap === '') {
             throw new RuntimeException('Tên đăng nhập không được để trống.');
+        }
+
+        if ($manhomquyen === '') {
+            throw new RuntimeException('Vui lòng chọn nhóm quyền.');
         }
 
         if ($manhomquyen !== '' && !nhomquyen_exists($conn, $manhomquyen)) {
@@ -199,17 +230,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $q = get_str($_GET, 'q');
 $edit = get_str($_GET, 'edit');
 
+$hasMadocgiaCol = column_exists($conn, 'taikhoan', 'madocgia');
+
 $editingRow = null;
 if ($edit !== '') {
-    $stmt = $conn->prepare(
+    $sqlEdit =
         "SELECT tk.tendangnhap, tk.manhomquyen, tk.manv,
                 nq.tennhomquyen,
                 CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
          FROM taikhoan tk
          LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
          LEFT JOIN nhanvien nv ON nv.manv = tk.manv
-         WHERE tk.tendangnhap = ?"
-    );
+         WHERE tk.tendangnhap = ?";
+    if ($hasMadocgiaCol) {
+        $sqlEdit .= " AND tk.madocgia IS NULL";
+    }
+    $stmt = $conn->prepare($sqlEdit);
     if ($stmt) {
         $stmt->bind_param('s', $edit);
         $stmt->execute();
@@ -222,19 +258,27 @@ $rows = [];
 try {
     if ($q !== '') {
         $like = '%' . $q . '%';
-        $stmt = $conn->prepare(
+        $sql =
             "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv,
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
-             WHERE tk.tendangnhap LIKE ?
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
+        if ($hasMadocgiaCol) {
+            $sql .= " WHERE tk.madocgia IS NULL AND (";
+        } else {
+            $sql .= " WHERE (";
+        }
+        $sql .=
+            "tk.tendangnhap LIKE ?
                 OR tk.manv LIKE ?
                 OR COALESCE(nq.tennhomquyen,'') LIKE ?
                 OR CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) LIKE ?
+             )
              ORDER BY tk.tendangnhap ASC
-             LIMIT 300"
-        );
+             LIMIT 300";
+
+        $stmt = $conn->prepare($sql);
         if (!$stmt) {
             throw new RuntimeException('Không thể chuẩn bị câu lệnh tìm kiếm.');
         }
@@ -243,20 +287,25 @@ try {
         $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
     } else {
-        $res = $conn->query(
+        $sql =
             "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv,
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
-             ORDER BY tk.tendangnhap ASC
-             LIMIT 300"
-        );
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
+        if ($hasMadocgiaCol) {
+            $sql .= " WHERE tk.madocgia IS NULL";
+        }
+        $sql .= " ORDER BY tk.tendangnhap ASC LIMIT 300";
+
+        $res = $conn->query($sql);
         $rows = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
     }
 } catch (Throwable $e) {
     $err = $err !== '' ? $err : $e->getMessage();
 }
+
+$showForm = ($editingRow !== null) || ($err !== '');
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -281,7 +330,11 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
         <div class="d-flex flex-wrap gap-2 align-items-end justify-content-between mb-3">
             <div>
                 <h2 class="fw-bold mb-1">Tài khoản</h2>
-                <p class="text-muted mb-0">Quản lý dữ liệu bảng <span class="fw-semibold">taikhoan</span>.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#tkFormCollapse" aria-expanded="<?= $showForm ? 'true' : 'false' ?>" aria-controls="tkFormCollapse">
+                    Thêm mới
+                </button>
             </div>
         </div>
 
@@ -292,77 +345,72 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
             <div class="alert alert-danger"><?= h($err) ?></div>
         <?php endif; ?>
 
-        <div class="card shadow-sm mb-3">
-            <div class="card-header fw-semibold"><?= $editingRow ? 'Cập nhật tài khoản' : 'Thêm tài khoản' ?></div>
-            <div class="card-body">
-                <form class="row g-2" method="post">
-                    <input type="hidden" name="mode" value="<?= $editingRow ? 'update' : 'add' ?>">
+        <div class="collapse <?= $showForm ? 'show' : '' ?>" id="tkFormCollapse">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold"><?= $editingRow ? 'Cập nhật tài khoản' : 'Thêm tài khoản' ?></div>
+                <div class="card-body">
+                    <form class="row g-2" method="post">
+                        <input type="hidden" name="mode" value="<?= $editingRow ? 'update' : 'add' ?>">
 
-                    <div class="col-12 col-md-3">
-                        <label class="form-label mb-1">Tên đăng nhập</label>
-                        <input class="form-control" name="tendangnhap" value="<?= h((string)($editingRow['tendangnhap'] ?? '')) ?>" <?= $editingRow ? 'readonly' : '' ?> placeholder="username">
-                    </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1">Tên đăng nhập</label>
+                            <input class="form-control" name="tendangnhap" value="<?= h((string)($editingRow['tendangnhap'] ?? '')) ?>" <?= $editingRow ? 'readonly' : '' ?> placeholder="username">
+                        </div>
 
-                    <div class="col-12 col-md-3">
-                        <label class="form-label mb-1"><?= $editingRow ? 'Mật khẩu mới (bỏ trống nếu giữ nguyên)' : 'Mật khẩu' ?></label>
-                        <input class="form-control" name="matkhau" type="password" placeholder="••••••••">
-                    </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1"><?= $editingRow ? 'Mật khẩu mới (bỏ trống nếu giữ nguyên)' : 'Mật khẩu' ?></label>
+                            <input class="form-control" name="matkhau" type="password" placeholder="••••••••">
+                        </div>
 
-                    <div class="col-12 col-md-3">
-                        <label class="form-label mb-1">Nhóm quyền</label>
-                        <select class="form-select" name="manhomquyen">
-                            <option value="">-- Chọn nhóm quyền --</option>
-                            <?php foreach ($roles as $r): ?>
-                                <?php
-                                $val = (string)($r['manhomquyen'] ?? '');
-                                $label = (string)($r['tennhomquyen'] ?? $val);
-                                $selected = $editingRow && (string)($editingRow['manhomquyen'] ?? '') === $val;
-                                ?>
-                                <option value="<?= h($val) ?>" <?= $selected ? 'selected' : '' ?>><?= h($label) ?> (<?= h($val) ?>)</option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1">Nhóm quyền</label>
+                            <select class="form-select" name="manhomquyen">
+                                <option value="">-- Chọn nhóm quyền --</option>
+                                <?php foreach ($roles as $r): ?>
+                                    <?php
+                                    $val = (string)($r['manhomquyen'] ?? '');
+                                    $label = (string)($r['tennhomquyen'] ?? $val);
+                                    $selected = $editingRow && (string)($editingRow['manhomquyen'] ?? '') === $val;
+                                    ?>
+                                    <option value="<?= h($val) ?>" <?= $selected ? 'selected' : '' ?>><?= h($label) ?> (<?= h($val) ?>)</option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-                    <div class="col-12 col-md-3">
-                        <label class="form-label mb-1">Mã nhân viên</label>
-                        <input class="form-control" name="manv" value="<?= h((string)($editingRow['manv'] ?? '')) ?>" list="manvList" placeholder="VD: NV001">
-                        <datalist id="manvList">
-                            <?php foreach ($employees as $e): ?>
-                                <option value="<?= h((string)($e['manv'] ?? '')) ?>"><?= h((string)($e['hoten'] ?? '')) ?></option>
-                            <?php endforeach; ?>
-                        </datalist>
-                        <?php if ($editingRow && (string)($editingRow['ten_nhanvien'] ?? '') !== ''): ?>
-                            <div class="text-muted small">Nhân viên: <?= h((string)$editingRow['ten_nhanvien']) ?></div>
-                        <?php endif; ?>
-                    </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label mb-1">Mã nhân viên</label>
+                            <input class="form-control" name="manv" value="<?= h((string)($editingRow['manv'] ?? '')) ?>" list="manvList" placeholder="VD: NV001">
+                            <datalist id="manvList">
+                                <?php foreach ($employees as $e): ?>
+                                    <option value="<?= h((string)($e['manv'] ?? '')) ?>"><?= h((string)($e['hoten'] ?? '')) ?></option>
+                                <?php endforeach; ?>
+                            </datalist>
+                            <?php if ($editingRow && (string)($editingRow['ten_nhanvien'] ?? '') !== ''): ?>
+                                <div class="text-muted small">Nhân viên: <?= h((string)$editingRow['ten_nhanvien']) ?></div>
+                            <?php endif; ?>
+                        </div>
 
-                    <div class="col-12 d-flex gap-2">
-                        <button class="btn btn-primary" type="submit"><?= $editingRow ? 'Lưu cập nhật' : 'Thêm mới' ?></button>
-                        <?php if ($editingRow): ?>
-                            <a class="btn btn-outline-secondary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Hủy sửa</a>
-                        <?php endif; ?>
-                    </div>
-                </form>
+                        <div class="col-12 d-flex gap-2">
+                            <button class="btn btn-primary" type="submit"><?= $editingRow ? 'Lưu cập nhật' : 'Thêm mới' ?></button>
+                            <?php if ($editingRow): ?>
+                                <a class="btn btn-outline-secondary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Hủy sửa</a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
         <div class="card shadow-sm">
             <div class="card-header">
                 <form class="row g-2 align-items-center" method="get">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12">
                         <div class="input-group">
-                            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
                             <input class="form-control" name="q" value="<?= h($q) ?>" placeholder="Tìm theo username / mã NV / nhóm quyền / tên NV">
+                            <button class="btn btn-outline-primary" type="submit" aria-label="Tìm">
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                            </button>
                         </div>
-                    </div>
-                    <div class="col-12 col-md-2 d-grid">
-                        <button class="btn btn-outline-primary" type="submit">Tìm</button>
-                    </div>
-                    <div class="col-12 col-md-2 d-grid">
-                        <a class="btn btn-outline-secondary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Xóa lọc</a>
-                    </div>
-                    <div class="col-12 col-md-2 text-md-end text-muted small">
-                        <?= number_format(count($rows)) ?> dòng
                     </div>
                 </form>
             </div>

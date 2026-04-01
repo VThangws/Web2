@@ -195,6 +195,7 @@ $now = (new DateTime())->format('d/m/Y H:i');
     <title><?= h($allowedTypes[$type]) ?> - <?= h($id) ?></title>
 
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="/assets/img/logo-library/library.png">
     <style>
         @media print {
             .no-print { display: none !important; }

@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/../../auth.php';
 require_admin_login();
+// Tạm thời dùng cùng quyền với Dashboard để không làm gián đoạn RBAC hiện tại.
 require_admin_permission('DASHBOARD');
 ?>
 
@@ -10,7 +11,7 @@ require_admin_permission('DASHBOARD');
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang quản trị - Hệ thống quản lý thư viện</title>
+    <title>Thống kê - Hệ thống quản lý thư viện</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
@@ -25,8 +26,8 @@ require_admin_permission('DASHBOARD');
 </head>
 <body>
 <?php
-require_once __DIR__ . '/layout/admin_sidebar.php';
-require_once __DIR__ . '/layout/admin_dashboard.php';
+require_once __DIR__ . '/../../layout/admin_sidebar.php';
+require_once __DIR__ . '/../../layout/admin_statistics.php';
 ?>
 
 <script src="/assets/bootstrap/js/bootstrap.bundle.min.js" defer></script>
