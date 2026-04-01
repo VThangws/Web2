@@ -8,18 +8,23 @@ require_admin_permission('NHANVIEN');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý nhân viên</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <?php
     require_once '../../../database/ConnectDB.php';
     require_once '../../../DAO/NhanVienDAO.php';
+    $conn = ConnectDB::getInstance()->getConnection();
     $dao = new NhanVienDAO();
     if($_SERVER["REQUEST_METHOD"] == "GET") {
       echo "Đã nhận được dữ liệu";
 
+      $luachon = $_GET['luachon'] ?? '';
+
       // chia trường hợp
       // thêm
-      if($_GET["luachon"]=="Them") {
+      if($luachon=="Them") {
         if((empty($_GET["manv"]) || empty($_GET["honv"]) || empty($_GET["tennv"]) ||
           empty($_GET["gioitinh"]) || empty($_GET["sdt"]) ||
           empty($_GET["ngaysinh"]))) {
@@ -41,7 +46,7 @@ require_admin_permission('NHANVIEN');
           echo "<script>alert('Thêm nhân viên thành công!');</script>";
         }
       }
-      else if($_GET["luachon"]=="Sua") {
+      else if($luachon=="Sua") {
         // lấy dữ liệu về thông tin nhân viên
         $manv = $_GET["manv"];
         $honv = $_GET["honv"];
@@ -52,7 +57,7 @@ require_admin_permission('NHANVIEN');
         // thực hiện update
         $dao->Sua($conn, $manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh);
       }
-      else if($_GET["luachon"]=="Xoa") {
+      else if($luachon=="Xoa") {
         $manv = $_GET["manv"];
         $sql = "DELETE FROM nhanvien WHERE manv=?";
         $stmt = $conn->prepare($sql);
@@ -62,14 +67,9 @@ require_admin_permission('NHANVIEN');
         }
         else echo "<script>alert('Xóa nhân viên không thành công!');</script>";
       }
-      else echo '<script>alert("Chào mừng đến với trang quản lý nhân viên!");</script>';
+      // No welcome popup
     }
   ?>
-  <div class="KhungMenu">
-    <?php
-      require_once '../../Menu/AdminMenu.php';
-    ?>
-  </div>
   <div class="formThongTin">
     <form method="GET">
       <label for="manv">Mã nhân viên</label>

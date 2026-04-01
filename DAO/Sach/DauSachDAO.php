@@ -1,4 +1,6 @@
 <?php
+  require_once __DIR__ . '/../../model/Sach/DauSach.php';
+
   class DauSachDAO {
     public function Them($conn, $madausach, $tensach,
     $namxuatban, $donggia, $matacgia,
@@ -86,7 +88,7 @@
       mota=?
       WHERE madausach=?";
       $stmt = $conn->prepare($sql);
-      $stmt->bind_param("ssssssss", $tensach, $namxuatban, $dongia, $matacgia,
+      $stmt->bind_param("ssssssss", $tensach, $namxuatban, $donggia, $matacgia,
       $matheloai, $manxb, $mota, $madausach);
 
       if($stmt->execute()) {

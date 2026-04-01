@@ -8,15 +8,19 @@ require_admin_permission('THELOAI');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
   <?php
-    require_once '../../../database/ConnectDB.php';
-    require_once '../../../DAO/TheLoaiDAO.php';
+    require_once dirname(__DIR__, 4) . '/database/ConnectDB.php';
+    require_once dirname(__DIR__, 4) . '/DAO/Sach/TheLoaiDAO.php';
+    $conn = ConnectDB::getInstance()->getConnection();
     $dao = new TheLoaiDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "GET") {
-      if($_GET['luachon'] == "Them") {
+      $luachon = $_GET['luachon'] ?? '';
+      if($luachon == "Them") {
         if(empty($_GET['matheloai']) ||
         empty($_GET['tentheloai'])) {
           echo "<script>alert('Thông tin thể loại không được để trống!');</script>";
@@ -30,7 +34,7 @@ require_admin_permission('THELOAI');
           $dao->Them($conn, $matheloai, $tentheloai);
         }
       }
-      else if($_GET['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy thông tin để xóa
         $matheloai = $_GET['matheloai'];
 
@@ -40,7 +44,7 @@ require_admin_permission('THELOAI');
         // thông báo
         echo "<script>alert('Đã xóa thông tin thể loại!');</script>";
       }
-      else if($_GET['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // lấy thông tin thể loại
         $matheloai = $_GET['matheloai'];
         $tentheloai = $_GET['tentheloai'];
@@ -50,11 +54,6 @@ require_admin_permission('THELOAI');
       }
     }
   ?>
-  <div class="KhungMenu">
-    <?php
-      require_once '../Menu/AdminMenu.php';
-    ?>
-  </div>
   <div class="KhungThongTin">
     <form method="GET">
       <label for="matheloai">Mã thể loại:</label>

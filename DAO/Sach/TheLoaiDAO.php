@@ -1,5 +1,5 @@
 <?php
-  require_once '../../../model/TheLoai.php';
+  require_once __DIR__ . '/../../model/Sach/TheLoai.php';
 
   class TheLoaiDAO {
     public function Them($conn, $matheloai, $tentheloai) {

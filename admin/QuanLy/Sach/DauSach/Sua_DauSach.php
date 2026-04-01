@@ -11,12 +11,17 @@ require_admin_permission('SACH');
 </head>
 <body>
   <?php
-    require_once "../../../model/DauSach.php";
-    require_once "../../../DAO/DauSachDAO.php";
-    require_once "../../../database/ConnectDB.php";
+    require_once dirname(__DIR__, 4) . "/model/Sach/DauSach.php";
+    require_once dirname(__DIR__, 4) . "/DAO/Sach/DauSachDAO.php";
+    require_once dirname(__DIR__, 4) . "/database/ConnectDB.php";
+    $conn = ConnectDB::getInstance()->getConnection();
     $dao = new DauSachDAO();
     // lấy thông tin đầu sách
-    $dausach = $dao->getDauSach($conn, $_REQUEST['madausach']);
+    $madausach = $_REQUEST['madausach'] ?? '';
+    if ($madausach === '') {
+      die('Thiếu mã đầu sách');
+    }
+    $dausach = $dao->getDauSach($conn, $madausach);
   ?>
   <div class="KhungThongTin">
     <form action="QL_DauSach.php" method="post" enctype="multipart/form-data">

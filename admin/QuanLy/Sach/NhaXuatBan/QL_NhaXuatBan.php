@@ -8,15 +8,19 @@ require_admin_permission('NXB');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
   <?php
-    require_once '../../../DAO/NhaXuatBanDAO.php';
-    require_once '../../../database/ConnectDB.php';
+    require_once dirname(__DIR__, 4) . '/DAO/Sach/NhaXuatBanDAO.php';
+    require_once dirname(__DIR__, 4) . '/database/ConnectDB.php';
+    $conn = ConnectDB::getInstance()->getConnection();
     $dao = new NhaXuatBanDAO();
 
     if($_SERVER['REQUEST_METHOD'] == "GET") {
-      if($_GET['luachon'] == "Them") {
+      $luachon = $_GET['luachon'] ?? '';
+      if($luachon == "Them") {
         if(empty($_GET['manxb']) ||
         empty($_GET['tennxb']) ||
         empty($_GET['diachi']) ||
@@ -36,13 +40,13 @@ require_admin_permission('NXB');
           $dao->Them($conn, $manxb, $tennxb, $diachi, $sdt, $email);
         }
       }
-      else if($_GET['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy mã nhà xuất bản
         $manxb = $_GET['manxb'];
         // thực hiện xóa thông tin nhà xuất bản
         $dao->Xoa($conn, $manxb);
       }
-      else if($_GET['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // lấy thông tin sửa
         $manxb = $_GET['manxb'];
         $tennxb = $_GET['tennxb'];
@@ -53,14 +57,9 @@ require_admin_permission('NXB');
         // thực hiện sửa
         $dao->Sua($conn, $manxb, $tennxb, $diachi, $sdt, $email);
       }
-      else echo "<script>alert('Chào mừng đến với trang quản lý nhà xuất bản!');</script>";
+      // No welcome popup
     }
   ?>
-  <div class="KhungMenu">
-    <?php
-      require_once '../../Menu/AdminMenu.php';
-    ?>
-  </div>
   <div class="KhungThongTin">
     <form method="GET">
       <label for="manxb">Mã nhà xuất bản</label>

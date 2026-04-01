@@ -8,15 +8,20 @@ require_admin_permission('DOCGIA');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý đọc giả</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
 </head>
 <body>
+  <?php require_once __DIR__ . '/../../layout/admin_sidebar.php'; ?>
   <?php
     require_once '../../../database/ConnectDB.php';
     require_once '../../../DAO/DocGiaDAO.php';
+
+    $conn = ConnectDB::getInstance()->getConnection();
     $dao = new DocGiaDAO();
     if($_SERVER['REQUEST_METHOD'] == 'GET') {
+      $luachon = $_GET['luachon'] ?? '';
       // thêm
-      if($_GET['luachon'] == "Them") {
+      if($luachon == "Them") {
         if(empty($_GET['madocgia']) ||
         empty($_GET['hodocgia'])||
         empty($_GET['tendocgia'])||
@@ -44,7 +49,7 @@ require_admin_permission('DOCGIA');
           echo "<script>alert('Thêm đọc giả thành công!');</script>";
         }
       }
-      else if($_GET['luachon'] == "Sua") {
+      else if($luachon == "Sua") {
         // lấy dữ liệu đọc giả từ form
         $madocgia = $_GET['madocgia'];
         $hodocgia = $_GET['hodocgia'];
@@ -59,7 +64,7 @@ require_admin_permission('DOCGIA');
         $tendocgia, $email, $sdt,
         $ngaysinh, $diachi);
       }
-      else if($_GET['luachon'] == "Xoa") {
+      else if($luachon == "Xoa") {
         // lấy mã đọc giả để xóa
         $madocgia = $_GET['madocgia'];
         // thực hiện chức năng xóa đọc giả
@@ -71,14 +76,9 @@ require_admin_permission('DOCGIA');
         }
         else echo '<script>alert("Xóa thông tin đọc giả không thành công!");</script>';
       }
-      else echo '<script>alert("Chào mừng đến với trang quản lý đọc giả!");</script>';
+      // No welcome popup
     }
   ?>
-  <div class="KhungMenu">
-    <?php
-      require_once '../../Menu/AdminMenu.php';
-    ?>
-  </div>
   <div class="KhungThongTin">
     <form method="GET">
       <label for="madocgia">Mã đọc giả</label>

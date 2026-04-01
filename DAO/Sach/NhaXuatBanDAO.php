@@ -1,5 +1,5 @@
 <?php
-  require_once '../../../model/NhaXuatBan.php';
+  require_once __DIR__ . '/../../model/Sach/NhaXuatBan.php';
 
   class NhaXuatBanDAO {
     public function Them($conn, $manxb, $tennxb, $diachi, $sdt, $email) {
@@ -46,7 +46,7 @@
       $ls = [];
       while($row = $result->fetch_assoc()) {
         $nxb = new NhaXuatBan($row['manxb'], $row['tennxb'], $row['diachi'],
-        $row['sdt'], $row['email'], $row['manxb']);
+        $row['sdt'], $row['email']);
 
         $ls[] = $nxb;
       }
