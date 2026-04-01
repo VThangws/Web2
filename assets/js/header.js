@@ -227,3 +227,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // LƯU Ý: Không thêm bất kỳ xử lý nào cho .reveal-section, .reveal-item, hay hiệu ứng của trang home ở đây.
   // Mọi animation, scroll effect, typing effect của home đã chuyển sang assets/js/home.js để hai file không ảnh hưởng nhau.
 });
+// Thêm vào cuối file header.js
+document.addEventListener('DOMContentLoaded', () => {
+  const bookContainer = document.getElementById('main-book-container');
+
+  function loadCategory(loaiSlug) {
+    // Nếu không tìm thấy container (đang ở trang chủ/chi tiết), chuyển hướng link bình thường
+    if (!bookContainer) {
+      window.location.href = `/index.php?page=books&loai=${loaiSlug}`;
+      return;
+    }
+
+    // Nếu đang ở trang danh sách sách, thực hiện gọi AJAX
+    bookContainer.style.opacity = '0.5';
+
+    fetch(`/ajax/books_filter.php?loai=${loaiSlug}&page=1`)
+      .then(res => res.json())
+      // Tìm đoạn fetch gọi đến books_filter.php và sửa phần xử lý kết quả:
+      .then(data => {
+        // 1. Đổ danh sách sách vào vùng nội dung
+        const listContent = document.getElementById('books-list-content');
+        if (listContent) listContent.innerHTML = data.html;
+
+        // 2. Đổ thanh phân trang vào vùng phân trang
+        const pagContent = document.getElementById('pagination-content');
+        if (pagContent) pagContent.innerHTML = data.pagination;
+
+        // Hiển thị lại nội dung (nếu bạn có làm mờ trước đó)
+        const wrapper = document.querySelector('.books-grid-wrapper');
+        if (wrapper) wrapper.style.opacity = '1';
+      });
+  }
+
+  // Gán sự kiện click cho các link thể loại trên header
+  // Đảm bảo trong header.php bạn đã thêm class "ajax-filter" cho các thẻ <a>
+  document.querySelectorAll('.ajax-filter').forEach(link => {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      const loai = this.getAttribute('data-loai');
+      loadCategory(loai);
+    });
+  });
+});

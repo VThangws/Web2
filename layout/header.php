@@ -1,9 +1,12 @@
 <?php
+require_once __DIR__ . '/../model/DocGia.php';
+require_once __DIR__ . '/../model/TaiKhoan.php';
+require_once __DIR__ . '/../database/ConnectDB.php';
+include_once __DIR__ . '/../layout/login.php';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
-require_once __DIR__ . '/../database/ConnectDB.php';
 
 // Lấy đối tượng kết nối mysqli từ ConnectDB
 $conn = ConnectDB::getInstance()->getConnection();
@@ -15,21 +18,11 @@ if (isset($_SESSION['cart'])) {
     }
 }
 // Xử lý thông tin người dùng (Độc giả/Thủ thư)
-$user = null;
-if (isset($_SESSION['user_id'])) {
-    $stmtUser = $conn->prepare('SELECT * FROM users WHERE user_id = ?');
-    if ($stmtUser) {
-        $stmtUser->bind_param('i', $_SESSION['user_id']);
-        $stmtUser->execute();
-        $resultUser = $stmtUser->get_result();
-        if ($resultUser && $resultUser->num_rows > 0) {
-            $user = $resultUser->fetch_assoc();
-        }
-        $stmtUser->close();
-    }
-}
-?>
 
+$docgia = $_SESSION['docgia'] ?? null; // vì đăng nhập trả về obj nên không cần phải query lại database, chỉ cần lấy từ session
+
+?>
+<link rel="stylesheet" href="/assets/css/login.css">
 <link rel="stylesheet" href="/assets/css/header.css">
 
 <header class="main-header">
@@ -51,14 +44,14 @@ if (isset($_SESSION['user_id'])) {
             </div>
 
             <div class="search-category-mini">
-                <a href="/index.php?page=books&loai=kinh-te">Kinh Tế</a>
-                <a href="/index.php?page=books&loai=van-hoc-trong-nuoc">Văn Học Trong Nước</a>
-                <a href="/index.php?page=books&loai=van-hoc-nuoc-ngoai">Văn Học Nước Ngoài</a>
-                <a href="/index.php?page=books&loai=doi-song">Đời Sống</a>
-                <a href="/index.php?page=books&loai=thieu-nhi">Thiếu Nhi</a>
-                <a href="/index.php?page=books&loai=phat-trien-ban-than">Phát Triển Bản Thân</a>
-                <a href="/index.php?page=books&loai=tin-hoc-ngoai-ngu">Tin Học Ngoại Ngữ</a>
-                <a href="/index.php?page=books&loai=chuyen-nganh">Chuyên Ngành</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="kinh-te">Kinh Tế</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="van-hoc-trong-nuoc">Văn Học Trong Nước</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="van-hoc-nuoc-ngoai">Văn Học Nước Ngoài</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="doi-song">Đời Sống</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="thieu-nhi">Thiếu Nhi</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="phat-trien-ban-than">Phát Triển Bản Thân</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="tin-hoc-ngoai-ngu">Tin Học Ngoại Ngữ</a>
+                <a href="javascript:void(0)" class="header-filter-category ajax-filter" data-loai="chuyen-nganh">Chuyên Ngành</a>
             </div>
         </div>
 
@@ -74,13 +67,15 @@ if (isset($_SESSION['user_id'])) {
                 </div>
             </div>
             <!-- Nút Đăng ký / Đăng nhập -->
-            <?php if ($user): ?>
-                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
-                    Xin chào, <?= htmlspecialchars($user['name'], ENT_QUOTES) ?>
+            <?php if ($docgia): ?>
+                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline"> <!-- chưa xong -->
+                    Xin chào, <?= htmlspecialchars($docgia->getTendocgia(), ENT_QUOTES) ?>
                 </a>
+                <a href="/ajax/logout.php" class="main-btn main-btn-outline">Đăng xuất</a>
             <?php else: ?>
-                <a href="/User-form/Login_Form/Register_Form.php" class="main-btn main-btn-outline">Đăng ký</a>
-                <a href="/User-form/Login_Form/Login_Form.php" class="main-btn main-btn-primary">Đăng nhập</a>
+                <button id="openLogin" class="main-btn main-btn-outline">
+                    Đăng nhập
+                </button>
             <?php endif; ?>
 
             <a href="#miniCart" data-bs-toggle="offcanvas" role="button" aria-controls="miniCart" class="main-icon-btn main-cart position-relative d-inline-flex align-items-center justify-content-center" style="text-decoration: none; margin-left: 10px;">
@@ -149,9 +144,9 @@ if (isset($_SESSION['user_id'])) {
         <button type="button" class="btn btn-mini-close w-100 fw-bold py-2" data-bs-dismiss="offcanvas">Đóng</button>
     </div>
 </div>
-
+<script src="/assets/js/header.js" defer></script>
 <script>
-    window.user_id = <?= isset($_SESSION['user_id']) ? json_encode($_SESSION['user_id']) : 'null' ?>;
+    window.user_id = <?= isset($_SESSION['docgia']) ? json_encode($_SESSION['docgia']->getMadocgia()) : 'null' ?>;
 </script>
 
 <script>
@@ -254,3 +249,5 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<script src="/assets/js/header.js" defer></script>
+<script src="/Login/login.js" defer></script>

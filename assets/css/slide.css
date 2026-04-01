@@ -109,8 +109,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: #ffb300;
-    color: #111;
+    background: #2ecc71;
+    color: #ffffff;
     border-radius: 999px;
     padding: 7px 20px;
     font-size: 13px;
@@ -124,8 +124,8 @@
 }
 
 .banner-read-btn:hover {
-    background: #ffc94f;
-    color: #000;
+    background: #27ae60;
+    color: #ffffff;
 }
 
 .banner-like-btn {
@@ -222,6 +222,13 @@
         opacity 0.5s ease,
         box-shadow 0.5s ease,
         z-index 0.5s ease;
+
+}
+
+.banner-cover-card a {
+    position: relative;
+    z-index: 15;
+    cursor: pointer;
 }
 
 .banner-cover-card img {
@@ -791,7 +798,7 @@ body.snap-scroll {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: #0d6efd;
+    background: #2ecc71;
     color: #fff;
     display: flex;
     align-items: center;
@@ -826,7 +833,7 @@ body.snap-scroll {
     overflow: hidden;
     opacity: 0.32;
     filter: blur(10px);
-    z-index: 0;
+    z-index: 1;
     /* dưới card 3D nhưng trên nền loang */
     pointer-events: none;
 }
