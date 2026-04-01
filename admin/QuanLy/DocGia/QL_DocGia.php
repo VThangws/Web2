@@ -30,6 +30,12 @@ error_reporting(E_ERROR | E_PARSE);
     a.edit{background:#28a745;}
     a.delete{background:#dc3545;}
     #loadMoreBtn{margin-top:10px;}
+    .toggle-btn{display:inline-block;background:#28a745;color:#fff;border:none;border-radius:5px;padding:12px 24px;cursor:pointer;text-decoration:none;transition:all .2s ease;font-weight:500;font-size:1rem;margin-bottom:16px;}
+    .toggle-btn:hover{background:#218838;transform:translateY(-2px);box-shadow:0 4px 8px rgba(33,136,56,.3);}
+    @keyframes slideDown{from{opacity:0;max-height:0;overflow:hidden;transform:translateY(-20px);}to{opacity:1;max-height:1000px;overflow:visible;transform:translateY(0);}}
+    @keyframes slideUp{from{opacity:1;max-height:1000px;overflow:visible;transform:translateY(0);}to{opacity:0;max-height:0;overflow:hidden;transform:translateY(-20px);}}
+    .form-panel{animation:slideDown .4s ease-in-out forwards;}
+    .form-panel.hidden{display:none;animation:slideUp .4s ease-in-out forwards;}
   </style>
 </head>
 <body>
@@ -99,7 +105,9 @@ error_reporting(E_ERROR | E_PARSE);
 
     $query = isset($_GET['search']) && trim($_GET['search']) !== '' ? $dao->TimKiem($conn, $_GET['search']) : $dao->ToanBoDanhSach($conn);
     ?>
-  <div class="panel">
+  <button class="toggle-btn" id="toggleFormBtn">+ Thêm đọc giả</button>
+  
+  <div class="panel form-panel hidden" id="formPanel">
     <h2>Quản lý đọc giả</h2>
     <div class="KhungThongTin">
       <form method="GET" class="form-grid">
@@ -134,13 +142,13 @@ error_reporting(E_ERROR | E_PARSE);
         <button type="submit" class="btn" name="luachon" value="Them">Thêm</button>
       </form>
     </div>
+  </div>
 
-    <div class="form-search" style="margin-top:12px;">
-      <form method="GET" style="display:flex; gap:10px; align-items:center;">
-        <input type="text" name="search" placeholder="Tìm theo mã/họ/tên" style="flex:1;padding:8px;border:1px solid #bbb;border-radius:4px;">
-        <button type="submit" class="btn">Tìm kiếm</button>
-      </form>
-    </div>
+  <div class="form-search" style="margin-top:12px;">
+    <form method="GET" style="display:flex; gap:10px; align-items:center;">
+      <input type="text" name="search" placeholder="Tìm theo mã/họ/tên" style="flex:1;padding:8px;border:1px solid #bbb;border-radius:4px;">
+      <button type="submit" class="btn">Tìm kiếm</button>
+    </form>
   </div>
 
   <div class="panel">
@@ -196,6 +204,7 @@ error_reporting(E_ERROR | E_PARSE);
       if(currentLimit>=total){moreBtn.style.display='none';}else{moreBtn.style.display='inline-block';moreBtn.textContent=`Xem thêm ${Math.min(rowsPerPage,total-currentLimit)} mục`;}
     }
     document.addEventListener('DOMContentLoaded',()=>{const moreBtn=document.getElementById('loadMoreBtn');if(moreBtn){moreBtn.addEventListener('click',()=>{currentLimit+=rowsPerPage;updateRowsVisibility();});}updateRowsVisibility();});
+    document.addEventListener('DOMContentLoaded',function(){const toggleBtn=document.getElementById('toggleFormBtn');const formPanel=document.getElementById('formPanel');toggleBtn.addEventListener('click',function(){formPanel.classList.toggle('hidden');if(formPanel.classList.contains('hidden')){toggleBtn.textContent='+ Thêm đọc giả';}else{toggleBtn.textContent='✕ Đóng form';formPanel.scrollIntoView({behavior:'smooth',block:'start'});}});});
   </script>
 </body>
 </html>
