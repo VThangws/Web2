@@ -63,10 +63,9 @@ $docgia = $_SESSION['docgia'] ?? null;
             </div>
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($docgia): ?>
-                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
+                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline" id="headerName">
                     Xin chào, <?= htmlspecialchars($docgia->getTendocgia(), ENT_QUOTES) ?>
                 </a>
-                <a href="/ajax/logout.php" class="main-btn main-btn-outline">Đăng xuất</a>
             <?php else: ?>
                 <button id="openLogin" class="main-btn main-btn-outline">
                     Đăng nhập

@@ -26,7 +26,7 @@
       return $this->matkhau;
     }
 
-    public function getManhomnuyen() {
+    public function getManhomquyen() {
       return $this->manhomquyen;
     }
 
