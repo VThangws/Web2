@@ -1079,6 +1079,28 @@ CREATE TABLE `nhanvien` (
   `ngaysinh` date DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `nhanvien`
+--
+
+INSERT INTO `nhanvien` (`manv`, `honv`, `tennv`, `gioitinh`, `sdt`, `ngaysinh`) VALUES
+('NV001', 'Nguyễn', 'Văn An', 'Nam', '0901000001', '1998-01-15'),
+('NV002', 'Trần', 'Thị Bích', 'Nữ', '0901000002', '1999-03-22'),
+('NV003', 'Lê', 'Hoàng Minh', 'Nam', '0901000003', '1997-07-09'),
+('NV004', 'Phạm', 'Thảo Vy', 'Nữ', '0901000004', '2000-11-30'),
+('NV005', 'Võ', 'Quang Huy', 'Nam', '0901000005', '1996-05-18'),
+('NV006', 'Đặng', 'Thu Trang', 'Nữ', '0901000006', '1998-09-05'),
+('NV007', 'Bùi', 'Gia Khánh', 'Nam', '0901000007', '1995-12-12'),
+('NV008', 'Huỳnh', 'Ngọc Mai', 'Nữ', '0901000008', '2001-02-08'),
+('NV009', 'Phan', 'Thanh Tùng', 'Nam', '0901000009', '1997-04-27'),
+('NV010', 'Ngô', 'Kim Oanh', 'Nữ', '0901000010', '1999-08-14')
+ON DUPLICATE KEY UPDATE
+  `honv` = VALUES(`honv`),
+  `tennv` = VALUES(`tennv`),
+  `gioitinh` = VALUES(`gioitinh`),
+  `sdt` = VALUES(`sdt`),
+  `ngaysinh` = VALUES(`ngaysinh`);
+
 -- --------------------------------------------------------
 
 --
