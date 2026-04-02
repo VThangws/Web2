@@ -362,3 +362,29 @@
 .subheader-link:hover {
   color: #000;
 }
+/* CSS CHO NÚT BẤM TRONG MINI CART */
+.btn-mini-checkout {
+background-color: #20c997;
+color: white;
+border: 1px solid #20c997;
+border-radius: 50px;
+transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.btn-mini-checkout:hover {
+background-color: #1aa179;
+border-color: #1aa179;
+color: white;
+}
+
+.btn-mini-close {
+background-color: white;
+color: #20c997;
+border: 1px solid #20c997;
+border-radius: 50px;
+transition: background-color 0.2s ease, color 0.2s ease;
+}
+.btn-mini-close:hover {
+background-color: #eafaf5;
+color: #1aa179;
+border-color: #1aa179;
+}

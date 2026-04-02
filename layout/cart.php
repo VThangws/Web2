@@ -16,6 +16,30 @@ $cart_empty = empty($_SESSION['cart']);
     </div>
 </div>
 
+<?php if (!isset($docgia)): ?>
+    <div class="container text-center py-5" style="min-height: 50vh; margin-top: 50px;">
+        <i class="fa-solid fa-cart-shopping text-muted" style="font-size: 5rem; margin-bottom: 20px;"></i>
+        <h3 class="text-danger mb-3">Bạn chưa đăng nhập!</h3>
+        <p class="text-muted fs-5">Vui lòng đăng nhập tài khoản để xem chi tiết giỏ hàng và tiến hành thanh toán nhé.</p>
+        <button class="btn btn-cart-primary mt-3" style="border-radius: 8px; padding: 10px 20px;" onclick="document.getElementById('openLogin').click()">
+            Mở form Đăng Nhập ngay
+        </button>
+    </div>
+    
+    <script>
+        // Tự động bật popup Đăng Nhập
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(() => {
+                const btnOpen = document.getElementById("openLogin");
+                if (btnOpen) {
+                    btnOpen.click();
+                }
+            }, 400); 
+        });
+    </script>
+
+<?php else: ?>
+
 <div class="container my-4">
     <div class="row">
         <div class="col-lg-8 mb-4" id="cart-left">
@@ -77,8 +101,8 @@ $cart_empty = empty($_SESSION['cart']);
                     <strong class="text-danger" id="total-price"><?= number_format($total_price, 0, ',', '.') ?> VNĐ</strong>
                 </div>
                 
-                <a href="/index.php?page=pay" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6">
-                    THANH TOÁN
+                <a href="/index.php?page=checkout" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6">
+                    XÁC NHẬN MƯỢN SÁCH
                 </a>
                 <a href="/index.php?page=books" class="btn btn-cart-secondary w-100 py-2 fs-6">
                     TIẾP TỤC TÌM KIẾM SÁCH
@@ -127,33 +151,4 @@ document.querySelectorAll('.btn-update-cart').forEach(button => {
     });
 });
 </script>
-<style>
-/* CSS NÚT GIỎ HÀNG */
-.btn-cart-primary {
-    background-color: #20c997;
-    color: white;
-    border: 1px solid #20c997;
-    border-radius: 50px; /* Bo tròn viên thuốc */
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-    font-weight: 900;
-}
-.btn-cart-primary:hover {
-    background-color: #1aa179;
-    border-color: #1aa179;
-    color: white;
-}
-
-.btn-cart-secondary {
-    background-color: white;
-    color: #20c997;
-    border: 1px solid #20c997;
-    border-radius: 50px;
-    transition: background-color 0.2s ease, color 0.2s ease;
-    font-weight: bold;
-}
-.btn-cart-secondary:hover {
-    background-color: #eafaf5; 
-    color: #1aa179;
-    border-color: #1aa179;
-}
-</style>
+<?php endif; ?>

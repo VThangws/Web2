@@ -1,0 +1,40 @@
+.btn-cart-primary {
+    background-color: #20c997;
+    color: white;
+    border: 1px solid #20c997;
+    border-radius: 50px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    font-weight: 900;
+}
+.btn-cart-primary:hover {
+    background-color: #1aa179;
+    border-color: #1aa179;
+    color: white;
+}
+
+.btn-cart-secondary {
+    background-color: white;
+    color: #20c997;
+    border: 1px solid #20c997;
+    border-radius: 50px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-weight: bold;
+}
+.btn-cart-secondary:hover {
+    background-color: #eafaf5; 
+    color: #1aa179;
+    border-color: #1aa179;
+}
+/* CSS cho thanh cuộn Mini Cart */
+.custom-cart-scroll {
+    max-height: 60vh !important; 
+    overflow-y: auto !important; 
+    overflow-x: hidden !important;
+    padding-right: 8px;
+    overscroll-behavior: contain;
+}
+
+.custom-cart-scroll::-webkit-scrollbar { width: 5px; }
+.custom-cart-scroll::-webkit-scrollbar-track { background: #f9f9f9; border-radius: 10px; }
+.custom-cart-scroll::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
+.custom-cart-scroll::-webkit-scrollbar-thumb:hover { background: #888; }

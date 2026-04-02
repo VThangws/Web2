@@ -35,6 +35,8 @@ class DocGia {
     public function getDiachi()    { return $this->diachi; }
 
     // --- Setters (để cập nhật sau) ---
+    public function setHodocgia($hodocgia) { $this->hodocgia = $hodocgia; }
+    public function setTendocgia($tendocgia) { $this->tendocgia = $tendocgia; }
     public function setSdt($sdt)           { $this->sdt = $sdt; }
     public function setNgaysinh($ngaysinh) { $this->ngaysinh = $ngaysinh; }
     public function setDiachi($diachi)     { $this->diachi = $diachi; }
