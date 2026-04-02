@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
-require_admin_permission('DOCGIA');
+require_admin_permission_for_request('DOCGIA');
 error_reporting(E_ERROR | E_PARSE);
 ?>
 <!DOCTYPE html>

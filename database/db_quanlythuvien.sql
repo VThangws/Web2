@@ -84,7 +84,7 @@ CREATE TABLE `ctphieutra` (
 CREATE TABLE `ctquyen` (
   `manhomquyen` varchar(50) NOT NULL,
   `machucnang` varchar(50) NOT NULL,
-  `hanhdong` varchar(100) DEFAULT NULL
+  `hanhdong` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1190,6 +1190,7 @@ INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
 ('STAFF', 'DASHBOARD', 'ALL'),
 ('STAFF', 'SACH', 'ALL'),
 ('STAFF', 'DOCGIA', 'ALL'),
+('STAFF', 'NHANVIEN', 'READ'),
 ('STAFF', 'NHACUNGCAP', 'ALL'),
 ('STAFF', 'NXB', 'ALL'),
 ('STAFF', 'TACGIA', 'ALL'),
@@ -1199,7 +1200,8 @@ ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
 -- KETOAN: invoices only
 INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
 ('KETOAN', 'DASHBOARD', 'ALL'),
-('KETOAN', 'HOADON', 'ALL')
+('KETOAN', 'HOADON', 'ALL'),
+('KETOAN', 'NHANVIEN', 'READ')
 ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
 
 -- --------------------------------------------------------
@@ -1671,7 +1673,7 @@ ALTER TABLE `ctphieutra`
 -- Indexes for table `ctquyen`
 --
 ALTER TABLE `ctquyen`
-  ADD PRIMARY KEY (`manhomquyen`,`machucnang`),
+  ADD PRIMARY KEY (`manhomquyen`,`machucnang`,`hanhdong`),
   ADD KEY `fk_ctq_chucnang` (`machucnang`);
 
 --

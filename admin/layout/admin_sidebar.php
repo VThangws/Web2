@@ -20,7 +20,6 @@ $isHome = $isActive('/admin/adminMenu.php');
 $isDauSach = $isActive('/admin/QuanLy/Sach/DauSach/');
 $isCuonSach = $isActive('/admin/QuanLy/Sach/CuonSach/');
 $isHoaDon = $isActive('/admin/QuanLy/HoaDon/');
-$isScanQr = $isActive('/admin/QuanLy/Scan_QR/');
 $isPhanQuyen = $isActive('/admin/QuanLy/TaiKhoan/QL_PhanQuyen.php');
 $isTaiKhoan = $isActive('/admin/QuanLy/TaiKhoan/') && !$isPhanQuyen;
 $isDocGia = $isActive('/admin/QuanLy/DocGia/');
@@ -30,7 +29,7 @@ $isTheLoai = $isActive('/admin/QuanLy/Sach/TheLoai/');
 $isNxb = $isActive('/admin/QuanLy/Sach/NhaXuatBan/');
 $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
 $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
-
+$isScanQr = $isActive('/admin/QuanLy/Scan_QR/');
 $canTaiKhoan = admin_has_permission('TAIKHOAN');
 ?>
 
@@ -95,14 +94,7 @@ $canTaiKhoan = admin_has_permission('TAIKHOAN');
                     </a>
                 </li>
             <?php endif; ?>
-            <?php if (admin_has_permission('SCAN_QR')): ?>
-                <li>
-                    <a href="/admin/QuanLy/Scan_QR/scan_qr.php" class="<?php echo $isScanQr ? 'active' : ''; ?>">
-                        <i class="fa-solid fa-qrcode admin-nav-icon" aria-hidden="true"></i>
-                        <span>SCAN QR</span>
-                    </a>
-                </li>
-            <?php endif; ?>
+            
 
             <?php if ($canTaiKhoan): ?>
                 <li>
@@ -182,6 +174,14 @@ $canTaiKhoan = admin_has_permission('TAIKHOAN');
                     <a href="/admin/QuanLy/ThongKe/thongke.php" class="<?php echo $isThongKe ? 'active' : ''; ?>">
                         <i class="fa-solid fa-chart-line admin-nav-icon" aria-hidden="true"></i>
                         <span>Thống kê</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (admin_has_permission('SCAN_QR')): ?>
+                <li>
+                    <a href="/admin/QuanLy/Scan_QR/scan_qr.php" class="<?php echo $isScanQr ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-qrcode admin-nav-icon" aria-hidden="true"></i>
+                        <span>SCAN QR</span>
                     </a>
                 </li>
             <?php endif; ?>
