@@ -25,7 +25,7 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `ctphieumuon`
 --
-
+USE db_quanlythuvien;
 CREATE TABLE `ctphieumuon` (
   `mamuon` varchar(50) NOT NULL,
   `macuonsach` varchar(50) NOT NULL,

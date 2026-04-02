@@ -26,6 +26,16 @@ $user = $dao->dangNhap($email, $matkhau);
 if ($user) {
     $_SESSION['docgia'] = $user;
     
+    // XỬ LÝ GIỎ HÀNG KHI LOGIN
+    $madocgia = $user->getMadocgia();
+    
+    // 1. Trộn giỏ hàng hiện tại (chưa login) vào Database
+    if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+        $dao->mergeCart($madocgia, $_SESSION['cart']);
+    }
+    // 2. Kéo toàn bộ giỏ hàng từ Database ra và gán đè lại vào Session
+    $_SESSION['cart'] = $dao->getCartFromDB($madocgia);
+
     echo json_encode([
         "status" => "success",
         "message" => "Chào mừng bạn " . $user->getTendocgia() . " đến với thư viện",
@@ -36,4 +46,5 @@ if ($user) {
         "message" => "Sai email hoặc mật khẩu"
     ]);
 }
+
 ?>

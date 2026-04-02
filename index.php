@@ -22,6 +22,7 @@ session_start();
     <link rel="stylesheet" href="./assets/css/footer.css">
     <link rel="stylesheet" href="./assets/fonts/font.css">
     <link rel="stylesheet" href="./assets/css/books.css">
+    <link rel="stylesheet" href="/assets/css/cart.css">
 </head>
 <body>
 <?php include 'layout/offline_check.php'; ?>
@@ -45,6 +46,14 @@ if (isset($_GET['page'])) {
             break;
         case 'taikhoan':
             include __DIR__ . '/layout/taikhoan.php';
+        case 'checkout':
+            include __DIR__ . '/layout/checkout.php';
+            break;    
+        case 'create_ticket':
+            include __DIR__ . '/layout/create_ticket.php';
+            break;    
+        case 'borrow_success':
+            include __DIR__ . '/layout/borrow_success.php';
             break;
         // ...các trang khác nếu có...
         default:

@@ -232,5 +232,42 @@ class DocGiaDAO {
         $row  = $stmt->get_result()->fetch_assoc();
         return $row['total'] > 0;
     }
+
+    public function mergeCart($madocgia, $sessionCart) {
+    if (empty($sessionCart)) return;
+
+    foreach ($sessionCart as $ma => $item) {
+        $soluong = $item['soluong'];
+        $sql = "INSERT INTO giohang (madocgia, madausach, soluong) 
+                VALUES (?, ?, ?) 
+                ON DUPLICATE KEY UPDATE soluong = soluong + ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ssii", $madocgia, $ma, $soluong, $soluong);
+        $stmt->execute();
+    }
+    }
+
+    // LẤY GIỎ HÀNG TỪ DB
+    public function getCartFromDB($madocgia) {
+        $sql = "SELECT gh.madausach, gh.soluong, ds.tensach, ds.dongia, ds.anhbia 
+                FROM giohang gh 
+                JOIN dausach ds ON gh.madausach = ds.madausach 
+                WHERE gh.madocgia = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("s", $madocgia);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        $cart = [];
+        while ($row = $result->fetch_assoc()) {
+            $cart[$row['madausach']] = [
+                'tensach' => $row['tensach'],
+                'dongia'  => $row['dongia'],
+                'anhbia'  => $row['anhbia'],
+                'soluong' => $row['soluong']
+            ];
+        }
+        return $cart;
+    }
 }
 ?>

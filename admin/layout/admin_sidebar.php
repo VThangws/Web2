@@ -19,6 +19,7 @@ $isActive = static function (string $pattern) use ($currentPath): bool {
 $isHome = $isActive('/admin/adminMenu.php');
 $isDauSach = $isActive('/admin/QuanLy/Sach/DauSach/') || $isActive('/admin/QuanLy/Sach/CuonSach/');
 $isHoaDon = $isActive('/admin/QuanLy/HoaDon/');
+$isScanQr = $isActive('/admin/QuanLy/Scan_QR/');
 $isTaiKhoan = $isActive('/admin/QuanLy/TaiKhoan/');
 $isDocGia = $isActive('/admin/QuanLy/DocGia/');
 $isNhanVien = $isActive('/admin/QuanLy/NhanVien/');
@@ -73,6 +74,14 @@ $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
                     <a href="/admin/QuanLy/HoaDon/QL_HoaDon.php" class="<?php echo $isHoaDon ? 'active' : ''; ?>">
                         <i class="fa-solid fa-receipt admin-nav-icon" aria-hidden="true"></i>
                         <span>Hóa đơn</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+            <?php if (admin_has_permission('SCAN_QR')): ?>
+                <li>
+                    <a href="/admin/QuanLy/Scan_QR/scan_qr.php" class="<?php echo $isScanQr ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-receipt admin-nav-icon" aria-hidden="true"></i>
+                        <span>SCAN QR</span>
                     </a>
                 </li>
             <?php endif; ?>
