@@ -29,6 +29,9 @@ $isTheLoai = $isActive('/admin/QuanLy/Sach/TheLoai/');
 $isNxb = $isActive('/admin/QuanLy/Sach/NhaXuatBan/');
 $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
 $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
+$isPhanQuyen = $isActive('/admin/QuanLy/TaiKhoan/QL_PhanQuyen.php');
+
+$canTaiKhoan = admin_has_permission('TAIKHOAN');
 ?>
 
 <link rel="stylesheet" href="/assets/css/header.css">
@@ -39,6 +42,11 @@ $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
 <style>
     .admin-sidebar {
         font-family: 'Oswald', sans-serif !important;
+    }
+
+    .admin-nav-disabled {
+        opacity: 0.55;
+        pointer-events: none;
     }
 </style>
 
@@ -96,7 +104,7 @@ $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
                 </li>
             <?php endif; ?>
 
-            <?php if (admin_has_permission('TAIKHOAN')): ?>
+            <?php if ($canTaiKhoan): ?>
                 <li>
                     <a href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php" class="<?php echo $isTaiKhoan ? 'active' : ''; ?>">
                         <i class="fa-solid fa-user-gear admin-nav-icon" aria-hidden="true"></i>
@@ -104,6 +112,17 @@ $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
                     </a>
                 </li>
             <?php endif; ?>
+
+            <li>
+                <a
+                    href="/admin/QuanLy/TaiKhoan/QL_PhanQuyen.php"
+                    class="<?php echo $isPhanQuyen ? 'active' : ''; ?> <?php echo $canTaiKhoan ? '' : 'admin-nav-disabled'; ?>"
+                    <?php echo $canTaiKhoan ? '' : 'aria-disabled="true" tabindex="-1"'; ?>
+                >
+                    <i class="fa-solid fa-shield-halved admin-nav-icon" aria-hidden="true"></i>
+                    <span>Phân quyền</span>
+                </a>
+            </li>
 
             <?php if (admin_has_permission('DOCGIA')): ?>
                 <li>
