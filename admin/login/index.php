@@ -68,7 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			}
 
 			if ($ok && is_array($row)) {
-				if ($hasMadocgiaCol && isset($row['madocgia']) && is_string($row['madocgia']) && trim($row['madocgia']) !== '') {
+				$role = isset($row['manhomquyen']) && is_string($row['manhomquyen']) ? trim($row['manhomquyen']) : '';
+				if ($hasMadocgiaCol && strtoupper($role) === 'DG') {
 					$error = 'Tài khoản này không có quyền quản trị.';
 				} else {
 					session_regenerate_id(true);

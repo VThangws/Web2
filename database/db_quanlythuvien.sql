@@ -1445,6 +1445,26 @@ ON DUPLICATE KEY UPDATE
   `sdt` = VALUES(`sdt`),
   `ngaysinh` = VALUES(`ngaysinh`),
   `diachi` = VALUES(`diachi`);
+
+/* DOC GIA profile cho nhân viên (để tài khoản admin/staff đăng nhập được bên user) */
+INSERT INTO `docgia` (`madocgia`, `hodocgia`, `tendocgia`, `email`, `sdt`, `ngaysinh`, `diachi`) VALUES
+('DG901', 'Nguyễn', 'Văn An', 'admin@staff.local', '0901000001', '1998-01-15', 'Nhân viên'),
+('DG902', 'Trần', 'Thị Bích', 'qtri@staff.local', '0901000002', '1999-03-22', 'Nhân viên'),
+('DG903', 'Lê', 'Hoàng Minh', 'ketoan1@staff.local', '0901000003', '1997-07-09', 'Nhân viên'),
+('DG904', 'Phạm', 'Thảo Vy', 'ketoan2@staff.local', '0901000004', '2000-11-30', 'Nhân viên'),
+('DG905', 'Võ', 'Quang Huy', 'nv005@staff.local', '0901000005', '1996-05-18', 'Nhân viên'),
+('DG906', 'Đặng', 'Thu Trang', 'nv006@staff.local', '0901000006', '1998-09-05', 'Nhân viên'),
+('DG907', 'Bùi', 'Gia Khánh', 'nv007@staff.local', '0901000007', '1995-12-12', 'Nhân viên'),
+('DG908', 'Huỳnh', 'Ngọc Mai', 'nv008@staff.local', '0901000008', '2001-02-08', 'Nhân viên'),
+('DG909', 'Phan', 'Thanh Tùng', 'nv009@staff.local', '0901000009', '1997-04-27', 'Nhân viên'),
+('DG910', 'Ngô', 'Kim Oanh', 'nv010@staff.local', '0901000010', '1999-08-14', 'Nhân viên')
+ON DUPLICATE KEY UPDATE
+  `hodocgia` = VALUES(`hodocgia`),
+  `tendocgia` = VALUES(`tendocgia`),
+  `email` = VALUES(`email`),
+  `sdt` = VALUES(`sdt`),
+  `ngaysinh` = VALUES(`ngaysinh`),
+  `diachi` = VALUES(`diachi`);
 /* TAI KHOAN */
 INSERT INTO `taikhoan`(`tendangnhap`, `matkhau`, `manhomquyen`, `madocgia`)
 VALUES('demo1@gmail.com', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'DG', 'DG001')
@@ -1459,16 +1479,16 @@ ON DUPLICATE KEY UPDATE
 -- --------------------------------------------------------
 
 INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`, `madocgia`) VALUES
-('admin',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV001', NULL),
-('qtri',    '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV002', NULL),
-('ketoan1', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV003', NULL),
-('ketoan2', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV004', NULL),
-('nv005',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV005', NULL),
-('nv006',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV006', NULL),
-('nv007',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV007', NULL),
-('nv008',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV008', NULL),
-('nv009',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV009', NULL),
-('nv010',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV010', NULL)
+('admin',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV001', 'DG901'),
+('qtri',    '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV002', 'DG902'),
+('ketoan1', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV003', 'DG903'),
+('ketoan2', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV004', 'DG904'),
+('nv005',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV005', 'DG905'),
+('nv006',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV006', 'DG906'),
+('nv007',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV007', 'DG907'),
+('nv008',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV008', 'DG908'),
+('nv009',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV009', 'DG909'),
+('nv010',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV010', 'DG910')
 ON DUPLICATE KEY UPDATE
   `matkhau` = VALUES(`matkhau`),
   `manhomquyen` = VALUES(`manhomquyen`),

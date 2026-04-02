@@ -89,13 +89,6 @@ if (registerForm) {
             .catch(err => console.error('Lỗi:', err));
     });
 }
-<<<<<<< HEAD
-=======
-
- // ===== PHẦN Update Profile AJAX =====
- //kiếm bên TaiKhoan.php nha các em
-       
->>>>>>> d91ac430f94a8014c757121d3a3a7b724e291e68
 // ===== MODAL NOTICE =====
 function showModal(status, message) {
     const modalContent = document.getElementById("modalContent");

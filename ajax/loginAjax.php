@@ -29,11 +29,12 @@ if ($result) {
     $_SESSION['docgia'] = $user;
 
     // Lưu session taikhoan (hash lấy từ DB)
+    // Nếu là tài khoản nhân viên/admin đã link qua docgia thì sẽ có manv
     $_SESSION['taikhoan'] = new TaiKhoan(
         $email,
         $result['matkhau'],   // hash từ DB
         $result['quyen'],
-        null,                 // manv (null nếu là docgia)
+        $result['manv'] ?? null,
         $madocgia
     );
 
