@@ -21,7 +21,8 @@ $isDauSach = $isActive('/admin/QuanLy/Sach/DauSach/');
 $isCuonSach = $isActive('/admin/QuanLy/Sach/CuonSach/');
 $isHoaDon = $isActive('/admin/QuanLy/HoaDon/');
 $isScanQr = $isActive('/admin/QuanLy/Scan_QR/');
-$isTaiKhoan = $isActive('/admin/QuanLy/TaiKhoan/');
+$isPhanQuyen = $isActive('/admin/QuanLy/TaiKhoan/QL_PhanQuyen.php');
+$isTaiKhoan = $isActive('/admin/QuanLy/TaiKhoan/') && !$isPhanQuyen;
 $isDocGia = $isActive('/admin/QuanLy/DocGia/');
 $isNhanVien = $isActive('/admin/QuanLy/NhanVien/');
 $isTacGia = $isActive('/admin/QuanLy/TacGia/');
@@ -29,7 +30,6 @@ $isTheLoai = $isActive('/admin/QuanLy/Sach/TheLoai/');
 $isNxb = $isActive('/admin/QuanLy/Sach/NhaXuatBan/');
 $isNhaCungCap = $isActive('/admin/QuanLy/NhaCungCap/');
 $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
-$isPhanQuyen = $isActive('/admin/QuanLy/TaiKhoan/QL_PhanQuyen.php');
 
 $canTaiKhoan = admin_has_permission('TAIKHOAN');
 ?>
