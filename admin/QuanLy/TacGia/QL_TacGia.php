@@ -20,8 +20,8 @@ error_reporting(E_ERROR | E_PARSE);
     .form-grid label {display:block; font-weight:600; margin-bottom:4px;}
     .form-grid input[type="text"] {width:100%; padding: 8px 10px; border:1px solid #bbb; border-radius:4px;}
     .actions {margin-top: 12px;}
-    .btn {background:#007bff; color:#fff; border:none; border-radius:5px; padding:8px 16px; cursor:pointer; text-transform: uppercase; letter-spacing: .5px;}
-    .btn:hover {background:#0056b3;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger) {background:#007bff; color:#fff; border:none; border-radius:5px; padding:8px 16px; cursor:pointer; text-transform: uppercase; letter-spacing: .5px;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger):hover {background:#0056b3;}
     .table-responsive {overflow-x:auto;}
     table {width:100%; border-collapse:collapse; margin-top:12px;}
     th, td {padding:10px 12px; border:1px solid #ddd; text-align:left;}
@@ -164,8 +164,8 @@ error_reporting(E_ERROR | E_PARSE);
             echo "<tr>";
             echo "<td>" . htmlspecialchars($row['matacgia']) . "</td>";
             echo "<td>" . htmlspecialchars($row['tentacgia']) . "</td>";
-            echo "<td><a class='action-link edit' href='Sua_TacGia.php?matacgia=" . urlencode($row['matacgia']) . "&tentacgia=" . urlencode($row['tentacgia']) . "'>Sửa</a></td>";
-            echo "<td><a class='action-link delete' href='QL_TacGia.php?luachon=Xoa&matacgia=" . urlencode($row['matacgia']) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a></td>";
+            echo "<td><a class='btn btn-sm btn-outline-primary' href='Sua_TacGia.php?matacgia=" . urlencode($row['matacgia']) . "&tentacgia=" . urlencode($row['tentacgia']) . "'>Sửa</a></td>";
+            echo "<td><a class='btn btn-sm btn-outline-danger' href='QL_TacGia.php?luachon=Xoa&matacgia=" . urlencode($row['matacgia']) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a></td>";
             echo "</tr>";
           }
           if (!$hasData) {

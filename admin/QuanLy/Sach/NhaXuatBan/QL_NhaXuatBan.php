@@ -18,8 +18,8 @@ error_reporting(E_ERROR | E_PARSE);
     .form-grid label {display: block; font-weight: 600; margin-bottom: 4px; color: #333; font-size: .95rem;}
     .form-grid input[type="text"] {width: 100%; padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: .95rem;}
     .form-grid input:focus {outline: none; border-color: #007bff; box-shadow: 0 0 4px rgba(0,123,255,.3);}
-    .btn {display: inline-block; background: #007bff; color: #fff; border: none; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500;}
-    .btn:hover {background: #0056b3; transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,86,179,.3);}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger) {display: inline-block; background: #007bff; color: #fff; border: none; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger):hover {background: #0056b3; transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,86,179,.3);}
     .table-responsive {overflow-x: auto; margin-top: 12px;}
     table {width: 100%; border-collapse: collapse; font-size: .95rem;}
     thead {background: #f8f9fa;}
@@ -177,9 +177,9 @@ error_reporting(E_ERROR | E_PARSE);
                 echo "<td>" . htmlspecialchars($item->getDiachi()) . "</td>";
                 echo "<td>" . htmlspecialchars($item->getSdt()) . "</td>";
                 echo "<td>" . htmlspecialchars($item->getEmail()) . "</td>";
-                echo "<td>" .
-                  "<a class='btn' href='Sua_NhaXuatBan.php?manxb=" . urlencode($item->getManxb()) . "&tennxb=" . urlencode($item->getTennxb()) . "&diachi=" . urlencode($item->getDiachi()) . "&sdt=" . urlencode($item->getSdt()) . "&email=" . urlencode($item->getEmail()) . "'>Sửa</a> " .
-                  "<a class='btn' style='background:#dc3545;' href='QL_NhaXuatBan.php?luachon=Xoa&manxb=" . urlencode($item->getManxb()) . "'>Xóa</a>" .
+                echo "<td class='text-end'>" .
+                  "<a class='btn btn-sm btn-outline-primary me-1' href='Sua_NhaXuatBan.php?manxb=" . urlencode($item->getManxb()) . "&tennxb=" . urlencode($item->getTennxb()) . "&diachi=" . urlencode($item->getDiachi()) . "&sdt=" . urlencode($item->getSdt()) . "&email=" . urlencode($item->getEmail()) . "'>Sửa</a>" .
+                  "<a class='btn btn-sm btn-outline-danger' href='QL_NhaXuatBan.php?luachon=Xoa&manxb=" . urlencode($item->getManxb()) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a>" .
                   "</td>";
                 echo "</tr>";
               }
