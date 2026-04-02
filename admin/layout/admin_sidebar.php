@@ -98,7 +98,7 @@ $canTaiKhoan = admin_has_permission('TAIKHOAN');
             <?php if (admin_has_permission('SCAN_QR')): ?>
                 <li>
                     <a href="/admin/QuanLy/Scan_QR/scan_qr.php" class="<?php echo $isScanQr ? 'active' : ''; ?>">
-                        <i class="fa-solid fa-receipt admin-nav-icon" aria-hidden="true"></i>
+                        <i class="fa-solid fa-qrcode admin-nav-icon" aria-hidden="true"></i>
                         <span>SCAN QR</span>
                     </a>
                 </li>

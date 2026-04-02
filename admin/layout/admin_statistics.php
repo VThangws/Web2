@@ -71,6 +71,7 @@ try {
             return 0;
         }
         $row = $result->fetch_row();
+        $result->free();
         return isset($row[0]) ? (int) $row[0] : 0;
     };
 
@@ -92,6 +93,7 @@ try {
                     $borrowStatusCounts[$key] = (int)($row['cnt'] ?? 0);
                 }
             }
+            $res->free();
         }
         $stmt->close();
     }
@@ -107,6 +109,7 @@ try {
                     $dailyMap[$d] = (int)($row['cnt'] ?? 0);
                 }
             }
+            $res->free();
         }
         $stmt->close();
     }
@@ -140,7 +143,11 @@ try {
     if ($stmt = $conn->prepare($sqlTopBooks)) {
         $stmt->bind_param('ss', $fromTs, $toTs);
         $stmt->execute();
-        $topBorrowedBooks = ($stmt->get_result()) ? $stmt->get_result()->fetch_all(MYSQLI_ASSOC) : [];
+        $res = $stmt->get_result();
+        $topBorrowedBooks = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        if ($res) {
+            $res->free();
+        }
         $stmt->close();
     }
 
@@ -157,7 +164,11 @@ try {
     if ($stmt = $conn->prepare($sqlTopReaders)) {
         $stmt->bind_param('ss', $fromTs, $toTs);
         $stmt->execute();
-        $topBorrowingReaders = ($stmt->get_result()) ? $stmt->get_result()->fetch_all(MYSQLI_ASSOC) : [];
+        $res = $stmt->get_result();
+        $topBorrowingReaders = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        if ($res) {
+            $res->free();
+        }
         $stmt->close();
     }
 
@@ -173,6 +184,7 @@ try {
             $chartCategoryLabels[] = (string) ($row['label'] ?? '');
             $chartCategoryCounts[] = (int) ($row['cnt'] ?? 0);
         }
+        $result->free();
     }
 
     $sqlStatus = "
@@ -186,6 +198,7 @@ try {
             $chartStatusLabels[] = (string) ($row['label'] ?? '');
             $chartStatusCounts[] = (int) ($row['cnt'] ?? 0);
         }
+        $result->free();
     }
 } catch (Throwable $e) {
 }
