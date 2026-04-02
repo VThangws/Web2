@@ -25,29 +25,27 @@ if (!$docgia) {
                     <span><i class="bi bi-person"></i> Thông tin tài khoản</span>
                     <i class="bi bi-chevron-right"></i>
                 </div>
-
                 <div class="sidebar-item">
                     <span><i class="bi bi-receipt"></i> Đơn hàng của bạn</span>
                     <i class="bi bi-chevron-right"></i>
                 </div>
-
                 <div class="sidebar-item">
                     <span><i class="bi bi-geo-alt"></i> Danh sách địa chỉ</span>
                     <i class="bi bi-chevron-right"></i>
                 </div>
-
-                <div class="sidebar-item">
-                    <span><i class="bi bi-box-arrow-right"></i> Đăng xuất</span>
-                    <i class="bi bi-chevron-right"></i>
-                </div>
-
+                <a href="/ajax/logout.php">
+                    <div class="sidebar-item">
+                        <span><i class="bi bi-box-arrow-right"></i> Đăng xuất</span>
+                        <i class="bi bi-chevron-right"></i>
+                    </div>
+                </a>
             </div>
         </div>
-
 
         <!-- Content -->
         <div class="col-lg-9 col-md-8">
             <div class="content-area">
+
                 <!-- Account Information Section -->
                 <div class="info-section">
                     <h2 class="section-title">Thông tin tài khoản</h2>
@@ -94,15 +92,37 @@ if (!$docgia) {
                                     <input type="date" class="form-control" id="ngaysinh" value="<?= $docgia->getNgaysinh() ?>">
                                 </div>
 
+                                <!-- 3 Ô TỈNH / QUẬN / PHƯỜNG -->
+                                <div class="col-md-4">
+                                    <label class="form-label">Tỉnh / Thành phố</label>
+                                    <select class="form-select" id="tinh" onchange="loadQuan(this.value)">
+                                        <option value="">-- Chọn tỉnh/thành --</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Quận / Huyện</label>
+                                    <select class="form-select" id="quan" onchange="loadPhuong(this.value)" disabled>
+                                        <option value="">-- Chọn quận/huyện --</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Phường / Xã</label>
+                                    <select class="form-select" id="phuong" disabled>
+                                        <option value="">-- Chọn phường/xã --</option>
+                                    </select>
+                                </div>
+                                <!-- END 3 Ô -->
+
                                 <div class="col-12">
-                                    <label class="form-label">Địa chỉ</label>
-                                    <input class="form-control" id="diachi" value="<?= $docgia->getDiachi() ?>">
+                                    <label class="form-label">Địa chỉ (số nhà, tên đường)</label>
+                                    <input class="form-control" id="diachi" value="<?= $docgia->getDiachi() ?>" placeholder="VD: 123 Nguyễn Trãi">
                                 </div>
 
                                 <div class="col-12 text-end">
                                     <button type="button" id="btnSave" class="btn btn-primary" onclick="updateInfo()">Lưu</button>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -121,97 +141,45 @@ if (!$docgia) {
 
                     <div class="info-row">
                         <span class="info-label">Mật khẩu</span>
-                        <span class="info-value">********</span>
+                        <span class="info-value">••••••••</span>
                     </div>
 
-                    <button class="btn-update mt-4">Thay đổi mật khẩu</button>
+                    <button class="btn-update mt-4" data-bs-toggle="collapse" data-bs-target="#changePasswordBox">
+                        Thay đổi mật khẩu
+                    </button>
 
+                    <!-- FORM ĐỔI MẬT KHẨU ẨN -->
+                    <div class="collapse mt-3" id="changePasswordBox">
+                        <div class="card card-body shadow-sm">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Mật khẩu hiện tại</label>
+                                    <input type="password" class="form-control" id="currentPassword" placeholder="Nhập mật khẩu hiện tại">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="newPassword" placeholder="Nhập mật khẩu mới">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label">Xác nhận mật khẩu mới</label>
+                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu mới">
+                                </div>
+
+                                <div class="col-12 text-end">
+                                    <button type="button" id="btnSavePassword" class="btn btn-primary" onclick="changePassword()">Lưu mật khẩu</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
         </div>
-
     </div>
 </div>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-            this.classList.add('active');
-        });
-    });
-
-    function updateInfo() {
-        const btn = $("#btnSave");
-        // disable nút
-        btn.prop("disabled", true);
-        btn.html('<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...');
-
-        $.ajax({
-            url: "../ajax/updateProfile.php",
-            type: "POST",
-            dataType: "json",
-            data: {
-                hodocgia: $("#hodocgia").val(),
-                tendocgia: $("#tendocgia").val(),
-                sdt: $("#sdt_input").val(),
-                ngaysinh: $("#ngaysinh").val(),
-                diachi: $("#diachi").val()
-            },
-            success: function(data) {
-                if (data.success) {
-                    showModal(true, data.message);
-                    $("#fullname").text(data.user.hodocgia + " " + data.user.tendocgia);
-                    $("#sdt").text(data.user.sdt || "Chưa có thông tin");
-                    $("#hodocgia").val(data.user.hodocgia);
-                    $("#tendocgia").val(data.user.tendocgia);
-                    $("#sdt_input").val(data.user.sdt);
-                    setTimeout(function() {
-                        const collapse = bootstrap.Collapse.getOrCreateInstance(
-                            document.getElementById('updateBox')
-                        );
-                        collapse.hide();
-                    }, 2000);
-                } else {
-                    showModal(false, data.message);
-                }
-            },
-            error: function() {
-                showModal(false, "Không thể kết nối server");
-            },
-            complete: function() {
-                // bật lại nút
-                btn.prop("disabled", false);
-                btn.html("Lưu");
-            }
-        });
-    }
-
-    // ===== MODAL NOTICE =====
-    function showModal(isSuccess, message) {
-        const modalContent = document.getElementById("modalContent");
-        const loginMessage = document.getElementById("loginMessage");
-
-        if (isSuccess) {
-            modalContent.className = "modal-content border-0 shadow-lg modal-success";
-            loginMessage.innerHTML = `<h4>${message}</h4>`;
-        } else {
-            modalContent.className = "modal-content border-0 shadow-lg modal-error";
-            loginMessage.innerHTML = `<h4>${message}</h4>`;
-        }
-
-        const modalInstance = bootstrap.Modal.getOrCreateInstance(document.getElementById('loginModal'), {
-            backdrop: false
-        });
-        modalInstance.show();
-
-        // Tự động đóng sau X giây
-        setTimeout(() => {
-            modalInstance.hide();
-        }, 2000);
-    }
-</script>
+<script src="/assets/js/profileAcc.js" defer></script>

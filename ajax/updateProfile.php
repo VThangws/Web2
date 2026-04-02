@@ -38,10 +38,11 @@ if ($result['success']) {
         "user" => [
             "hodocgia" => $docgia->getHodocgia(),
             "tendocgia" => $docgia->getTendocgia(),
-            "sdt" => $docgia->getSdt()
+            "sdt" => $docgia->getSdt(),
+            "ngaysinh" => $docgia->getNgaysinh(),
+            "diachi" => $docgia->getDiachi()
         ]
     ]);
 } else {
-
     echo json_encode($result);
 }

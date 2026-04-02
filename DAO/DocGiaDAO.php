@@ -172,18 +172,19 @@ class DocGiaDAO {
     }
 
     // ==================== ĐĂNG NHẬP ====================
-    public function dangNhap($email, $matkhau) {
-        $sql  = "SELECT tk.matkhau, dg.*
-                FROM taikhoan tk
-                JOIN docgia dg ON tk.madocgia = dg.madocgia
-                WHERE tk.tendangnhap = ?";
+    public function dangNhap($email, $matkhau)
+    {
+        $sql  = "SELECT tk.matkhau, tk.manhomquyen, dg.*
+            FROM taikhoan tk
+            JOIN docgia dg ON tk.madocgia = dg.madocgia
+            WHERE tk.tendangnhap = ?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $row  = $stmt->get_result()->fetch_assoc();
 
         if ($row && password_verify($matkhau, $row['matkhau'])) {
-            return new DocGia(
+            $docgia = new DocGia(
                 $row['hodocgia'],
                 $row['tendocgia'],
                 $row['email'],
@@ -192,6 +193,12 @@ class DocGiaDAO {
                 $row['diachi'],
                 $row['madocgia']
             );
+            // Trả về cả docgia lẫn hash mật khẩu
+            return [
+                'docgia'   => $docgia,
+                'matkhau'  => $row['matkhau'],      // hash từ DB
+                'quyen'    => $row['manhomquyen']
+            ];
         }
         return null;
     }
@@ -268,6 +275,22 @@ class DocGiaDAO {
             ];
         }
         return $cart;
+    }
+
+    // Lưu ý: việc kiểm tra mật khẩu cũ đã được xử lý bên changePassAjax.php
+    // Method này chỉ đơn giản UPDATE mật khẩu mới vào DB
+    public function doiMatKhau(TaiKhoan $taikhoan, string $newPassword): array
+    {
+        $passwordToSave = password_hash($newPassword, PASSWORD_DEFAULT);
+        $username = $taikhoan->getTendangnhap();   // tách ra biến
+        $sql = "UPDATE taikhoan SET matkhau = ? WHERE tendangnhap = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ss", $passwordToSave, $username);
+        if ($stmt->execute()) {
+            return ["success" => true, "message" => "Đổi mật khẩu thành công"];
+        } else {
+            return ["success" => false, "message" => "Lỗi khi cập nhật mật khẩu"];
+        }
     }
 }
 ?>

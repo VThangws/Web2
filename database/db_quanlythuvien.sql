@@ -1599,7 +1599,21 @@ CREATE TABLE `vitri` (
 INSERT INTO `vitri` (`mavitri`, `khuvuc`, `ke`, `mota`) VALUES
 ('VT001', 'Tầng 1', 'Kệ A1', 'Khu vực văn học'),
 ('VT002', 'Tầng 1', 'Kệ B2', 'Khu vực trinh thám'),
-('VT003', 'Tầng 2', 'Kệ C1', 'Khu vực kỹ năng');
+('VT003', 'Tầng 2', 'Kệ C1', 'Khu vực kỹ năng')
+
+--
+-- Table structure for table `giohang`
+--
+
+CREATE TABLE `giohang` (
+  `madocgia` varchar(10) NOT NULL,
+  `madausach` varchar(10) NOT NULL,
+  `soluong` int DEFAULT 1,
+  PRIMARY KEY (`madocgia`,`madausach`),
+  KEY `fk_giohang_dausach` (`madausach`),
+  CONSTRAINT `fk_giohang_docgia` FOREIGN KEY (`madocgia`) REFERENCES `docgia` (`madocgia`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_giohang_dausach` FOREIGN KEY (`madausach`) REFERENCES `dausach` (`madausach`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables

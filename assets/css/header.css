@@ -87,14 +87,21 @@
 }
 
 .search-category-mini {
-  margin-top: 5px;
-  font-size: 12px;
+  margin-top: 4px;
+  font-size: 11px;
   color: #777;
-  white-space: nowrap;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  white-space: normal;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .search-category-mini a {
-  margin: 0 6px;
+  margin: 0;
+  padding: 0 2px;
   text-decoration: none;
   color: #777;
 }
