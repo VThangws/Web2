@@ -1404,6 +1404,25 @@ ON DUPLICATE KEY UPDATE
   `sdt` = '0123456789',
   `ngaysinh` = '2000-01-01',
   `diachi` = '123 Đường ABC, TP. HCM';
+
+/* DOC GIA demo thêm để thống kê Top 10 có dữ liệu */
+INSERT INTO `docgia` (`madocgia`, `hodocgia`, `tendocgia`, `email`, `sdt`, `ngaysinh`, `diachi`) VALUES
+('DG002', 'Trần', 'Thị B', 'dg2@example.com', '0900000002', '2001-02-02', 'Q.1, TP.HCM'),
+('DG003', 'Lê', 'Văn C', 'dg3@example.com', '0900000003', '2002-03-03', 'Q.3, TP.HCM'),
+('DG004', 'Phạm', 'Thị D', 'dg4@example.com', '0900000004', '2003-04-04', 'Q.5, TP.HCM'),
+('DG005', 'Hoàng', 'Văn E', 'dg5@example.com', '0900000005', '2004-05-05', 'Q.7, TP.HCM'),
+('DG006', 'Võ', 'Thị F', 'dg6@example.com', '0900000006', '2000-06-06', 'TP. Thủ Đức'),
+('DG007', 'Đặng', 'Văn G', 'dg7@example.com', '0900000007', '1999-07-07', 'Bình Thạnh, TP.HCM'),
+('DG008', 'Ngô', 'Thị H', 'dg8@example.com', '0900000008', '1998-08-08', 'Gò Vấp, TP.HCM'),
+('DG009', 'Bùi', 'Văn I', 'dg9@example.com', '0900000009', '2001-09-09', 'Tân Bình, TP.HCM'),
+('DG010', 'Phan', 'Thị K', 'dg10@example.com', '0900000010', '2002-10-10', 'Tân Phú, TP.HCM')
+ON DUPLICATE KEY UPDATE
+  `hodocgia` = VALUES(`hodocgia`),
+  `tendocgia` = VALUES(`tendocgia`),
+  `email` = VALUES(`email`),
+  `sdt` = VALUES(`sdt`),
+  `ngaysinh` = VALUES(`ngaysinh`),
+  `diachi` = VALUES(`diachi`);
 /* TAI KHOAN */
 INSERT INTO `taikhoan`(`tendangnhap`, `matkhau`, `manhomquyen`, `madocgia`)
 VALUES('demo1@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG', 'DG', 'DG001')
@@ -1411,6 +1430,85 @@ ON DUPLICATE KEY UPDATE
   `matkhau` = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG',
   `manhomquyen` = 'DG',
   `madocgia` = 'DG001';
+
+-- --------------------------------------------------------
+-- Demo dữ liệu mượn/trả để thống kê Top 10 có dữ liệu
+-- Dùng NOW()/DATE_SUB để luôn nằm trong 30 ngày gần nhất sau khi import.
+-- manv để NULL để không phụ thuộc dữ liệu nhân viên.
+-- --------------------------------------------------------
+
+INSERT INTO `phieumuon` (`mamuon`, `ngaymuon`, `ngayhethan`, `manv`, `madocgia`, `trangthai`, `ghichu`) VALUES
+('PM0001', DATE_SUB(NOW(), INTERVAL 1 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 1 DAY),  INTERVAL 14 DAY), NULL, 'DG001', 'DaTra',    'Seed demo'),
+('PM0002', DATE_SUB(NOW(), INTERVAL 2 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 2 DAY),  INTERVAL 14 DAY), NULL, 'DG002', 'DangMuon', 'Seed demo'),
+('PM0003', DATE_SUB(NOW(), INTERVAL 3 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 DAY),  INTERVAL 14 DAY), NULL, 'DG003', 'DaTra',    'Seed demo'),
+('PM0004', DATE_SUB(NOW(), INTERVAL 4 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 4 DAY),  INTERVAL 14 DAY), NULL, 'DG004', 'ChoDuyet', 'Seed demo'),
+('PM0005', DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 5 DAY),  INTERVAL 14 DAY), NULL, 'DG005', 'DaTra',    'Seed demo'),
+('PM0006', DATE_SUB(NOW(), INTERVAL 6 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 6 DAY),  INTERVAL 14 DAY), NULL, 'DG001', 'DangMuon', 'Seed demo'),
+('PM0007', DATE_SUB(NOW(), INTERVAL 7 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 7 DAY),  INTERVAL 14 DAY), NULL, 'DG006', 'DaTra',    'Seed demo'),
+('PM0008', DATE_SUB(NOW(), INTERVAL 8 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 8 DAY),  INTERVAL 14 DAY), NULL, 'DG007', 'DaTra',    'Seed demo'),
+('PM0009', DATE_SUB(NOW(), INTERVAL 9 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 9 DAY),  INTERVAL 14 DAY), NULL, 'DG008', 'DaTra',    'Seed demo'),
+('PM0010', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 10 DAY), INTERVAL 14 DAY), NULL, 'DG009', 'DaTra',    'Seed demo'),
+('PM0011', DATE_SUB(NOW(), INTERVAL 11 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 11 DAY), INTERVAL 14 DAY), NULL, 'DG010', 'DangMuon', 'Seed demo'),
+('PM0012', DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 12 DAY), INTERVAL 14 DAY), NULL, 'DG001', 'DaTra',    'Seed demo'),
+('PM0013', DATE_SUB(NOW(), INTERVAL 13 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 13 DAY), INTERVAL 14 DAY), NULL, 'DG002', 'DaTra',    'Seed demo'),
+('PM0014', DATE_SUB(NOW(), INTERVAL 14 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 14 DAY), INTERVAL 14 DAY), NULL, 'DG003', 'DaTra',    'Seed demo'),
+('PM0015', DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 15 DAY), INTERVAL 14 DAY), NULL, 'DG004', 'DangMuon', 'Seed demo'),
+('PM0016', DATE_SUB(NOW(), INTERVAL 16 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 16 DAY), INTERVAL 14 DAY), NULL, 'DG005', 'DaTra',    'Seed demo'),
+('PM0017', DATE_SUB(NOW(), INTERVAL 17 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 17 DAY), INTERVAL 14 DAY), NULL, 'DG006', 'DaTra',    'Seed demo'),
+('PM0018', DATE_SUB(NOW(), INTERVAL 18 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 18 DAY), INTERVAL 14 DAY), NULL, 'DG007', 'DaTra',    'Seed demo'),
+('PM0019', DATE_SUB(NOW(), INTERVAL 19 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 19 DAY), INTERVAL 14 DAY), NULL, 'DG008', 'DangMuon', 'Seed demo'),
+('PM0020', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 20 DAY), INTERVAL 14 DAY), NULL, 'DG009', 'DaTra',    'Seed demo')
+ON DUPLICATE KEY UPDATE
+  `ngaymuon` = VALUES(`ngaymuon`),
+  `ngayhethan` = VALUES(`ngayhethan`),
+  `manv` = VALUES(`manv`),
+  `madocgia` = VALUES(`madocgia`),
+  `trangthai` = VALUES(`trangthai`),
+  `ghichu` = VALUES(`ghichu`);
+
+INSERT INTO `ctphieumuon` (`mamuon`, `macuonsach`, `tinhtrang_truoc`) VALUES
+('PM0001', 'CS0001', 'Tot'),
+('PM0001', 'CS0002', 'Moi'),
+('PM0002', 'CS0001', 'Tot'),
+('PM0002', 'CS0003', 'Moi'),
+('PM0003', 'CS0001', 'Tot'),
+('PM0003', 'CS0004', 'Tot'),
+('PM0004', 'CS0002', 'Moi'),
+('PM0004', 'CS0005', 'Moi'),
+('PM0005', 'CS0001', 'Tot'),
+('PM0005', 'CS0006', 'Tot'),
+('PM0006', 'CS0001', 'Tot'),
+('PM0006', 'CS0007', 'Tot'),
+('PM0007', 'CS0008', 'Tot'),
+('PM0007', 'CS0009', 'Moi'),
+('PM0008', 'CS0010', 'Moi'),
+('PM0008', 'CS0011', 'Tot'),
+('PM0009', 'CS0012', 'Moi'),
+('PM0009', 'CS0001', 'Tot'),
+('PM0010', 'CS0006', 'Tot'),
+('PM0010', 'CS0007', 'Tot'),
+('PM0011', 'CS0008', 'Tot'),
+('PM0011', 'CS0001', 'Tot'),
+('PM0012', 'CS0002', 'Moi'),
+('PM0012', 'CS0003', 'Moi'),
+('PM0013', 'CS0001', 'Tot'),
+('PM0013', 'CS0005', 'Moi'),
+('PM0014', 'CS0006', 'Tot'),
+('PM0014', 'CS0008', 'Tot'),
+('PM0015', 'CS0001', 'Tot'),
+('PM0015', 'CS0004', 'Tot'),
+('PM0016', 'CS0009', 'Moi'),
+('PM0016', 'CS0010', 'Moi'),
+('PM0017', 'CS0001', 'Tot'),
+('PM0017', 'CS0011', 'Tot'),
+('PM0018', 'CS0012', 'Moi'),
+('PM0018', 'CS0002', 'Moi'),
+('PM0019', 'CS0003', 'Moi'),
+('PM0019', 'CS0004', 'Tot'),
+('PM0020', 'CS0001', 'Tot'),
+('PM0020', 'CS0005', 'Moi')
+ON DUPLICATE KEY UPDATE
+  `tinhtrang_truoc` = VALUES(`tinhtrang_truoc`);
 --
 -- Seed account for team testing
 -- Username: admin
