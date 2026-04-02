@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../auth.php';
+require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
 // Tạm thời dùng cùng quyền với Dashboard để không làm gián đoạn RBAC hiện tại.
 require_admin_permission('DASHBOARD');

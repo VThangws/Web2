@@ -130,8 +130,8 @@ body.admin-has-sidebar .search-header-bar {
 
 .admin-sidebar-nav a.active {
     color: var(--admin-link-hover);
-    background: rgba(30, 136, 229, 0.12);
-    border-color: rgba(30, 136, 229, 0.35);
+    background: transparent;
+    border-color: transparent;
 }
 
 .admin-sidebar-actions {
