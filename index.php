@@ -46,6 +46,7 @@ if (isset($_GET['page'])) {
             break;
         case 'taikhoan':
             include __DIR__ . '/layout/taikhoan.php';
+            break;
         case 'checkout':
             include __DIR__ . '/layout/checkout.php';
             break;    

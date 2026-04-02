@@ -100,6 +100,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (window.location.href.includes('page=cart')) {
                     location.reload();
                 }
+            } else {
+                alert('LỖI: ' + data.message); // Báo lỗi cho người dùng biết
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                btn.style.width = 'auto';
             }
         })
         .catch(err => {

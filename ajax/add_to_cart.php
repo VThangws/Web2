@@ -18,29 +18,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['madausach'])) {
 
     // 1. CỘNG DỒN VÀO RAM
     if (isset($_SESSION['cart'][$madausach])) {
-        $_SESSION['cart'][$madausach]['soluong'] += 1;
-    } 
+        if ($_SESSION['cart'][$madausach]['soluong'] < $_SESSION['cart'][$madausach]['tonkho']) {
+            $_SESSION['cart'][$madausach]['soluong'] += 1;
+        } else {
+            // Chặn đứng lại, báo lỗi hết quota
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Sách này trong kho chỉ còn ' . $_SESSION['cart'][$madausach]['tonkho'] . ' cuốn, không thể mượn thêm!'
+            ]);
+            exit;
+        }
+    }
     // Nếu CHƯA CÓ, vào kho (Database) lấy thông tin sách ra thêm vào giỏ
     else {
-        $sql = "SELECT tensach, anhbia, dongia FROM DauSach WHERE madausach = ?";
-        $stmt = $conn->prepare($sql);
+        $sql = "SELECT ds.tensach, ds.anhbia, ds.dongia, 
+                           (SELECT COUNT(*) 
+                            FROM cuonsach cs 
+                            WHERE cs.madausach = ds.madausach AND cs.trangthai = 'SanSang') as tonkho 
+                    FROM dausach ds 
+                    WHERE ds.madausach = ?";
+            
+            $stmt = $conn->prepare($sql);
+            
+            // THÊM ĐOẠN NÀY ĐỂ BẮT LỖI MYSQL:
+            if (!$stmt) {
+                echo json_encode([
+                    'status' => 'error', 
+                    'message' => 'Lỗi SQL: ' . $conn->error
+                ]);
+                exit;
+            }
         $stmt->bind_param("s", $madausach);
         $stmt->execute();
         $result = $stmt->get_result();
 
         if ($row = $result->fetch_assoc()) {
-            // Bỏ thông tin sách vào "Balo"
+            // Check trường hợp hiếm: Mới bấm vào đã thấy kho bằng 0
+            if ($row['tonkho'] < 1) {
+                echo json_encode(['status' => 'error', 'message' => 'Sách này hiện đã hết!']);
+                exit;
+            }
+
+            // Bỏ thông tin sách + TỒN KHO vào "Balo"
             $_SESSION['cart'][$madausach] = [
                 'tensach' => $row['tensach'],
                 'anhbia' => $row['anhbia'],
                 'dongia' => $row['dongia'],
-                'soluong' => 1
+                'soluong' => 1,
+                'tonkho' => $row['tonkho'] // LƯU LẠI TỒN KHO VÀO ĐÂY NÈ
             ];
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Sách không tồn tại!']);
             exit;
         }
     }
+
 
     // 2. LƯU XUỐNG DATABASE (CHỈ KHI LOGIN)
     if (isset($_SESSION['docgia'])) {
@@ -57,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['madausach'])) {
     }
 
     // 3. ĐẾM SỐ ĐẦU SÁCH ĐỂ HIỆN THỊ LÊN GIỎ HÀNG
-    $total_items = count($_SESSION['cart']);
+    $total_items = isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'soluong')) : 0;
 
     // Trả kết quả về cho giao diện
     echo json_encode([

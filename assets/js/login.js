@@ -101,8 +101,6 @@ if (loginBtn) {
             formData.append('ngaysinh', document.querySelector('input[name="ngaysinh"]').value);
             formData.append('diachi', document.querySelector('input[name="diachi"]').value);
 
-<<<<<<< HEAD
-=======
             fetch('ajax/updateProfile.php', {
                 method: 'POST',
                 body: formData
@@ -120,7 +118,6 @@ if (loginBtn) {
         });
     });
 }
->>>>>>> bdd52627017db3fcfbb9c1965ab4f1eecc6148dd
 // ===== MODAL NOTICE =====
 function showModal(isSuccess, message) {
     const modalContent = document.getElementById("modalContent");

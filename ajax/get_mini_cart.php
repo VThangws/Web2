@@ -1,19 +1,19 @@
 <?php
 session_start();
 $html = '';
-$total_items = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
-$total_price = 0;
+$total_items = isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'soluong')) : 0;
 
 if (empty($_SESSION['cart'])) {
     $html .= '<div class="text-center py-5 text-muted">';
     $html .= '<i class="fa-solid fa-cart-arrow-down mb-3" style="font-size: 3rem;"></i><br>Giỏ hàng đang trống</div>';
 } else {
-    // Gắn class custom-cart-scroll
-    $html .= '<div class="custom-cart-scroll">';
+    $html .= '<div class="custom-cart-scroll" style="max-height: calc(100vh - 195px) !important; overflow-y: auto; overflow-x: hidden;">';
+
+    $count = 0;
+    $total_cart = count($_SESSION['cart']);
 
     foreach ($_SESSION['cart'] as $ma => $item) {
-        $total_price += ($item['dongia'] * $item['soluong']);
-        
+        $count++;
         $anh = htmlspecialchars($item['anhbia'] ?: 'demo.jpg');
         $ten = htmlspecialchars($item['tensach']);
         $gia = number_format($item['dongia'], 0, ',', '.') . ' đ';
@@ -22,8 +22,10 @@ if (empty($_SESSION['cart'])) {
         // Khóa mờ nút Trừ nếu số lượng là 1
         $disabled_minus = ($sl <= 1) ? 'disabled' : '';
 
+        $border_class = ($count === $total_cart) ? 'mb-1' : 'mb-3 pb-3 border-bottom';
+
         $html .= '
-        <div class="d-flex align-items-center mb-3 pb-3 border-bottom position-relative">
+        <div class="d-flex align-items-center position-relative ' . $border_class . '">
             <img src="/assets/img/books/'.$anh.'" alt="Bìa sách" class="rounded border shadow-sm" style="width: 60px; height: 85px; object-fit: cover;">
             <div class="ms-3 flex-grow-1">
                 <h6 class="mb-1 text-dark fw-bold text-truncate" style="font-size: 0.9rem; max-width: 170px;">'.$ten.'</h6>
@@ -44,11 +46,6 @@ if (empty($_SESSION['cart'])) {
 
     $html .= '</div>';
 
-    // Tổng tiền
-    $html .= '<div class="d-flex justify-content-between fw-bold fs-5 mt-4 pt-3 border-top">
-                <span>Tổng tiền:</span>
-                <span class="text-danger">'.number_format($total_price, 0, ',', '.').' đ</span>
-              </div>';
 }
 
 echo json_encode([
