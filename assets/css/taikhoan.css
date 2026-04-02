@@ -1,115 +1,166 @@
-    body {
-        height: 100%;
-        margin: 0;
-        font-family: 'Roboto', sans-serif;
-        background: #f4f6f5; /* Chuyển màu nền sang hơi ám xanh lục cực nhẹ cho đồng bộ */
+.container-main {
+    background-color: transparent;
+    min-height: 100vh;
+    margin: 0 auto;
+    max-width: 1400px;
+    padding: 20px;
+}
+
+.sidebar {
+    background-color: transparent;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.sidebar-item {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 500;
+}
+
+.sidebar-item:hover {
+    background-color: #f8f9fa;
+}
+
+.sidebar-item.active {
+    background-color: #000;
+    color: #fff;
+}
+
+.sidebar-item i {
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.sidebar-item .bi-chevron-right {
+    margin-right: 0;
+    margin-left: auto;
+}
+
+.content-area {
+    background-color: #fff;
+    padding: 40px;
+    border: 2px solid #d0d0d0;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.section-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    color: #1a1a1a;
+}
+
+.info-section {
+    margin-bottom: 50px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #666;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.info-value {
+    color: #1a1a1a;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.btn-update {
+    background-color: #fff;
+    color: #0066cc;
+    border: 2px solid #0066cc;
+    border-radius: 25px;
+    padding: 10px 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-update:hover {
+    background-color: #0066cc;
+    color: #fff;
+}
+
+.flash{
+    background:#d4edda;
+    transition:0.6s;
+}
+
+/*  css cho modal notice   */
+.modal-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.modal-error {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    color: white;
+}
+
+/* Modal nằm trên bên phải */
+.modal-top-right {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    margin: 0;
+    max-width: 350px;
+}
+
+/* Animation chạy vào từ phải */
+.modal.fade .modal-top-right {
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+}
+
+.modal.show .modal-top-right {
+    transform: translateX(0);
+}
+
+#loginMessage h4 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        min-height: auto;
     }
 
-    .container {
-        min-height: calc(100vh - 80px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    .content-area {
         padding: 20px;
+        margin-top: 20px;
     }
 
-    .profile-card {
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.08); /* Làm bóng đổ mờ và nhẹ hơn */
-        overflow: hidden;
-        width: 100%;
-        max-width: 500px;
-        transition: transform 0.3s;
+    .info-row {
+        flex-direction: column;
+        gap: 8px;
     }
 
-    .profile-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+    .container-main {
+        padding: 15px;
     }
-
-    /* Đổi sang Gradient Xanh Mộc (Sage Green) dịu mắt */
-    .profile-header {
-        background: linear-gradient(135deg, #81a3a0 0%, #5c807d 100%); 
-        padding: 40px 20px;
-        text-align: center;
-        color: white;
-    }
-
-    .profile-avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        border: 5px solid white;
-        margin: 0 auto 20px;
-        background: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 50px;
-        color: #5c807d; /* Đồng bộ màu icon avatar */
-    }
-
-    .profile-body {
-        padding: 30px 30px 40px 30px;
-    }
-
-    .info-group {
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid #eef0ef; /* Đường viền nhạt hơn */
-    }
-
-    .info-group:last-child {
-        border-bottom: none;
-        margin-bottom: 0;
-        padding-bottom: 0;
-    }
-
-    .info-label {
-        color: #889492; /* Chữ label nhạt và ám xanh nhẹ */
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 5px;
-        display: flex;
-        align-items: center;
-    }
-
-    .info-label i {
-        margin-right: 10px;
-        color: #719692; /* Màu icon dịu nhẹ */
-        width: 20px;
-    }
-
-    .info-value {
-        font-size: 16px;
-        color: #333d3c;
-        font-weight: 500;
-        padding-left: 30px;
-    }
-
-    .badge-reader {
-        background: rgba(255, 255, 255, 0.2); /* Đổi sang nền kính mờ thay vì gradient để bớt chói */
-        padding: 6px 20px;
-        border-radius: 25px;
-        display: inline-block;
-        margin-top: 10px;
-        color: white;
-        font-weight: 600;
-        backdrop-filter: blur(5px);
-    }
-
-    .btn-edit {
-        background: linear-gradient(135deg, #81a3a0 0%, #5c807d 100%);
-        border: none;
-        padding: 12px 40px;
-        border-radius: 25px;
-        color: white;
-        font-weight: 600;
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .btn-edit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(92, 128, 125, 0.3); /* Bóng đổ tiệp màu và nhạt hơn */
-    }
+}
