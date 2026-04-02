@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../auth.php';
+require_once __DIR__ . '/../login/auth.php';
 require_admin_login();
 
 $admin = admin_current_user();
@@ -189,7 +189,7 @@ $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
             </span>
         </div>
 
-        <a href="/admin/logout.php" class="main-btn main-btn-primary" aria-label="Đăng xuất">
+        <a href="/admin/login/logout.php" class="main-btn main-btn-primary" aria-label="Đăng xuất">
             <i class="fa-solid fa-right-from-bracket"></i>
             <span class="ms-2">Đăng xuất</span>
         </a>

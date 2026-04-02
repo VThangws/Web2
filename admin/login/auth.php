@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../database/ConnectDB.php';
+require_once __DIR__ . '/../../database/ConnectDB.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -19,7 +19,7 @@ function require_admin_login(): void
     }
 
     $next = $_SERVER['REQUEST_URI'] ?? '/admin/adminMenu.php';
-    header('Location: /admin/login.php?next=' . urlencode($next));
+    header('Location: /admin/login?next=' . urlencode($next));
     exit;
 }
 
