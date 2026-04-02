@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root"; // Mặc định của XAMPP là root
-$password = "123456";     // Mặc định của XAMPP là để trống
+$password = "";     // Mặc định của XAMPP là để trống
 $dbname = "db_quanlythuvien";
 
 // Tạo kết nối

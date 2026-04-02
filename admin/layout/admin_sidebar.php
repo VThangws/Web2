@@ -17,7 +17,8 @@ $isActive = static function (string $pattern) use ($currentPath): bool {
 };
 
 $isHome = $isActive('/admin/adminMenu.php');
-$isDauSach = $isActive('/admin/QuanLy/Sach/DauSach/') || $isActive('/admin/QuanLy/Sach/CuonSach/');
+$isDauSach = $isActive('/admin/QuanLy/Sach/DauSach/');
+$isCuonSach = $isActive('/admin/QuanLy/Sach/CuonSach/');
 $isHoaDon = $isActive('/admin/QuanLy/HoaDon/');
 $isScanQr = $isActive('/admin/QuanLy/Scan_QR/');
 $isTaiKhoan = $isActive('/admin/QuanLy/TaiKhoan/');
@@ -65,6 +66,15 @@ $isThongKe = $isActive('/admin/QuanLy/ThongKe/');
                     <a href="/admin/QuanLy/Sach/DauSach/QL_DauSach.php" class="<?php echo $isDauSach ? 'active' : ''; ?>">
                         <i class="fa-solid fa-book admin-nav-icon" aria-hidden="true"></i>
                         <span>Đầu sách</span>
+                    </a>
+                </li>
+            <?php endif; ?>
+
+            <?php if (admin_has_permission('CUONSACH')): ?>
+                <li>
+                    <a href="/admin/QuanLy/Sach/CuonSach/QL_CuonSach.php" class="<?php echo $isCuonSach ? 'active' : ''; ?>">
+                        <i class="fa-solid fa-book admin-nav-icon" aria-hidden="true"></i>
+                        <span>Cuốn sách</span>
                     </a>
                 </li>
             <?php endif; ?>
