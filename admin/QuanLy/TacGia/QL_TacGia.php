@@ -30,6 +30,50 @@ error_reporting(E_ERROR | E_PARSE);
     a.action-link {display:inline-block; margin-right:8px; padding:5px 10px; border-radius:4px; color:#fff; text-decoration:none; font-size:.9rem;}
     a.edit {background:#28a745;}
     a.delete {background:#dc3545;}
+    
+    /* Toggle Button */
+    .toggle-btn {display: inline-block; background: #28a745; color: #fff; border: none; border-radius: 5px; padding: 12px 24px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500; font-size: 1rem; margin-bottom: 16px;}
+    .toggle-btn:hover {background: #218838; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(33,136,56,.3);}
+    
+    /* Form Animation */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        max-height: 1000px;
+        overflow: visible;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 1;
+        max-height: 1000px;
+        overflow: visible;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(-20px);
+      }
+    }
+    
+    .form-panel {
+      animation: slideDown 0.4s ease-in-out forwards;
+    }
+    
+    .form-panel.hidden {
+      display: none;
+      animation: slideUp 0.4s ease-in-out forwards;
+    }
   </style>
 </head>
 <body>
@@ -42,7 +86,7 @@ error_reporting(E_ERROR | E_PARSE);
     $dao = new TacGiaDAO();
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $luachon = $_GET['luachon'];
+        $luachon = $_GET['luachon'] ?? '';
 
         if ($luachon === 'Them') {
             if (empty($_GET['matacgia']) || empty($_GET['tentacgia'])) {
@@ -52,22 +96,23 @@ error_reporting(E_ERROR | E_PARSE);
                 $tentacgia = $_GET['tentacgia'];
                 $dao->Them($conn, $matacgia, $tentacgia);
             }
+        } elseif ($luachon === 'Xoa') {
+            $matacgia = $_GET['matacgia'] ?? '';
+            if (!empty($matacgia)) {
+                $dao->Xoa($conn, $matacgia);
+            }
+        } elseif ($luachon === 'Sua') {
+            $matacgia = $_GET['matacgia'] ?? '';
+            $tentacgia = $_GET['tentacgia'] ?? '';
+            if (!empty($matacgia) && !empty($tentacgia)) {
+                $dao->Sua($conn, $matacgia, $tentacgia);
+            }
         }
-      }
-      else if($luachon == "Xoa") {
-        // lấy mã tác giả
-        $matacgia = $_GET['matacgia'];
-        $dao->Xoa($conn, $matacgia);
-      }
-      else if($luachon == "Sua") {
-        // lấy thông tin tác giả từ form
-        $matacgia = $_GET['matacgia'];
-        $tentacgia = $_GET['tentacgia'];
-        // thực hiện cập nhật
-        $dao->Sua($conn, $matacgia, $tentacgia);
-      }
+    }
   ?>
-  <div class="panel">
+  <button class="toggle-btn" id="toggleFormBtn">+ Thêm tác giả</button>
+  
+  <div class="panel form-panel hidden" id="formPanel">
     <h2>Thông tin tác giả</h2>
     <div class="KhungThongTin">
       <form method="GET" class="form-grid">
@@ -85,6 +130,14 @@ error_reporting(E_ERROR | E_PARSE);
   </div>
 
   <div class="panel">
+    <h2>Tìm kiếm tác giả</h2>
+    <form method="GET" style="display: flex; gap: 10px; align-items: center;">
+      <input type="text" name="search" placeholder="Tìm theo mã hoặc tên tác giả..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="flex: 1; padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px;">
+      <button type="submit" class="btn">Tìm kiếm</button>
+    </form>
+  </div>
+
+  <div class="panel">
     <h2>Danh sách tác giả</h2>
     <div class="table-responsive">
       <table>
@@ -99,15 +152,24 @@ error_reporting(E_ERROR | E_PARSE);
         <tbody>
         <?php
           // lấy danh sách từ database
-          $result = $dao->ToanBoDanhSach($conn);
+          if(isset($_GET['search']) && trim($_GET['search']) !== '') {
+            $result = $dao->TimKiem($conn, $_GET['search']);
+          } else {
+            $result = $dao->ToanBoDanhSach($conn);
+          }
           // hiển thị danh sách tác giả ở đây
+          $hasData = false;
           while($row = $result->fetch_assoc()) {
+            $hasData = true;
             echo "<tr>";
             echo "<td>" . htmlspecialchars($row['matacgia']) . "</td>";
             echo "<td>" . htmlspecialchars($row['tentacgia']) . "</td>";
             echo "<td><a class='action-link edit' href='Sua_TacGia.php?matacgia=" . urlencode($row['matacgia']) . "&tentacgia=" . urlencode($row['tentacgia']) . "'>Sửa</a></td>";
             echo "<td><a class='action-link delete' href='QL_TacGia.php?luachon=Xoa&matacgia=" . urlencode($row['matacgia']) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a></td>";
             echo "</tr>";
+          }
+          if (!$hasData) {
+            echo "<tr><td colspan='4' style='text-align:center; padding:14px;'>Không có dữ liệu phù hợp.</td></tr>";
           }
         ?>
         </tbody>
@@ -116,5 +178,26 @@ error_reporting(E_ERROR | E_PARSE);
   </div>
 
   </div>
+
+  <script>
+    // Toggle Form Animation
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggleBtn = document.getElementById('toggleFormBtn');
+      const formPanel = document.getElementById('formPanel');
+
+      toggleBtn.addEventListener('click', function () {
+        formPanel.classList.toggle('hidden');
+        
+        // Change button text
+        if (formPanel.classList.contains('hidden')) {
+          toggleBtn.textContent = '+ Thêm tác giả';
+        } else {
+          toggleBtn.textContent = '✕ Đóng form';
+          // Scroll to form
+          formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
 </body>
 </html>

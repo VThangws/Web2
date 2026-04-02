@@ -63,6 +63,50 @@ require_admin_permission('SACH');
     
     /* Empty State */
     .empty-state {text-align: center; padding: 14px; color: #666;}
+    
+    /* Toggle Button */
+    .toggle-btn {display: inline-block; background: #28a745; color: #fff; border: none; border-radius: 5px; padding: 12px 24px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500; font-size: 1rem; margin-bottom: 16px;}
+    .toggle-btn:hover {background: #218838; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(33,136,56,.3);}
+    
+    /* Hidden Form Animation */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        max-height: 1000px;
+        overflow: visible;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 1;
+        max-height: 1000px;
+        overflow: visible;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(-20px);
+      }
+    }
+    
+    .form-panel {
+      animation: slideDown 0.4s ease-in-out forwards;
+    }
+    
+    .form-panel.hidden {
+      display: none;
+      animation: slideUp 0.4s ease-in-out forwards;
+    }
   </style>
 </head>
 <body>
@@ -139,7 +183,9 @@ require_admin_permission('SACH');
     }
   ?>
   <div class="container">
-    <div class="panel KhungThongTin">
+    <button class="toggle-btn" id="toggleFormBtn">+ Thêm đầu sách</button>
+    
+    <div class="panel KhungThongTin form-panel hidden" id="formPanel">
       <h2>Thêm đầu sách mới</h2>
       <form method="post" enctype="multipart/form-data" class="form-grid">
         <div>
@@ -277,6 +323,25 @@ require_admin_permission('SACH');
         });
       }
       updateRowsVisibility();
+    });
+
+    // Toggle Form Animation
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggleBtn = document.getElementById('toggleFormBtn');
+      const formPanel = document.getElementById('formPanel');
+
+      toggleBtn.addEventListener('click', function () {
+        formPanel.classList.toggle('hidden');
+        
+        // Change button text
+        if (formPanel.classList.contains('hidden')) {
+          toggleBtn.textContent = '+ Thêm đầu sách';
+        } else {
+          toggleBtn.textContent = '✕ Đóng form';
+          // Scroll to form
+          formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
     });
   </script>
 </body>

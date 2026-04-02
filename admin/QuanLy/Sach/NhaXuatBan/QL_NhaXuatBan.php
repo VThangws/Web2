@@ -11,6 +11,66 @@ error_reporting(E_ERROR | E_PARSE);
   <title>Quản lý Nhà xuất bản</title>
   <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../style.css" />
+  <style>
+    .container {width: 95%; max-width: 1300px; margin: 1rem auto;}
+    .panel {background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.08);}
+    .form-grid {display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;}
+    .form-grid label {display: block; font-weight: 600; margin-bottom: 4px; color: #333; font-size: .95rem;}
+    .form-grid input[type="text"] {width: 100%; padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px; font-size: .95rem;}
+    .form-grid input:focus {outline: none; border-color: #007bff; box-shadow: 0 0 4px rgba(0,123,255,.3);}
+    .btn {display: inline-block; background: #007bff; color: #fff; border: none; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500;}
+    .btn:hover {background: #0056b3; transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,86,179,.3);}
+    .table-responsive {overflow-x: auto; margin-top: 12px;}
+    table {width: 100%; border-collapse: collapse; font-size: .95rem;}
+    thead {background: #f8f9fa;}
+    th {padding: 10px 12px; border: 1px solid #ddd; text-align: left; font-weight: 600; color: #333;}
+    td {padding: 10px 12px; border: 1px solid #ddd;}
+    tbody tr:hover {background: #f0f0f0;}
+    
+    /* Toggle Button */
+    .toggle-btn {display: inline-block; background: #28a745; color: #fff; border: none; border-radius: 5px; padding: 12px 24px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500; font-size: 1rem; margin-bottom: 16px;}
+    .toggle-btn:hover {background: #218838; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(33,136,56,.3);}
+    
+    /* Form Animation */
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        max-height: 1000px;
+        overflow: visible;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 1;
+        max-height: 1000px;
+        overflow: visible;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transform: translateY(-20px);
+      }
+    }
+    
+    .form-panel {
+      animation: slideDown 0.4s ease-in-out forwards;
+    }
+    
+    .form-panel.hidden {
+      display: none;
+      animation: slideUp 0.4s ease-in-out forwards;
+    }
+  </style>
 </head>
 <body>
   <?php require_once __DIR__ . '/../../../layout/admin_sidebar.php'; ?>
@@ -51,7 +111,9 @@ error_reporting(E_ERROR | E_PARSE);
         }
       }
   ?>
-    <div class="panel KhungThongTin">
+    <button class="toggle-btn" id="toggleFormBtn">+ Thêm nhà xuất bản</button>
+    
+    <div class="panel KhungThongTin form-panel hidden" id="formPanel">
       <form method="GET" class="form-grid">
         <div>
           <label for="manxb">Mã nhà xuất bản</label>
@@ -150,6 +212,25 @@ error_reporting(E_ERROR | E_PARSE);
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('loadMoreBtn').addEventListener('click', () => { currentLimit += rowsPerPage; updateRowsVisibility(); });
       updateRowsVisibility();
+    });
+
+    // Toggle Form Animation
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggleBtn = document.getElementById('toggleFormBtn');
+      const formPanel = document.getElementById('formPanel');
+
+      toggleBtn.addEventListener('click', function () {
+        formPanel.classList.toggle('hidden');
+        
+        // Change button text
+        if (formPanel.classList.contains('hidden')) {
+          toggleBtn.textContent = '+ Thêm nhà xuất bản';
+        } else {
+          toggleBtn.textContent = '✕ Đóng form';
+          // Scroll to form
+          formPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
     });
   </script>
 </body>

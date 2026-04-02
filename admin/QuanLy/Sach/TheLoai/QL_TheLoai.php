@@ -30,6 +30,14 @@ error_reporting(E_ERROR | E_PARSE);
     a.action-link.edit {background: #28a745;}
     a.action-link.delete {background: #dc3545;}
     .KhungDanhSach .report-alert {padding: 12px; text-align: center; color: #555;}
+
+    /* Toggle button + slide animation */
+    .toggle-btn {display: inline-block; background: #28a745; color: #fff; border: none; border-radius: 5px; padding: 12px 24px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500; font-size: 1rem; margin-bottom: 16px;}
+    .toggle-btn:hover {background: #218838; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(33,136,56,.3);}
+    @keyframes slideDown {from {opacity: 0; max-height: 0; overflow: hidden; transform: translateY(-20px);} to {opacity: 1; max-height: 1000px; overflow: visible; transform: translateY(0);}}
+    @keyframes slideUp {from {opacity: 1; max-height: 1000px; overflow: visible; transform: translateY(0);} to {opacity: 0; max-height: 0; overflow: hidden; transform: translateY(-20px);}}
+    .form-panel {animation: slideDown 0.4s ease-in-out forwards;}
+    .form-panel.hidden {display: none; animation: slideUp 0.4s ease-in-out forwards;}
   </style>
 </head>
 <body>
@@ -38,7 +46,9 @@ error_reporting(E_ERROR | E_PARSE);
 
   <div class="container">
 
-    <div class="panel">
+    <button class="toggle-btn" id="toggleFormBtn">+ Thêm thể loại</button>
+
+    <div class="panel form-panel hidden" id="formPanel">
       <div class="heading">
         <h2>Quản lý thể loại sách</h2>
       </div>
@@ -61,6 +71,12 @@ error_reporting(E_ERROR | E_PARSE);
     </div>
 
     <div class="panel">
+      <div class="KhungTimKiem" style="margin-bottom: 12px;">
+        <form method="GET" style="display: flex; gap: 10px; align-items: center;">
+          <input type="text" name="search" placeholder="Tìm theo mã hoặc tên thể loại..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="flex: 1; padding: 8px 12px; border: 1px solid #bbb; border-radius: 4px;">
+          <button type="submit" class="btn">Tìm kiếm</button>
+        </form>
+      </div>
       <div class="KhungDanhSach">
         <div class="table-responsive">
           <table id="dsTheLoai">
@@ -79,7 +95,8 @@ error_reporting(E_ERROR | E_PARSE);
               $dao = new TheLoaiDAO();
 
               if($_SERVER['REQUEST_METHOD'] == "GET") {
-                if($_GET['luachon'] == "Them") {
+                $luachon = $_GET['luachon'] ?? '';
+                if($luachon == "Them") {
                   if(empty($_GET['matheloai']) || empty($_GET['tentheloai'])) {
                     echo "<script>alert('Thông tin thể loại không được để trống!');</script>";
                   }
@@ -101,7 +118,11 @@ error_reporting(E_ERROR | E_PARSE);
                 }
               }
 
-              $theloais = $dao->LayDanhSachTheLoai($conn);
+              if (isset($_GET['search']) && trim($_GET['search']) !== '') {
+                $theloais = $dao->TimKiem($conn, $_GET['search']);
+              } else {
+                $theloais = $dao->LayDanhSachTheLoai($conn);
+              }
               foreach($theloais as $theloai) {
                 echo "<tr>";
                 echo "<td>" . htmlspecialchars($theloai->getMatheloai()) . "</td>";
@@ -117,13 +138,27 @@ error_reporting(E_ERROR | E_PARSE);
                 echo "<tr><td colspan='3' style='text-align: center; padding: 12px;'>Chưa có loại sách nào.</td></tr>";
               }
             ?>
-            </tbody>
-          </table>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
+  </div>
 
   </div>
 
+  <script>
+    const toggleBtn = document.getElementById('toggleFormBtn');
+    const formPanel = document.getElementById('formPanel');
+
+    toggleBtn.addEventListener('click', function () {
+      formPanel.classList.toggle('hidden');
+      if (formPanel.classList.contains('hidden')) {
+        toggleBtn.textContent = '+ Thêm thể loại';
+      } else {
+        toggleBtn.textContent = '✕ Đóng form';
+        formPanel.scrollIntoView({behavior: 'smooth', block: 'start'});
+      }
+    });
+  </script>
 </body>
 </html>
