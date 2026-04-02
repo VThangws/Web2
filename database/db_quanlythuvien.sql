@@ -1447,11 +1447,33 @@ ON DUPLICATE KEY UPDATE
   `diachi` = VALUES(`diachi`);
 /* TAI KHOAN */
 INSERT INTO `taikhoan`(`tendangnhap`, `matkhau`, `manhomquyen`, `madocgia`)
-VALUES('demo1@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG', 'DG', 'DG001')
+VALUES('demo1@gmail.com', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'DG', 'DG001')
 ON DUPLICATE KEY UPDATE
-  `matkhau` = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9lb9Jw9pZ2j5bY6iZ4F8yG',
+  `matkhau` = '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm',
   `manhomquyen` = 'DG',
   `madocgia` = 'DG001';
+
+-- --------------------------------------------------------
+-- Demo tài khoản quản trị/nhân viên để test phân quyền
+-- Mật khẩu demo cho các tài khoản dưới đây: 123456
+-- --------------------------------------------------------
+
+INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`, `madocgia`) VALUES
+('admin',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV001', NULL),
+('qtri',    '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV002', NULL),
+('ketoan1', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV003', NULL),
+('ketoan2', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV004', NULL),
+('nv005',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV005', NULL),
+('nv006',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV006', NULL),
+('nv007',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV007', NULL),
+('nv008',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV008', NULL),
+('nv009',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV009', NULL),
+('nv010',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV010', NULL)
+ON DUPLICATE KEY UPDATE
+  `matkhau` = VALUES(`matkhau`),
+  `manhomquyen` = VALUES(`manhomquyen`),
+  `manv` = VALUES(`manv`),
+  `madocgia` = VALUES(`madocgia`);
 
 -- --------------------------------------------------------
 -- Demo dữ liệu mượn/trả để thống kê Top 10 có dữ liệu
@@ -1531,18 +1553,6 @@ INSERT INTO `ctphieumuon` (`mamuon`, `macuonsach`, `tinhtrang_truoc`) VALUES
 ('PM0020', 'CS0005', 'Moi')
 ON DUPLICATE KEY UPDATE
   `tinhtrang_truoc` = VALUES(`tinhtrang_truoc`);
---
--- Seed account for team testing
--- Username: admin
--- Password: 123456
--- manhomquyen/manv NULL => treated as super-admin by admin/auth.php
---
-INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`) VALUES
-('admin', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN', NULL)
-ON DUPLICATE KEY UPDATE
-  `matkhau` = '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm',
-  `manhomquyen` = 'ADMIN',
-  `manv` = NULL;
 
 -- --------------------------------------------------------
 
