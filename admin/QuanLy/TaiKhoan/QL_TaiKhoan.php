@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
-require_admin_permission('TAIKHOAN');
+require_admin_permission_for_request('TAIKHOAN');
 
 require_once __DIR__ . '/../../../database/ConnectDB.php';
 
@@ -110,7 +110,7 @@ try {
     $sqlSuggest =
         "SELECT nv.manv
          FROM nhanvien nv
-         LEFT JOIN taikhoan tk ON tk.manv = nv.manv" . ($hasMadocgiaCol ? " AND tk.madocgia IS NULL" : "") .
+         LEFT JOIN taikhoan tk ON tk.manv = nv.manv" .
         " WHERE tk.manv IS NULL
          ORDER BY nv.manv ASC
          LIMIT 1";
@@ -258,9 +258,6 @@ if ($edit !== '') {
          LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
          LEFT JOIN nhanvien nv ON nv.manv = tk.manv
          WHERE tk.tendangnhap = ?";
-    if ($hasMadocgiaCol) {
-        $sqlEdit .= " AND tk.madocgia IS NULL";
-    }
     $stmt = $conn->prepare($sqlEdit);
     if ($stmt) {
         $stmt->bind_param('s', $edit);
@@ -279,12 +276,8 @@ try {
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
-        if ($hasMadocgiaCol) {
-            $sql .= " WHERE tk.madocgia IS NULL AND (";
-        } else {
-            $sql .= " WHERE (";
-        }
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
+             WHERE (";
         $sql .=
             "tk.tendangnhap LIKE ?
                 OR tk.manv LIKE ?
@@ -308,11 +301,9 @@ try {
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
-        if ($hasMadocgiaCol) {
-            $sql .= " WHERE tk.madocgia IS NULL";
-        }
-        $sql .= " ORDER BY tk.tendangnhap ASC LIMIT 300";
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
+             ORDER BY tk.tendangnhap ASC
+             LIMIT 300";
 
         $res = $conn->query($sql);
         $rows = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];

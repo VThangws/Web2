@@ -35,6 +35,91 @@ function fmt_dt(?string $value): string
     }
 }
 
+function make_id_from_mamuon(string $prefix, string $mamuon): string
+{
+    $mamuon = trim($mamuon);
+    if ($mamuon === '') {
+        return $prefix . substr(md5((string)microtime(true)), 0, 10);
+    }
+    if (str_starts_with($mamuon, 'PM')) {
+        $id = $prefix . substr($mamuon, 2);
+        return strlen($id) <= 50 ? $id : substr($id, 0, 50);
+    }
+    $hash = substr(sha1($mamuon), 0, 12);
+    $id = $prefix . $hash;
+    return strlen($id) <= 50 ? $id : substr($id, 0, 50);
+}
+
+/**
+ * Đồng bộ dữ liệu: nếu phiếu mượn đã DaTra nhưng chưa có phieutra thì tự tạo.
+ * Mục đích: Tab "Phiếu trả" có dữ liệu để hiển thị.
+ */
+function backfill_phieutra_from_phieumuon(mysqli $conn, int $limit = 200): void
+{
+    // Chỉ backfill những phiếu đã trả nhưng chưa có phiếu trả
+    $sql = "SELECT pm.mamuon, pm.madocgia, pm.manv, pm.ngaymuon, pm.ngayhethan
+            FROM phieumuon pm
+            LEFT JOIN phieutra pt ON pt.mamuon = pm.mamuon
+            WHERE pm.trangthai = 'DaTra' AND pt.matra IS NULL
+            ORDER BY pm.ngaymuon DESC
+            LIMIT " . (int)$limit;
+
+    $rs = $conn->query($sql);
+    if (!$rs) {
+        return;
+    }
+
+    $insertTra = $conn->prepare("INSERT INTO phieutra (matra, mamuon, ngaytra, manv, tongtienphat) VALUES (?, ?, ?, ?, 0)");
+    $selectCt = $conn->prepare("SELECT macuonsach FROM ctphieumuon WHERE mamuon = ?");
+    $insertCtTra = $conn->prepare("INSERT IGNORE INTO ctphieutra (matra, macuonsach, maphat, tinhtrang_sau, tienphathuha, songayquahan, tienphatquahan) VALUES (?, ?, 'NONE', (SELECT tinhtrang FROM cuonsach WHERE macuonsach = ?), 0, 0, 0)");
+    if (!$insertTra || !$selectCt || !$insertCtTra) {
+        return;
+    }
+
+    while ($row = $rs->fetch_assoc()) {
+        $mamuon = (string)($row['mamuon'] ?? '');
+        if ($mamuon === '') {
+            continue;
+        }
+
+        $matra = make_id_from_mamuon('PT', $mamuon);
+        $manv = (string)($row['manv'] ?? '');
+        $ngaytra = (string)($row['ngayhethan'] ?? '');
+        if ($ngaytra === '') {
+            $ngaytra = (string)($row['ngaymuon'] ?? '');
+        }
+        if ($ngaytra === '') {
+            $ngaytra = (new DateTime())->format('Y-m-d H:i:s');
+        }
+
+        // Tạo header phieutra
+        $insertTra->bind_param('ssss', $matra, $mamuon, $ngaytra, $manv);
+        if (!$insertTra->execute()) {
+            continue;
+        }
+
+        // Tạo detail ctphieutra dựa theo ctphieumuon
+        $selectCt->bind_param('s', $mamuon);
+        if (!$selectCt->execute()) {
+            continue;
+        }
+        $ctRs = $selectCt->get_result();
+        if (!$ctRs) {
+            continue;
+        }
+        while ($ct = $ctRs->fetch_assoc()) {
+            $macuonsach = (string)($ct['macuonsach'] ?? '');
+            if ($macuonsach === '') continue;
+            $insertCtTra->bind_param('sss', $matra, $macuonsach, $macuonsach);
+            $insertCtTra->execute();
+        }
+    }
+
+    $insertTra->close();
+    $selectCt->close();
+    $insertCtTra->close();
+}
+
 $allowedTypes = [
     'muon' => 'Phiếu mượn',
     'tra' => 'Phiếu trả',
@@ -45,6 +130,11 @@ $allowedTypes = [
 $type = get_str('type', 'muon');
 if (!array_key_exists($type, $allowedTypes)) {
     $type = 'muon';
+}
+
+// Backfill để tab Phiếu trả/Phiếu phạt có dữ liệu nếu DB chỉ có trạng thái DaTra ở phieumuon.
+if ($type === 'tra' || $type === 'phat') {
+    backfill_phieutra_from_phieumuon($conn);
 }
 
 $q = get_str('q');
@@ -238,6 +328,14 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                 <button class="btn btn-primary" type="submit">Lọc</button>
             </div>
         </form>
+
+        <?php if ($type === 'nhap'): ?>
+            <div class="d-flex justify-content-end mb-3">
+                <a class="btn btn-success" href="/admin/QuanLy/HoaDon/phieu_nhap_create.php">
+                    <i class="fa-solid fa-plus"></i> Tạo phiếu nhập
+                </a>
+            </div>
+        <?php endif; ?>
 
         <?php if ($error !== ''): ?>
             <div class="alert alert-danger"><?= h($error) ?></div>

@@ -107,6 +107,26 @@ if ($result) {
         }
     }
 
+    //-----------------Phần Tài Khoản-----------------
+    // Lưu session docgia
+    $_SESSION['docgia'] = $user;
+
+    // Lưu session taikhoan (hash lấy từ DB)
+    // Nếu là tài khoản nhân viên/admin đã link qua docgia thì sẽ có manv
+    $_SESSION['taikhoan'] = new TaiKhoan(
+        $email,
+        $result['matkhau'],   // hash từ DB
+        $result['quyen'],
+        $result['manv'] ?? null,
+        $madocgia
+    );
+
+    // Xử lý giỏ hàng
+    if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+        $dao->mergeCart($madocgia, $_SESSION['cart']);
+    }
+    $_SESSION['cart'] = $dao->getCartFromDB($madocgia);
+
     echo json_encode([
         "status"  => "success",
         "message" => "Chào mừng bạn " . $user->getTendocgia() . " đến với thư viện",

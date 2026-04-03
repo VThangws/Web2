@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
-require_admin_permission('DOCGIA');
+require_admin_permission_for_request('DOCGIA');
 error_reporting(E_ERROR | E_PARSE);
 ?>
 <!DOCTYPE html>
@@ -172,13 +172,13 @@ error_reporting(E_ERROR | E_PARSE);
           <?php
             while($row = $query->fetch_assoc()) {
               echo '<tr>';
-              echo '<td>'.htmlspecialchars($row['madocgia']).'</td>';
-              echo '<td>'.htmlspecialchars($row['hodocgia']).'</td>';
-              echo '<td>'.htmlspecialchars($row['tendocgia']).'</td>';
-              echo '<td>'.htmlspecialchars($row['email']).'</td>';
-              echo '<td>'.htmlspecialchars($row['sdt']).'</td>';
-              // echo '<td>'.htmlspecialchars($row['ngaysinh']).'</td>';
-              echo '<td>'.htmlspecialchars($row['diachi']).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['madocgia'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['hodocgia'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['tendocgia'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['email'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['sdt'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['ngaysinh'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['diachi'] ?? '')).'</td>';
               echo '<td class="text-end">';
               echo '<a class="btn btn-sm btn-outline-primary me-1" href="Sua_DocGia.php?madocgia='.urlencode($row['madocgia']).'">Sửa</a>';
               echo '<a class="btn btn-sm btn-outline-danger" href="QL_DocGia.php?luachon=Xoa&madocgia='.urlencode($row['madocgia']).'" onclick="return confirm(\'Bạn có chắc muốn xóa?\')">Xóa</a>';
