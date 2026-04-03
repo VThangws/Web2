@@ -92,34 +92,6 @@ if (!$docgia) {
                                     <input type="date" class="form-control" id="ngaysinh" value="<?= $docgia->getNgaysinh() ?>">
                                 </div>
 
-                                <!-- 3 Ô TỈNH / QUẬN / PHƯỜNG -->
-                                <div class="col-md-4">
-                                    <label class="form-label">Tỉnh / Thành phố</label>
-                                    <select class="form-select" id="tinh" onchange="loadQuan(this.value)">
-                                        <option value="">-- Chọn tỉnh/thành --</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label">Quận / Huyện</label>
-                                    <select class="form-select" id="quan" onchange="loadPhuong(this.value)" disabled>
-                                        <option value="">-- Chọn quận/huyện --</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-4">
-                                    <label class="form-label">Phường / Xã</label>
-                                    <select class="form-select" id="phuong" disabled>
-                                        <option value="">-- Chọn phường/xã --</option>
-                                    </select>
-                                </div>
-                                <!-- END 3 Ô -->
-
-                                <div class="col-12">
-                                    <label class="form-label">Địa chỉ (số nhà, tên đường)</label>
-                                    <input class="form-control" id="diachi" value="<?= $docgia->getDiachi() ?>" placeholder="VD: 123 Nguyễn Trãi">
-                                </div>
-
                                 <div class="col-12 text-end">
                                     <button type="button" id="btnSave" class="btn btn-primary" onclick="updateInfo()">Lưu</button>
                                 </div>
@@ -173,6 +145,22 @@ if (!$docgia) {
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Address Section -->
+                <div class="info-section" id="addressSection" style="display:none">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="section-title">Địa chỉ của tôi</h2>
+                        <button class="btn btn-dark" onclick="showAddAddress()">
+                            Thêm địa chỉ mới
+                        </button>
+                    </div>
+
+                    <div id="addressList">
+                        <!-- JS load danh sách địa chỉ -->
+                    </div>
+
                 </div>
 
             </div>

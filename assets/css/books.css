@@ -204,3 +204,185 @@
     /* Màu xanh khi đang ở trang đó */
     font-weight: bold;
 }
+
+/* ===== ADVANCED FILTER PANEL ===== */
+.filter-btn {
+    background: none;
+    border: 1.5px solid #dee2e6;
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #555;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    border-color: #20c997;
+    color: #20c997;
+}
+
+.filter-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 420px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    padding: 20px 24px 24px;
+    z-index: 999;
+    animation: fadeSlideDown 0.2s ease;
+}
+
+.filter-panel.show {
+    display: block;
+}
+
+.filter-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.filter-panel-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #212529;
+}
+
+.filter-panel-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+}
+
+.filter-panel-close:hover {
+    color: #333;
+}
+
+.filter-field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+    background: #fff;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+    border-color: #20c997;
+}
+
+.filter-field .select-wrap {
+    position: relative;
+}
+
+.filter-field .select-wrap select {
+    padding-right: 36px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.filter-field .select-wrap svg {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.filter-year-range {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-year-range input {
+    flex: 1;
+}
+
+.filter-year-range span {
+    color: #aaa;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.filter-btn-submit {
+    flex: 1;
+    background: #20c997;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.filter-btn-submit:hover {
+    background: #17a884;
+}
+
+.filter-btn-reset {
+    flex: 0 0 auto;
+    background: #f8f9fa;
+    color: #666;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn-reset:hover {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+@keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+    .filter-panel {
+        width: calc(100vw - 32px);
+        right: 0;
+    }
+}

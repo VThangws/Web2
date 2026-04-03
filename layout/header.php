@@ -65,6 +65,7 @@ $docgia = $_SESSION['docgia'] ?? null;
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($docgia): ?>
                 <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline" id="headerName">
+                    <i class="bi bi-person-fill me-1"></i>
                     Xin chào, <?= htmlspecialchars($docgia->getTendocgia(), ENT_QUOTES) ?>
                 </a>
             <?php else: ?>
@@ -100,9 +101,9 @@ $docgia = $_SESSION['docgia'] ?? null;
         <h5 class="offcanvas-title fw-bold fs-6" id="miniCartLabel">Sản phẩm trong giỏ (<span id="mini-cart-count"><?= $so_luong_gio_hang ?></span>)</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    
+
     <div class="offcanvas-body overflow-hidden" id="mini-cart-body">
-        </div>
+    </div>
 
     <div class="offcanvas-footer border-top px-3 pb-3 pt-2 bg-white">
         <a href="/index.php?page=cart" class="btn btn-mini-checkout w-100 fw-bold mb-2 py-2">Chi tiết giỏ hàng</a>
