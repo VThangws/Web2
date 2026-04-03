@@ -17,12 +17,37 @@ function get_date_param(string $key, string $default): string
     return $dt->format('Y-m-d');
 }
 
+function get_top_param(string $key, int $default): int
+{
+    $raw = trim((string)($_GET[$key] ?? ''));
+    if ($raw === '') {
+        return $default;
+    }
+
+    if (!ctype_digit($raw)) {
+        return $default;
+    }
+
+    $value = (int)$raw;
+    if ($value < 1) {
+        return 1;
+    }
+    if ($value > 50) {
+        return 50;
+    }
+
+    return $value;
+}
+
 $today = new DateTime('today');
 $defaultTo = $today->format('Y-m-d');
 $defaultFrom = (clone $today)->modify('-29 days')->format('Y-m-d');
 
 $statsFrom = get_date_param('stats_from', $defaultFrom);
 $statsTo = get_date_param('stats_to', $defaultTo);
+$sharedTop = get_top_param('top', 10);
+$topBooksLimit = get_top_param('top_books', $sharedTop);
+$topReadersLimit = get_top_param('top_readers', $sharedTop);
 
 try {
     $fromDt = new DateTime($statsFrom);
@@ -137,7 +162,7 @@ try {
                     WHERE pm.ngaymuon BETWEEN ? AND ?
                     GROUP BY ds.madausach, ds.tensach
                     ORDER BY cnt DESC
-                    LIMIT 10";
+                    LIMIT {$topBooksLimit}";
     if ($stmt = $conn->prepare($sqlTopBooks)) {
         $stmt->bind_param('ss', $fromTs, $toTs);
         $stmt->execute();
@@ -157,7 +182,7 @@ try {
                       WHERE pm.ngaymuon BETWEEN ? AND ?
                       GROUP BY pm.madocgia, dg.hodocgia, dg.tendocgia
                       ORDER BY cnt DESC
-                      LIMIT 10";
+                      LIMIT {$topReadersLimit}";
     if ($stmt = $conn->prepare($sqlTopReaders)) {
         $stmt->bind_param('ss', $fromTs, $toTs);
         $stmt->execute();
@@ -209,10 +234,10 @@ try {
                 <p class="text-muted mb-0">Số liệu tổng hợp từ hệ thống thư viện</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
-                <a href="/admin/QuanLy/ThongKe/export.php?format=pdf&amp;<?php echo htmlspecialchars(http_build_query(['stats_from' => $statsFrom, 'stats_to' => $statsTo]), ENT_QUOTES); ?>" class="btn btn-outline-danger">
+                <a href="/admin/QuanLy/ThongKe/export.php?format=pdf&amp;<?php echo htmlspecialchars(http_build_query(['stats_from' => $statsFrom, 'stats_to' => $statsTo, 'top_books' => $topBooksLimit, 'top_readers' => $topReadersLimit]), ENT_QUOTES); ?>" class="btn btn-outline-danger">
                     <i class="fa-solid fa-file-pdf me-1"></i>Xuất PDF
                 </a>
-                <a href="/admin/QuanLy/ThongKe/export.php?format=excel&amp;<?php echo htmlspecialchars(http_build_query(['stats_from' => $statsFrom, 'stats_to' => $statsTo]), ENT_QUOTES); ?>" class="btn btn-outline-success">
+                <a href="/admin/QuanLy/ThongKe/export.php?format=excel&amp;<?php echo htmlspecialchars(http_build_query(['stats_from' => $statsFrom, 'stats_to' => $statsTo, 'top_books' => $topBooksLimit, 'top_readers' => $topReadersLimit]), ENT_QUOTES); ?>" class="btn btn-outline-success">
                     <i class="fa-solid fa-file-excel me-1"></i>Xuất Excel
                 </a>
                 <a href="/admin/adminMenu.php" class="btn btn-outline-secondary">Trang quản trị</a>
@@ -230,6 +255,8 @@ try {
                         <label class="form-label mb-1">Đến ngày</label>
                         <input class="form-control" type="date" name="stats_to" value="<?php echo htmlspecialchars($statsTo, ENT_QUOTES); ?>">
                     </div>
+                    <input type="hidden" name="top_books" value="<?php echo (int)$topBooksLimit; ?>">
+                    <input type="hidden" name="top_readers" value="<?php echo (int)$topReadersLimit; ?>">
                     <div class="col-12 col-md-3 d-grid">
                         <button class="btn btn-outline-primary" type="submit">Áp dụng</button>
                     </div>
@@ -338,7 +365,18 @@ try {
             <div class="col-lg-6 reveal-item section-item">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="fw-bold mb-3">Top 10 sách được mượn</h5>
+                        <div class="d-flex justify-content-between align-items-end gap-2 mb-3">
+                            <h5 class="fw-bold mb-0">Top <?php echo $topBooksLimit; ?> sách được mượn</h5>
+                            <form class="d-flex align-items-end gap-2" method="get" action="/admin/QuanLy/ThongKe/thongke.php">
+                                <input type="hidden" name="stats_from" value="<?php echo htmlspecialchars($statsFrom, ENT_QUOTES); ?>">
+                                <input type="hidden" name="stats_to" value="<?php echo htmlspecialchars($statsTo, ENT_QUOTES); ?>">
+                                <input type="hidden" name="top_readers" value="<?php echo (int)$topReadersLimit; ?>">
+                                <div>
+                                    <label class="form-label mb-1">Top sách</label>
+                                    <input class="form-control" type="number" name="top_books" min="1" max="50" step="1" value="<?php echo (int)$topBooksLimit; ?>" onchange="this.form.requestSubmit();">
+                                </div>
+                            </form>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-sm align-middle mb-0">
                                 <thead>
@@ -375,7 +413,18 @@ try {
             <div class="col-lg-6 reveal-item section-item">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <h5 class="fw-bold mb-3">Top 10 độc giả mượn nhiều</h5>
+                        <div class="d-flex justify-content-between align-items-end gap-2 mb-3">
+                            <h5 class="fw-bold mb-0">Top <?php echo $topReadersLimit; ?> độc giả mượn nhiều</h5>
+                            <form class="d-flex align-items-end gap-2" method="get" action="/admin/QuanLy/ThongKe/thongke.php">
+                                <input type="hidden" name="stats_from" value="<?php echo htmlspecialchars($statsFrom, ENT_QUOTES); ?>">
+                                <input type="hidden" name="stats_to" value="<?php echo htmlspecialchars($statsTo, ENT_QUOTES); ?>">
+                                <input type="hidden" name="top_books" value="<?php echo (int)$topBooksLimit; ?>">
+                                <div>
+                                    <label class="form-label mb-1">Top độc giả</label>
+                                    <input class="form-control" type="number" name="top_readers" min="1" max="50" step="1" value="<?php echo (int)$topReadersLimit; ?>" onchange="this.form.requestSubmit();">
+                                </div>
+                            </form>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-sm align-middle mb-0">
                                 <thead>
