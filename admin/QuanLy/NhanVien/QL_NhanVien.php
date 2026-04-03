@@ -126,7 +126,7 @@ require_admin_permission('NHANVIEN');
                 || empty($_GET['tennv'])
                 || empty($_GET['gioitinh'])
                 || empty($_GET['sdt'])
-                || empty($_GET['ngaysinh'])
+                // || empty($_GET['ngaysinh'])
             ) {
                 echo "<script>alert('Thông tin nhân viên không được để trống!');</script>";
             } else {
@@ -135,9 +135,9 @@ require_admin_permission('NHANVIEN');
                 $tennv = $_GET['tennv'];
                 $gioitinh = $_GET['gioitinh'];
                 $sdt = $_GET['sdt'];
-                $ngaysinh = $_GET['ngaysinh'];
+                // $ngaysinh = $_GET['ngaysinh'];
 
-                $dao->Them($conn, $manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh);
+                $dao->Them($conn, $manv, $honv, $tennv, $gioitinh, $sdt);
                 echo "<script>alert('Thêm nhân viên thành công!');</script>";
             }
         } elseif ($luachon === 'Sua') {
@@ -146,9 +146,9 @@ require_admin_permission('NHANVIEN');
             $tennv = $_GET['tennv'] ?? '';
             $gioitinh = $_GET['gioitinh'] ?? '';
             $sdt = $_GET['sdt'] ?? '';
-            $ngaysinh = $_GET['ngaysinh'] ?? '';
+            // $ngaysinh = $_GET['ngaysinh'] ?? '';
 
-            $dao->Sua($conn, $manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh);
+            $dao->Sua($conn, $manv, $honv, $tennv, $gioitinh, $sdt);
         } elseif ($luachon === 'Xoa') {
             $manv = $_GET['manv'] ?? '';
             $sql = 'DELETE FROM nhanvien WHERE manv=?';
@@ -192,10 +192,10 @@ require_admin_permission('NHANVIEN');
                     <label for="sdt">Số điện thoại</label>
                     <input type="text" id="sdt" name="sdt" required>
                 </div>
-                <div>
+                <!-- <div>
                     <label for="ngaysinh">Ngày sinh</label>
                     <input type="date" id="ngaysinh" name="ngaysinh" required>
-                </div>
+                </div> -->
                 <button type="submit" class="btn" value="Them" name="luachon">Thêm nhân viên</button>
             </form>
         </div>
@@ -219,7 +219,7 @@ require_admin_permission('NHANVIEN');
                             <th>Tên</th>
                             <th>Giới tính</th>
                             <th>Số điện thoại</th>
-                            <th>Ngày sinh</th>
+                            <!-- <th>Ngày sinh</th> -->
                             <th>Hành động</th>
                         </tr>
                     </thead>
@@ -239,7 +239,7 @@ require_admin_permission('NHANVIEN');
                             echo "<td>" . htmlspecialchars($row['tennv']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['gioitinh']) . "</td>";
                             echo "<td>" . htmlspecialchars($row['sdt']) . "</td>";
-                            echo "<td>" . htmlspecialchars($row['ngaysinh']) . "</td>";
+                            // echo "<td>" . htmlspecialchars($row['ngaysinh']) . "</td>";
                             echo "<td class='text-end'>" .
                             "<a class='btn btn-sm btn-outline-primary me-1' href='Sua_NhanVien.php?manv=" . urlencode($row['manv']) . "'>Sửa</a>" .
                             "<a class='btn btn-sm btn-outline-danger' href='QL_NhanVien.php?manv=" . urlencode($row['manv']) . "&luachon=Xoa' onclick='return confirm(\"Bạn có chắc muốn xóa nhân viên này?\")'>Xóa</a>" .

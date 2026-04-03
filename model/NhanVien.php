@@ -5,15 +5,15 @@
     private $tennv; // Tên nhân viên
     private $gioitinh; // Giới tính
     private $sdt; // Số điện thoại
-    private $ngaysinh; // Ngày sinh
+    // private $ngaysinh; // Ngày sinh
 
-    public function __construct($manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh) {
+    public function __construct($manv, $honv, $tennv, $gioitinh, $sdt) {
       $this->manv = $manv;
       $this->honv = $honv;
       $this->tennv = $tennv;
       $this->gioitinh = $gioitinh;
       $this->sdt = $sdt;
-      $this->ngaysinh = $ngaysinh;
+      // $this->ngaysinh = $ngaysinh;
     }
 
     // phần getters
@@ -37,9 +37,9 @@
       return $this->sdt;
     }
 
-    public function getNgaysinh() {
-      return $this->ngaysinh;
-    }
+    // public function getNgaysinh() {
+    //   return $this->ngaysinh;
+    // }
 
     // hàm chưa hoàn thiện
     // public function showInfo() {

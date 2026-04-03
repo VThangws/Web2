@@ -64,10 +64,10 @@ require_admin_permission('NHANVIEN');
                 <label for="sdt">Số điện thoại</label>
                 <input type="text" id="sdt" name="sdt" value="<?php echo htmlspecialchars($nv->getSdt()); ?>" required>
               </div>
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label for="ngaysinh">Ngày sinh</label>
-                <input type="date" id="ngaysinh" name="ngaysinh" value="<?php echo htmlspecialchars($nv->getNgaysinh()); ?>" required>
-              </div>
+                <input type="date" id="ngaysinh" name="ngaysinh" value="<?php //echo htmlspecialchars($nv->getNgaysinh()); ?>" required>
+              </div> -->
               <div class="form-actions">
                 <button type="submit" name="luachon" value="Sua" class="btn">Lưu thay đổi</button>
                 <a href="QL_NhanVien.php" class="btn btn-secondary">Hủy</a>
