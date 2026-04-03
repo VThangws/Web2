@@ -26,7 +26,7 @@ if (!$docgia) {
                     <i class="bi bi-chevron-right"></i>
                 </div>
                 <div class="sidebar-item">
-                    <span><i class="bi bi-receipt"></i> Đơn hàng của bạn</span>
+                    <span><i class="bi bi-receipt"></i> Lịch sử mượn của bạn</span>
                     <i class="bi bi-chevron-right"></i>
                 </div>
                 <div class="sidebar-item">
@@ -89,11 +89,13 @@ if (!$docgia) {
 
                                 <div class="col-md-6">
                                     <label class="form-label">Ngày sinh</label>
-                                    <input type="date" class="form-control" id="ngaysinh" value="<?= $docgia->getNgaysinh() ?>">
+                                    <input type="date" class="form-control" id="ngaysinh"
+                                        value="<?= $docgia->getNgaysinh() ?>">
                                 </div>
 
                                 <div class="col-12 text-end">
-                                    <button type="button" id="btnSave" class="btn btn-primary" onclick="updateInfo()">Lưu</button>
+                                    <button type="button" id="btnSave" class="btn btn-primary"
+                                        onclick="updateInfo()">Lưu</button>
                                 </div>
                             </div>
                         </div>
@@ -126,21 +128,25 @@ if (!$docgia) {
                             <div class="row g-3">
                                 <div class="col-md-12">
                                     <label class="form-label">Mật khẩu hiện tại</label>
-                                    <input type="password" class="form-control" id="currentPassword" placeholder="Nhập mật khẩu hiện tại">
+                                    <input type="password" class="form-control" id="currentPassword"
+                                        placeholder="Nhập mật khẩu hiện tại">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label class="form-label">Mật khẩu mới</label>
-                                    <input type="password" class="form-control" id="newPassword" placeholder="Nhập mật khẩu mới">
+                                    <input type="password" class="form-control" id="newPassword"
+                                        placeholder="Nhập mật khẩu mới">
                                 </div>
 
                                 <div class="col-md-6">
                                     <label class="form-label">Xác nhận mật khẩu mới</label>
-                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Nhập lại mật khẩu mới">
+                                    <input type="password" class="form-control" id="confirmPassword"
+                                        placeholder="Nhập lại mật khẩu mới">
                                 </div>
 
                                 <div class="col-12 text-end">
-                                    <button type="button" id="btnSavePassword" class="btn btn-primary" onclick="changePassword()">Lưu mật khẩu</button>
+                                    <button type="button" id="btnSavePassword" class="btn btn-primary"
+                                        onclick="changePassword()">Lưu mật khẩu</button>
                                 </div>
                             </div>
                         </div>

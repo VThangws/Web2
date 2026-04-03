@@ -101,193 +101,56 @@ try {
     $ngayMuon = (string)($result['ngaymuon'] ?? '');
     $ngayHetHan = (string)($result['ngayhethan'] ?? '');
     $madocgia = (string)($result['madocgia'] ?? '');
-    $newStatus = '';
-
-    // 3) Logic chuyển đổi trạng thái theo DB hiện tại
-    // ChoDuyet -> DangMuon -> DaTra
+    // 3) Logic điều hướng hoặc chuyển đổi trạng thái
     if ($currentStatus === 'ChoDuyet') {
         $newStatus = 'DangMuon';
-    } elseif ($currentStatus === 'DangMuon') {
-        $newStatus = 'DaTra';
-    }
-
-    if ($newStatus === '') {
-        json_out('error', 'Phiếu đang ở trạng thái "' . $currentStatus . '" nên không thể cập nhật.');
-    }
-
-    $conn->begin_transaction();
-
-    // 4.1) Update phieumuon + lưu manv
-    // Nếu chuyển sang DangMuon mà thiếu ngày mượn/hết hạn thì tự set.
-    $sqlUpdate = "UPDATE phieumuon SET trangthai = ?, manv = ?";
-    if ($newStatus === 'DangMuon') {
-        $sqlUpdate .= ", ngaymuon = COALESCE(ngaymuon, NOW()), ngayhethan = COALESCE(ngayhethan, DATE_ADD(NOW(), INTERVAL 14 DAY))";
-    }
-    $sqlUpdate .= " WHERE mamuon = ?";
-
-    $up = $conn->prepare($sqlUpdate);
-    if (!$up) {
-        $conn->rollback();
-        json_out('error', 'Lỗi prepare UPDATE phieumuon: ' . $conn->error);
-    }
-
-    $up->bind_param("sss", $newStatus, $manv, $mamuon);
-    if (!$up->execute()) {
-        $err = $up->error;
+        
+        $conn->begin_transaction();
+        
+        // Cập nhật trạng thái phiếu
+        $sqlUpdate = "UPDATE phieumuon SET trangthai = ?, manv = ?, ngaymuon = COALESCE(ngaymuon, NOW()), ngayhethan = COALESCE(ngayhethan, DATE_ADD(NOW(), INTERVAL 14 DAY)) WHERE mamuon = ?";
+        $up = $conn->prepare($sqlUpdate);
+        if (!$up) {
+            $conn->rollback();
+            json_out('error', 'Lỗi prepare UPDATE phieumuon: ' . $conn->error);
+        }
+        $up->bind_param("sss", $newStatus, $manv, $mamuon);
+        if (!$up->execute()) {
+            $err = $up->error;
+            $up->close();
+            $conn->rollback();
+            json_out('error', 'Lỗi execute UPDATE phieumuon: ' . $err);
+        }
         $up->close();
-        $conn->rollback();
-        json_out('error', 'Lỗi execute UPDATE phieumuon: ' . $err);
-    }
-    $up->close();
 
-    // 4.2) Nếu DaTra thì:
-    // - tạo phieutra + ctphieutra
-    // - nếu trả quá hạn thì tạo phieuphat + ctphieuphat
-    // - trả sách về SanSang
-    if ($newStatus === 'DaTra') {
-        $returnedAt = (new DateTime())->format('Y-m-d H:i:s');
-        $overdueDays = calc_overdue_days($ngayHetHan !== '' ? $ngayHetHan : null, $returnedAt);
-
-        // Config: tiền phạt quá hạn / 1 cuốn / 1 ngày
-        $FINE_PER_DAY = 5000; // đổi số này nếu bạn muốn mức phạt khác
-
-        $matra = make_id_from_mamuon('PT', $mamuon);
-        $maphat = make_id_from_mamuon('PP', $mamuon);
-        $maphatForCt = $overdueDays > 0 ? $maphat : 'NONE';
-
-        // Insert phieutra nếu chưa có
-        $chkTra = $conn->prepare("SELECT matra FROM phieutra WHERE mamuon = ? LIMIT 1");
-        if (!$chkTra) {
-            $conn->rollback();
-            json_out('error', 'Lỗi prepare check phieutra: ' . $conn->error);
-        }
-        $chkTra->bind_param('s', $mamuon);
-        $chkTra->execute();
-        $existingTra = $chkTra->get_result()->fetch_assoc();
-        $chkTra->close();
-        if ($existingTra && !empty($existingTra['matra'])) {
-            $matra = (string)$existingTra['matra'];
-        } else {
-            $insTra = $conn->prepare("INSERT INTO phieutra (matra, mamuon, ngaytra, manv, tongtienphat) VALUES (?, ?, ?, ?, 0)");
-            if (!$insTra) {
-                $conn->rollback();
-                json_out('error', 'Lỗi prepare INSERT phieutra: ' . $conn->error);
-            }
-            $insTra->bind_param('ssss', $matra, $mamuon, $returnedAt, $manv);
-            if (!$insTra->execute()) {
-                $err = $insTra->error;
-                $insTra->close();
-                $conn->rollback();
-                json_out('error', 'Lỗi execute INSERT phieutra: ' . $err);
-            }
-            $insTra->close();
-        }
-
-        // Lấy danh sách cuốn sách của phiếu mượn
-        $stmtCt = $conn->prepare("SELECT macuonsach FROM ctphieumuon WHERE mamuon = ?");
-        if (!$stmtCt) {
-            $conn->rollback();
-            json_out('error', 'Lỗi prepare SELECT ctphieumuon: ' . $conn->error);
-        }
-        $stmtCt->bind_param('s', $mamuon);
-        $stmtCt->execute();
-        $rsCt = $stmtCt->get_result();
-        $cuonList = $rsCt ? $rsCt->fetch_all(MYSQLI_ASSOC) : [];
-        $stmtCt->close();
-
-        // Nếu quá hạn, tạo phieuphat + ctphieuphat
-        $totalFine = 0;
-        if ($overdueDays > 0) {
-            $totalFine = $overdueDays * $FINE_PER_DAY * max(1, count($cuonList));
-
-            // Insert phieuphat (nếu chưa có)
-            $chkPhat = $conn->prepare("SELECT maphat FROM phieuphat WHERE maphat = ? LIMIT 1");
-            if (!$chkPhat) {
-                $conn->rollback();
-                json_out('error', 'Lỗi prepare check phieuphat: ' . $conn->error);
-            }
-            $chkPhat->bind_param('s', $maphat);
-            $chkPhat->execute();
-            $existsPhat = $chkPhat->get_result()->fetch_assoc();
-            $chkPhat->close();
-
-            if (!$existsPhat) {
-                $insPhat = $conn->prepare("INSERT INTO phieuphat (maphat, madocgia, matra, ngaylap, tongtienphat, trangthai, ghichu) VALUES (?, ?, ?, NOW(), ?, 'ChuaNop', 'Trả quá hạn')");
-                if (!$insPhat) {
-                    $conn->rollback();
-                    json_out('error', 'Lỗi prepare INSERT phieuphat: ' . $conn->error);
-                }
-                $totalFineDec = (string)$totalFine;
-                $insPhat->bind_param('ssss', $maphat, $madocgia, $matra, $totalFineDec);
-                if (!$insPhat->execute()) {
-                    $err = $insPhat->error;
-                    $insPhat->close();
-                    $conn->rollback();
-                    json_out('error', 'Lỗi execute INSERT phieuphat: ' . $err);
-                }
-                $insPhat->close();
-            }
-
-            // Insert ctphieuphat cho từng cuốn
-            $insCtPhat = $conn->prepare("INSERT IGNORE INTO ctphieuphat (maphat, macuonsach, lydo, songayquahan, sotienphat) VALUES (?, ?, 'Trả quá hạn', ?, ?)");
-            if (!$insCtPhat) {
-                $conn->rollback();
-                json_out('error', 'Lỗi prepare INSERT ctphieuphat: ' . $conn->error);
-            }
-            $finePerCopy = $overdueDays * $FINE_PER_DAY;
-            $finePerCopyDec = (string)$finePerCopy;
-            foreach ($cuonList as $row) {
-                $macuonsach = (string)($row['macuonsach'] ?? '');
-                if ($macuonsach === '') continue;
-                $insCtPhat->bind_param('ssis', $maphat, $macuonsach, $overdueDays, $finePerCopyDec);
-                $insCtPhat->execute();
-            }
-            $insCtPhat->close();
-        }
-
-        // Insert ctphieutra cho từng cuốn (maphat bắt buộc NOT NULL)
-        $insCtTra = $conn->prepare("INSERT IGNORE INTO ctphieutra (matra, macuonsach, maphat, tinhtrang_sau, tienphathuha, songayquahan, tienphatquahan) VALUES (?, ?, ?, (SELECT tinhtrang FROM cuonsach WHERE macuonsach = ?), 0, ?, ?)");
-        if (!$insCtTra) {
-            $conn->rollback();
-            json_out('error', 'Lỗi prepare INSERT ctphieutra: ' . $conn->error);
-        }
-        $finePerCopy = $overdueDays > 0 ? ($overdueDays * $FINE_PER_DAY) : 0;
-        $finePerCopyDec = (string)$finePerCopy;
-        foreach ($cuonList as $row) {
-            $macuonsach = (string)($row['macuonsach'] ?? '');
-            if ($macuonsach === '') continue;
-            $insCtTra->bind_param('ssssis', $matra, $macuonsach, $maphatForCt, $macuonsach, $overdueDays, $finePerCopyDec);
-            $insCtTra->execute();
-        }
-        $insCtTra->close();
-
-        // Update tổng tiền phạt ở phieutra
-        $updTraFine = $conn->prepare("UPDATE phieutra SET tongtienphat = ? WHERE matra = ?");
-        if ($updTraFine) {
-            $totalFineDec = (string)$totalFine;
-            $updTraFine->bind_param('ss', $totalFineDec, $matra);
-            $updTraFine->execute();
-            $updTraFine->close();
-        }
-
-        // Trả sách về SanSang
-        $reset = $conn->prepare("UPDATE cuonsach c JOIN ctphieumuon ct ON c.macuonsach = ct.macuonsach SET c.trangthai = 'SanSang' WHERE ct.mamuon = ?");
+        // Đổi trạng thái các sách thành DaMuon (đồng bộ với trạng thái lúc lập phiếu)
+        $reset = $conn->prepare("UPDATE cuonsach c JOIN ctphieumuon ct ON c.macuonsach = ct.macuonsach SET c.trangthai = 'DaMuon' WHERE ct.mamuon = ?");
         if ($reset) {
             $reset->bind_param('s', $mamuon);
             $reset->execute();
             $reset->close();
         }
+
+        $conn->commit();
+
+        json_out('success', 'Đã duyệt phiếu mượn thành công. Các cuốn sách đang được mượn!', [
+            'mamuon' => $mamuon,
+            'oldStatus' => $currentStatus,
+            'newStatus' => $newStatus,
+            'manv' => $manv,
+            'madocgia' => $madocgia,
+        ]);
+
+    } elseif ($currentStatus === 'DangMuon') {
+        // Redirect client sang màn hình lập phiếu trả (lap_phieu_tra.php)
+        json_out('redirect', 'Đang chuyển sang màn hình lập phiếu trả...', [
+            'url' => '/admin/QuanLy/HoaDon/lap_phieu_tra.php?mamuon=' . urlencode($mamuon)
+        ]);
+        
+    } else {
+        // Trạng thái DaTra hoặc khác
+        json_out('error', 'Phiếu mượn đang ở trạng thái "' . $currentStatus . '", không thể thao tác chức năng này!');
     }
-
-    $conn->commit();
-
-    json_out('success', 'Trạng thái chuyển thành: ' . $newStatus, [
-        'mamuon' => $mamuon,
-        'oldStatus' => $currentStatus,
-        'newStatus' => $newStatus,
-        'manv' => $manv,
-        'madocgia' => $madocgia,
-    ]);
 
 } catch (Throwable $e) {
     json_out('error', 'Server error: ' . $e->getMessage());

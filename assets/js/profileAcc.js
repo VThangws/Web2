@@ -1,12 +1,4 @@
-// ===== SIDEBAR ACTIVE =====
-document.querySelectorAll(".sidebar-item").forEach((item) => {
-  item.addEventListener("click", function () {
-    document
-      .querySelectorAll(".sidebar-item")
-      .forEach((i) => i.classList.remove("active"));
-    this.classList.add("active");
-  });
-});
+// ===== SIDEBAR ACTIVE (được quản lý bởi TaiKhoan.php - không can thiệp ở đây) =====
 
 // ===== API TỈNH / QUẬN / PHƯỜNG =====
 const API_BASE = "https://provinces.open-api.vn/api";

@@ -7,6 +7,7 @@ require_admin_login();
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     :root {
@@ -149,37 +150,60 @@ require_admin_login();
 </div>
 
 <script>
+let isProcessing = false;
+
 function onScanSuccess(decodedText, decodedResult) {
+    if (isProcessing) return;
+    isProcessing = true;
+
     let mamuon = decodedText.trim();
     
-    // Cập nhật UI ngay lập tức
-    document.getElementById('scan-line').style.display = 'block';
+    // Cập nhật UI
+    let scanLine = document.getElementById('scan-line');
+    if (scanLine) scanLine.style.display = 'block';
+    
     document.getElementById('badge-status').className = 'status-badge status-processing';
-    document.getElementById('badge-status').innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Đang xử lý...';
+    document.getElementById('badge-status').innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Đang kiểm tra trạng thái...';
     document.getElementById('result-box').classList.remove('d-none');
     document.getElementById('result-id').innerText = mamuon;
 
-    let formData = new FormData();
-    formData.append('mamuon', mamuon);
+    // Gửi yêu cầu kiểm tra trạng thái
+    let fd = new FormData();
+    fd.append('mamuon', mamuon);
 
     fetch('/ajax/update_status_qr.php', {
         method: 'POST',
-        body: formData
+        body: fd
     })
     .then(res => res.json())
     .then(data => {
-        if (data.status === 'success') {
-            // Hiệu ứng thành công
-            alert("✅ " + data.message);
-            location.reload();
+        if (data.status === 'redirect') {
+            window.location.href = data.url;
+        } else if (data.status === 'success') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Tuyệt vời!',
+                text: 'Đã duyệt đơn sang Đang Mượn thành công.'
+            }).then(() => {
+                resetUI();
+                isProcessing = false;
+            });
         } else {
-            alert("❌ Lỗi: " + data.message);
-            resetUI();
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: data.message
+            }).then(() => {
+                resetUI();
+                isProcessing = false;
+            });
         }
     })
     .catch(err => {
-        console.error(err);
-        alert("❌ Lỗi kết nối server");
+        Swal.fire('Lỗi kết nối', 'Không thể gửi dữ liệu', 'error').then(() => {
+            resetUI();
+            isProcessing = false;
+        });
     });
 }
 

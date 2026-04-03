@@ -60,7 +60,7 @@ try {
     // Duyệt giỏ hàng để trừ kho
     foreach ($selected_cart as $ma => $item) {
         $checkInv = $conn->prepare("SELECT COUNT(*) as stock FROM cuonsach WHERE madausach = ? AND trangthai = 'SanSang'");
-        $checkInv->bind_param("i", $ma);
+        $checkInv->bind_param("s", $ma);
         $checkInv->execute();
         $stock = $checkInv->get_result()->fetch_assoc()['stock'];
 
@@ -69,13 +69,15 @@ try {
         }
 
         $getIds = $conn->prepare("SELECT macuonsach FROM cuonsach WHERE madausach = ? AND trangthai = 'SanSang' LIMIT ?");
-        $getIds->bind_param("ii", $ma, $item['soluong']);
+        $getIds->bind_param("si", $ma, $item['soluong']);
         $getIds->execute();
         $ids = $getIds->get_result();
 
         while ($book = $ids->fetch_assoc()) {
             $bookId = $book['macuonsach'];
-            $conn->query("UPDATE cuonsach SET trangthai = 'DaMuon' WHERE macuonsach = $bookId");
+            $updateC = $conn->prepare("UPDATE cuonsach SET trangthai = 'DaMuon' WHERE macuonsach = ?");
+            $updateC->bind_param("s", $bookId);
+            $updateC->execute();
         }
         
         // Xóa sách ĐÃ MƯỢN ra khỏi giỏ hàng

@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_confirm'])) {
             $ngayhethan = date('Y-m-d H:i:s', strtotime($pickup_date . ' + 14 days'));
             $ghichu = 'Mượn mang về (Ngày hẹn lấy: ' . $pickup_date . ')';
         } else {
-            $trangthai = 'DangMuon'; // Giống trạng thái trong ảnh
+            $trangthai = 'ChoDuyet'; // Bắt buộc thủ thư quét QR mới chuyển sang Đang Mượn
             $ngayhethan = date('Y-m-d 23:59:59'); // Cuối ngày hôm nay
             $ghichu = 'Đọc tại chỗ';
         }
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_confirm'])) {
         // Trừ kho và xóa khỏi giỏ
         foreach ($selected_cart as $ma => $item) {
             $checkInv = $conn->prepare("SELECT COUNT(*) as stock FROM cuonsach WHERE madausach = ? AND trangthai = 'SanSang'");
-            $checkInv->bind_param("i", $ma);
+            $checkInv->bind_param("s", $ma);
             $checkInv->execute();
             $stock = $checkInv->get_result()->fetch_assoc()['stock'];
 
@@ -87,13 +87,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_confirm'])) {
                 throw new Exception("Sách '{$item['tensach']}' đã hết!");
             }
 
-            $getIds = $conn->prepare("SELECT macuonsach FROM cuonsach WHERE madausach = ? AND trangthai = 'SanSang' LIMIT ?");
-            $getIds->bind_param("ii", $ma, $item['soluong']);
+            $getIds = $conn->prepare("SELECT macuonsach, tinhtrang FROM cuonsach WHERE madausach = ? AND trangthai = 'SanSang' LIMIT ?");
+            $getIds->bind_param("si", $ma, $item['soluong']);
             $getIds->execute();
             $ids = $getIds->get_result();
 
             while ($book = $ids->fetch_assoc()) {
                 $bookId = $book['macuonsach'];
+                $tt = $book['tinhtrang'] ?? 'Tốt';
+
+                // 2.A Thêm vào bảng chi tiết phiếu mượn (để lưu thông tin những cuốn sách đã mượn)
+                $insCt = $conn->prepare("INSERT INTO ctphieumuon (mamuon, macuonsach, tinhtrang_truoc) VALUES (?, ?, ?)");
+                $insCt->bind_param("sss", $mamuon, $bookId, $tt);
+                $insCt->execute();
+
                 // Dùng prepare statement để an toàn tuyệt đối với mọi loại chuỗi
                 $updateStmt = $conn->prepare("UPDATE cuonsach SET trangthai = 'DaMuon' WHERE macuonsach = ?");
                 $updateStmt->bind_param("s", $bookId); // "s" là string vì mã của ní có chữ CS
