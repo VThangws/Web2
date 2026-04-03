@@ -16,29 +16,6 @@ $cart_empty = empty($_SESSION['cart']);
     </div>
 </div>
 
-<?php if (!isset($docgia)): ?>
-    <div class="container text-center py-5" style="min-height: 50vh; margin-top: 50px;">
-        <i class="fa-solid fa-cart-shopping text-muted" style="font-size: 5rem; margin-bottom: 20px;"></i>
-        <h3 class="text-danger mb-3">Bạn chưa đăng nhập!</h3>
-        <p class="text-muted fs-5">Vui lòng đăng nhập tài khoản để xem chi tiết giỏ hàng và tiến hành thanh toán nhé.</p>
-        <button class="btn btn-cart-primary mt-3" style="border-radius: 8px; padding: 10px 20px;" onclick="document.getElementById('openLogin').click()">
-            Mở form Đăng Nhập ngay
-        </button>
-    </div>
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            setTimeout(() => {
-                const btnOpen = document.getElementById("openLogin");
-                if (btnOpen) {
-                    btnOpen.click();
-                }
-            }, 400); 
-        });
-    </script>
-
-<?php else: ?>
-
 <div class="container my-4">
     <div class="row">
         <div class="col-lg-8 mb-4" id="cart-left">
@@ -63,14 +40,10 @@ $cart_empty = empty($_SESSION['cart']);
 
                     <?php foreach ($_SESSION['cart'] as $ma => $item): ?>
                         <?php 
-                            // Lấy tồn kho (nếu add_to_cart chưa lưu thì để 0)
                             $tonkho = $item['tonkho'] ?? 0; 
-                            
-                            // CHỐT CHẶN 1 (PHP): Nếu số lượng <= 1 thì gán chữ 'disabled' vào nút trừ
                             $disabled_minus = ($item['soluong'] <= 1) ? 'disabled' : '';
                         ?>
                         <div class="cart-item d-flex align-items-center border-bottom py-3" id="item-<?= $ma ?>">
-                            
                             <div style="width: 5%;" class="text-center">
                                 <input class="form-check-input custom-checkbox item-checkbox" type="checkbox" value="<?= $ma ?>" data-price="<?= $item['dongia'] ?>" style="width: 18px; height: 18px; cursor: pointer;">
                             </div>
@@ -90,9 +63,7 @@ $cart_empty = empty($_SESSION['cart']);
                             <div style="width: 20%;" class="d-flex justify-content-center">
                                 <div class="input-group input-group-sm" style="width: 100px;">
                                     <button class="btn btn-outline-secondary btn-update-cart" data-id="<?= $ma ?>" data-action="minus" <?= $disabled_minus ?>>-</button>
-                                    
                                     <input type="text" class="form-control text-center bg-white qty-input" id="qty-<?= $ma ?>" value="<?= $item['soluong'] ?>" data-max="<?= $tonkho ?>" readonly>
-                                    
                                     <button class="btn btn-outline-secondary btn-update-cart" data-id="<?= $ma ?>" data-action="plus">+</button>
                                 </div>
                             </div>
@@ -117,13 +88,32 @@ $cart_empty = empty($_SESSION['cart']);
                 </div>
         
                 <div class="d-flex justify-content-between mb-4 fs-5">
-            <span class="text-muted">Tổng cộng:</span>
-            <strong class="text-danger" id="total-price">0 VNĐ</strong>
+                    <span class="text-muted">Tổng cộng:</span>
+                    <strong class="text-danger" id="total-price">0 VNĐ</strong>
                 </div>
 
-                <a href="/index.php?page=checkout" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6 <?= $cart_empty ? 'disabled' : '' ?>">
-                    XÁC NHẬN MƯỢN SÁCH
-                </a>
+                <?php if (!isset($docgia)): ?>
+                    <button type="button" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6" 
+                            onclick="Swal.fire({
+                                title: 'Bạn chưa đăng nhập!',
+                                text: 'Vui lòng đăng nhập để thực hiện xác nhận mượn sách.',
+                                icon: 'info',
+                                showCancelButton: true,
+                                confirmButtonText: 'Đăng nhập ngay',
+                                cancelButtonText: 'Để sau'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    document.getElementById('openLogin').click();
+                                }
+                            })">
+                        XÁC NHẬN MƯỢN SÁCH
+                    </button>
+                <?php else: ?>
+                    <a href="/index.php?page=checkout" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6 <?= $cart_empty ? 'disabled' : '' ?>">
+                        XÁC NHẬN MƯỢN SÁCH
+                    </a>
+                <?php endif; ?>
+
                 <a href="/index.php?page=books" class="btn btn-cart-secondary w-100 py-2 fs-6">
                     TIẾP TỤC TÌM KIẾM SÁCH
                 </a>
@@ -133,11 +123,8 @@ $cart_empty = empty($_SESSION['cart']);
 </div>
 
 <script>
+// Giữ nguyên phần JS xử lý số lượng và tính tiền của ông
 document.addEventListener('DOMContentLoaded', function() {
-    
-    // =====================================
-    // 1. LOGIC CHECKBOX & TÍNH TIỀN
-    // =====================================
     const checkAll = document.getElementById('check-all');
     const itemCheckboxes = document.querySelectorAll('.item-checkbox');
     const totalPriceEl = document.getElementById('total-price');
@@ -174,30 +161,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // =====================================
-    // 2. LOGIC TĂNG GIẢM SỐ LƯỢNG (CÓ CHẶN TỒN KHO & CHẶN SỐ 1)
-    // =====================================
     document.querySelectorAll('.btn-update-cart').forEach(button => {
         button.addEventListener('click', function() {
             let madausach = this.getAttribute('data-id');
             let action = this.getAttribute('data-action'); 
-            
-            // CHỐT CHẶN 2 (JAVASCRIPT): Chặn ngay từ client
             let inputField = document.getElementById('qty-' + madausach);
-            if (inputField) {
+
+            if (inputField && action === 'plus') {
                 let currentQty = parseInt(inputField.value);
-                
-                if (action === 'plus') {
-                    let maxStock = parseInt(inputField.getAttribute('data-max'));
-                    if (currentQty >= maxStock) {
-                        alert('Sách này trong kho chỉ còn ' + maxStock + ' cuốn Sẵn Sàng!');
-                        return; 
-                    }
-                } else if (action === 'minus') {
-                    if (currentQty <= 1) {
-                        // Nếu đang là 1 mà cố tình bấm trừ (hoặc xóa code disabled) thì chặn luôn, ko gửi fetch
-                        return; 
-                    }
+                let maxStock = parseInt(inputField.getAttribute('data-max'));
+                if (currentQty >= maxStock) {
+                    Swal.fire('Thông báo', 'Sách này trong kho chỉ còn ' + maxStock + ' cuốn Sẵn Sàng!', 'warning');
+                    return; 
                 }
             }
 
@@ -205,10 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('madausach', madausach);
             formData.append('action', action);
 
-            fetch('/ajax/update_cart.php', {
-                method: 'POST',
-                body: formData
-            })
+            fetch('/ajax/update_cart.php', { method: 'POST', body: formData })
             .then(response => response.json())
             .then(data => {
                 if(data.status === 'success') {
@@ -216,25 +188,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('item-' + madausach).remove();
                     } else {
                         document.getElementById('qty-' + madausach).value = data.item_qty;
-                        
-                        // Cập nhật lại trạng thái của nút "Trừ"
                         let minusBtn = document.querySelector(`.btn-update-cart[data-id="${madausach}"][data-action="minus"]`);
-                        if(minusBtn) {
-                            if (data.item_qty <= 1) {
-                                minusBtn.disabled = true; // Rớt về 1 thì khóa nút lại
-                            } else {
-                                minusBtn.disabled = false; // Lên 2 thì mở khóa nút ra
-                            }
-                        }
+                        if(minusBtn) minusBtn.disabled = (data.item_qty <= 1);
                     }
-                    
-                    calculateTotal(); // Tự tính lại tiền nếu sách đang được tick
-
+                    calculateTotal();
                     let cartBadge = document.getElementById('cart-badge');
                     if(cartBadge) cartBadge.innerText = data.total_items;
                     if(data.total_items === 0) location.reload();
                 } else {
-                    alert('LỖI: ' + data.message);
+                    Swal.fire('Lỗi', data.message, 'error');
                 }
             })
             .catch(err => console.error(err));
@@ -242,4 +204,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-<?php endif; ?>
