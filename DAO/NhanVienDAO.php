@@ -1,15 +1,15 @@
 <?php
   // require_once "../database/KetNoiDB.php";
   class NhanVienDAO {
-    public function Them($conn, $manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh) {
+    public function Them($conn, $manv, $honv, $tennv, $gioitinh, $sdt) {
       // chuẩn bị lệnh truy vấn
       $sql = "INSERT INTO nhanvien(manv, honv, tennv
-      , gioitinh, sdt, ngaysinh)
-       VALUES (?, ?, ?, ?, ?, ?)";
+      , gioitinh, sdt)
+       VALUES (?, ?, ?, ?, ?)";
       
       // khớp thuộc tính
       $stmt = $conn->prepare($sql);
-      $stmt->bind_param("sssssd", $manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh);
+      $stmt->bind_param("sssss", $manv, $honv, $tennv, $gioitinh, $sdt);
 
       // thực hiện truy vấn
       if($stmt->execute()) {
@@ -18,15 +18,15 @@
       else echo "Thêm nhân viên không thành công";
     }
 
-    public function Sua($conn, $manv, $honv, $tennv, $gioitinh, $sdt, $ngaysinh) {
+    public function Sua($conn, $manv, $honv, $tennv, $gioitinh, $sdt) {
       $sql = "UPDATE nhanvien
         SET honv = ?, tennv = ?,
-          gioitinh = ?, sdt = ?, ngaysinh = ?
+          gioitinh = ?, sdt = ?
         WHERE manv = ?;
       ";
       // khớp thuộc tính
       $stmt = $conn->prepare($sql);
-      $stmt->bind_param("ssssds", $honv, $tennv, $gioitinh, $sdt, $ngaysinh, $manv);
+      $stmt->bind_param("sssss", $honv, $tennv, $gioitinh, $sdt, $manv);
       // thực hiện truy vấn
       if($stmt->execute()) {
         echo "<script>alert('Đã sửa thông tin nhân viên!');</script>";
@@ -60,7 +60,7 @@
       $stmt->execute();
       $result = $stmt->get_result();
       if($row = $result->fetch_assoc()) {
-        $nv = new NhanVien($row['manv'], $row['honv'], $row['tennv'], $row['gioitinh'], $row['sdt'], $row['ngaysinh']);
+        $nv = new NhanVien($row['manv'], $row['honv'], $row['tennv'], $row['gioitinh'], $row['sdt']);
         return $nv;
       }
       return null;
