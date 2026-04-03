@@ -33,7 +33,7 @@ if (loginForm) {
     loginForm?.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        fetch('./ajax/loginAjax.php', {
+        fetch('/ajax/loginAjax.php', {
             method: 'POST',
             body: new FormData(loginForm)
         })
@@ -68,7 +68,7 @@ if (registerForm) {
             return; // dừng lại, không fetch
         }
 
-        fetch('./ajax/registerAjax.php', {
+        fetch('/ajax/registerAjax.php', {
             method: 'POST',
             body: new FormData(registerForm)
         })
@@ -89,42 +89,19 @@ if (registerForm) {
             .catch(err => console.error('Lỗi:', err));
     });
 }
-let loginBtn = document.getElementById('nut-dang-nhap'); // Thay bằng ID thực tế của ní
-if (loginBtn) {
-    loginBtn.addEventListener('click', function () {
-        // ===== PHẦN Update Profile AJAX =====
-        document.getElementById('btn-save').addEventListener('click', function () {
-            const formData = new FormData();
-            formData.append('hodocgia', document.querySelector('input[name="hodocgia"]').value);
-            formData.append('tendocgia', document.querySelector('input[name="tendocgia"]').value);
-            formData.append('email', document.querySelector('input[name="email"]').value);
-            formData.append('ngaysinh', document.querySelector('input[name="ngaysinh"]').value);
-            formData.append('diachi', document.querySelector('input[name="diachi"]').value);
-
 <<<<<<< HEAD
 =======
-            fetch('ajax/updateProfile.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(res => res.json())
-                .then(data => {
-                    const msg = document.getElementById('updateMessage');
-                    if (data.success) {
-                        msg.innerHTML = '<span class="text-success">Cập nhật thành công!</span>';
-                        setTimeout(() => location.reload(), 1000);
-                    } else {
-                        msg.innerHTML = '<span class="text-danger">' + data.message + '</span>';
-                    }
-                });
-        });
-    });
-}
->>>>>>> bdd52627017db3fcfbb9c1965ab4f1eecc6148dd
+
+ // ===== PHẦN Update Profile AJAX =====
+ //kiếm bên TaiKhoan.php nha các em
+       
+>>>>>>> d91ac430f94a8014c757121d3a3a7b724e291e68
 // ===== MODAL NOTICE =====
-function showModal(isSuccess, message) {
+function showModal(status, message) {
     const modalContent = document.getElementById("modalContent");
     const loginMessage = document.getElementById("loginMessage");
+
+    const isSuccess = status === true || status === 'success';
 
     if (isSuccess) {
         modalContent.className = "modal-content border-0 shadow-lg modal-success";

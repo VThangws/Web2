@@ -4,6 +4,11 @@
 <?php
 require_once __DIR__ . '/../../database/ConnectDB.php';
 
+$canManageAccounts = true;
+if (function_exists('admin_has_permission')) {
+    $canManageAccounts = admin_has_permission('TAIKHOAN');
+}
+
 $stats = [
     'titles' => 0,
     'copies' => 0,
@@ -75,11 +80,11 @@ try {
         }
 
         .admin-dashboard .stat-card .card-body {
-            padding: 12px;
+            padding: 10px;
         }
 
         .admin-dashboard .stat-card .fs-3 {
-            font-size: 1.8rem !important;
+            font-size: 1.5rem !important;
             line-height: 1.1;
         }
 
@@ -106,11 +111,10 @@ try {
             <div class="col-12 order-1 reveal-item section-title">
                 <div class="text-lg-end text-center mb-3 admin-side-title">
                     <h2 class="fw-bold mb-2">Chức năng quản trị</h2>
-                    <p class="text-muted mb-0">Các lối tắt nhanh để bạn gắn thêm nghiệp vụ vào trang admin sau này.</p>
                 </div>
 
-                <div class="row g-2">
-                    <div class="col-6 reveal-item section-item">
+                <div class="row g-2 row-cols-2 row-cols-lg-4">
+                    <div class="col reveal-item section-item">
                         <div class="card h-100 shadow-sm stat-card">
                             <div class="card-body">
                                 <div class="text-muted small">Đầu sách</div>
@@ -118,7 +122,7 @@ try {
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 reveal-item section-item">
+                    <div class="col reveal-item section-item">
                         <div class="card h-100 shadow-sm stat-card">
                             <div class="card-body">
                                 <div class="text-muted small">Cuốn sách</div>
@@ -126,7 +130,7 @@ try {
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 reveal-item section-item">
+                    <div class="col reveal-item section-item">
                         <div class="card h-100 shadow-sm stat-card">
                             <div class="card-body">
                                 <div class="text-muted small">Đang mượn</div>
@@ -134,7 +138,7 @@ try {
                             </div>
                         </div>
                     </div>
-                    <div class="col-6 reveal-item section-item">
+                    <div class="col reveal-item section-item">
                         <div class="card h-100 shadow-sm stat-card">
                             <div class="card-body">
                                 <div class="text-muted small">Độc giả</div>
@@ -198,6 +202,21 @@ try {
                             <p class="mb-3">Quản lý tài khoản đăng nhập và nhóm quyền.</p>
                             <div class="benefit-actions">
                                 <a class="btn btn-sm btn-primary" href="/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php">Mở phân hệ</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col reveal-item section-item dashboard-card-col">
+                        <div class="benefit-card h-100">
+                            <div class="service-icon">🛡️</div>
+                            <h5 class="fw-bold">Phân quyền</h5>
+                            <p class="mb-3">Thiết lập quyền theo nhóm chức năng quản trị.</p>
+                            <div class="benefit-actions">
+                                <a
+                                    class="btn btn-sm <?php echo $canManageAccounts ? 'btn-primary' : 'btn-outline-secondary disabled'; ?>"
+                                    href="<?php echo $canManageAccounts ? '/admin/QuanLy/TaiKhoan/QL_PhanQuyen.php' : '#'; ?>"
+                                    <?php echo $canManageAccounts ? '' : 'tabindex="-1" aria-disabled="true"'; ?>
+                                >Mở phân hệ</a>
                             </div>
                         </div>
                     </div>

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../auth.php';
+require_once __DIR__ . '/../../../login/auth.php';
 require_admin_login();
 require_admin_permission('SACH');
 ?>
@@ -9,6 +9,7 @@ require_admin_permission('SACH');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý Cuốn sách</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <style>
     * {box-sizing: border-box;}
     body {font-family: 'Segoe UI', Arial, sans-serif; background: #f3f4f8; margin: 0; padding: 0;}
@@ -24,8 +25,8 @@ require_admin_permission('SACH');
     .form-fieldset {display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;}
     .form-actions {display: flex; gap: 10px; align-items: center; margin-top: 14px;}
 
-    .btn {display:inline-block; background:#007bff; color:#fff; border:none; border-radius:5px; padding:8px 14px; cursor:pointer; text-decoration:none; transition:all .2s ease;}
-    .btn:hover {background:#0056b3;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger) {display:inline-block; background:#007bff; color:#fff; border:none; border-radius:5px; padding:8px 14px; cursor:pointer; text-decoration:none; transition:all .2s ease;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger):hover {background:#0056b3;}
     .btn-danger {background:#dc3545;}
     .btn-danger:hover {background:#c82333;}
 
@@ -142,10 +143,10 @@ require_admin_permission('SACH');
                 echo "<td>" . htmlspecialchars($item->getMavitri()) . "</td>";
                 echo "<td>" . htmlspecialchars($item->getTrangthai()) . "</td>";
                 echo "<td>" . htmlspecialchars($item->getTinhtrang()) . "</td>";
-                echo "<td>" .
-                     "<a class='btn' href='Sua_CuonSach.php?macuonsach=" . urlencode($item->getMacuonsach()) . "'>Sửa</a> " .
-                     "<a class='btn' style='background:#dc3545;' href='QL_CuonSach.php?luachon=Xoa&macuonsach=" . urlencode($item->getMacuonsach()) . "'>Xóa</a>" .
-                     "</td>";
+                 echo "<td class='text-end'>" .
+                   "<a class='btn btn-sm btn-outline-primary me-1' href='Sua_CuonSach.php?macuonsach=" . urlencode($item->getMacuonsach()) . "'>Sửa</a>" .
+                   "<a class='btn btn-sm btn-outline-danger' href='QL_CuonSach.php?luachon=Xoa&macuonsach=" . urlencode($item->getMacuonsach()) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a>" .
+                   "</td>";
                 echo "</tr>";
               }
 

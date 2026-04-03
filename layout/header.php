@@ -11,7 +11,7 @@ require_once __DIR__ . '/../layout/login.php';
 // Lấy đối tượng kết nối mysqli từ ConnectDB
 $conn = ConnectDB::getInstance()->getConnection();
 
-$so_luong_gio_hang = isset($_SESSION['cart']) ? count($_SESSION['cart']) : 0;
+$so_luong_gio_hang = isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'soluong')) : 0;
 
 // Lấy thông tin user từ Session
 $docgia = $_SESSION['docgia'] ?? null;
@@ -63,10 +63,9 @@ $docgia = $_SESSION['docgia'] ?? null;
             </div>
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($docgia): ?>
-                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline">
+                <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline" id="headerName">
                     Xin chào, <?= htmlspecialchars($docgia->getTendocgia(), ENT_QUOTES) ?>
                 </a>
-                <a href="/ajax/logout.php" class="main-btn main-btn-outline">Đăng xuất</a>
             <?php else: ?>
                 <button id="openLogin" class="main-btn main-btn-outline">
                     Đăng nhập
@@ -101,11 +100,11 @@ $docgia = $_SESSION['docgia'] ?? null;
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     
-    <div class="offcanvas-body" id="mini-cart-body">
+    <div class="offcanvas-body overflow-hidden" id="mini-cart-body">
         </div>
 
-    <div class="offcanvas-footer border-top p-3 bg-white">
-        <a href="/index.php?page=cart" class="btn btn-mini-checkout w-100 fw-bold mb-3 py-2">Chi tiết giỏ hàng</a>
+    <div class="offcanvas-footer border-top px-3 pb-3 pt-2 bg-white">
+        <a href="/index.php?page=cart" class="btn btn-mini-checkout w-100 fw-bold mb-2 py-2">Chi tiết giỏ hàng</a>
         <button type="button" class="btn btn-mini-close w-100 fw-bold py-2" data-bs-dismiss="offcanvas">Đóng</button>
     </div>
 </div>

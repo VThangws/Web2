@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../auth.php';
+require_once __DIR__ . '/../../../login/auth.php';
 require_admin_login();
 require_admin_permission('SACH');
 ?>
@@ -9,6 +9,7 @@ require_admin_permission('SACH');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quản lý Đầu sách</title>
+  <link rel="stylesheet" href="/assets/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="../../style.css" />
   <style>
     * {box-sizing: border-box;}
@@ -30,8 +31,8 @@ require_admin_permission('SACH');
     .form-actions label {margin: 0; font-weight: 500; display: inline-flex; align-items: center; gap: 6px;}
     
     /* Button Styling */
-    .btn {display: inline-block; background: #007bff; color: #fff; border: none; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500;}
-    .btn:hover {background: #0056b3; transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,86,179,.3);}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger) {display: inline-block; background: #007bff; color: #fff; border: none; border-radius: 5px; padding: 8px 16px; cursor: pointer; text-decoration: none; transition: all .2s ease; font-weight: 500;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger):hover {background: #0056b3; transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,86,179,.3);}
     .btn.btn-danger {background: #dc3545;}
     .btn.btn-danger:hover {background: #c82333;}
     button[type="submit"] {min-width: 100px;}
@@ -273,9 +274,9 @@ require_admin_permission('SACH');
                 echo "<td>". htmlspecialchars($item->getManxb()) ."</td>";
                 echo "<td>". htmlspecialchars($item->getMota()) ."</td>";
                 echo "<td><img src='../../../../assets/img/books/". htmlspecialchars($item->getAnhbia()) ."' alt='Ảnh bìa'></td>";
-                echo "<td>" .
-                "<a class='action-link edit' href='Sua_DauSach.php?madausach=" . urlencode($item->getMadausach()) . "'>Sửa</a>" .
-                "<a class='action-link delete' href='QL_DauSach.php?luachon=Xoa&madausach=" . urlencode($item->getMadausach()) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a>" .
+                echo "<td class='text-end'>" .
+                "<a class='btn btn-sm btn-outline-primary me-1' href='Sua_DauSach.php?madausach=" . urlencode($item->getMadausach()) . "'>Sửa</a>" .
+                "<a class='btn btn-sm btn-outline-danger' href='QL_DauSach.php?luachon=Xoa&madausach=" . urlencode($item->getMadausach()) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a>" .
                 "</td>";
                 echo "</tr>";
               }

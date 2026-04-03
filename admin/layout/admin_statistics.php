@@ -71,6 +71,7 @@ try {
             return 0;
         }
         $row = $result->fetch_row();
+        $result->free();
         return isset($row[0]) ? (int) $row[0] : 0;
     };
 
@@ -92,6 +93,7 @@ try {
                     $borrowStatusCounts[$key] = (int)($row['cnt'] ?? 0);
                 }
             }
+            $res->free();
         }
         $stmt->close();
     }
@@ -107,6 +109,7 @@ try {
                     $dailyMap[$d] = (int)($row['cnt'] ?? 0);
                 }
             }
+            $res->free();
         }
         $stmt->close();
     }
@@ -140,7 +143,11 @@ try {
     if ($stmt = $conn->prepare($sqlTopBooks)) {
         $stmt->bind_param('ss', $fromTs, $toTs);
         $stmt->execute();
-        $topBorrowedBooks = ($stmt->get_result()) ? $stmt->get_result()->fetch_all(MYSQLI_ASSOC) : [];
+        $res = $stmt->get_result();
+        $topBorrowedBooks = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        if ($res) {
+            $res->free();
+        }
         $stmt->close();
     }
 
@@ -157,7 +164,11 @@ try {
     if ($stmt = $conn->prepare($sqlTopReaders)) {
         $stmt->bind_param('ss', $fromTs, $toTs);
         $stmt->execute();
-        $topBorrowingReaders = ($stmt->get_result()) ? $stmt->get_result()->fetch_all(MYSQLI_ASSOC) : [];
+        $res = $stmt->get_result();
+        $topBorrowingReaders = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        if ($res) {
+            $res->free();
+        }
         $stmt->close();
     }
 
@@ -173,6 +184,7 @@ try {
             $chartCategoryLabels[] = (string) ($row['label'] ?? '');
             $chartCategoryCounts[] = (int) ($row['cnt'] ?? 0);
         }
+        $result->free();
     }
 
     $sqlStatus = "
@@ -186,6 +198,7 @@ try {
             $chartStatusLabels[] = (string) ($row['label'] ?? '');
             $chartStatusCounts[] = (int) ($row['cnt'] ?? 0);
         }
+        $result->free();
     }
 } catch (Throwable $e) {
 }
@@ -216,9 +229,6 @@ try {
                     </div>
                     <div class="col-12 col-md-3 d-grid">
                         <button class="btn btn-outline-primary" type="submit">Áp dụng</button>
-                    </div>
-                    <div class="col-12 col-md-3 text-md-end text-muted small">
-                        Khoảng: <?php echo htmlspecialchars($statsFrom, ENT_QUOTES); ?> → <?php echo htmlspecialchars($statsTo, ENT_QUOTES); ?>
                     </div>
                 </form>
             </div>
@@ -312,7 +322,6 @@ try {
                     <div class="card-body">
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <h5 class="fw-bold mb-0">Phiếu mượn theo ngày</h5>
-                            <span class="text-muted small"><?php echo htmlspecialchars($statsFrom, ENT_QUOTES); ?> → <?php echo htmlspecialchars($statsTo, ENT_QUOTES); ?></span>
                         </div>
                         <div style="height: 320px;">
                             <canvas id="adminChartBorrowDaily" aria-label="Biểu đồ phiếu mượn theo ngày"></canvas>
@@ -447,7 +456,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     legend: { display: false },
                 },
                 scales: {
-                    x: { ticks: { autoSkip: false } },
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            minRotation: 0,
+                            maxRotation: 0,
+                            font: { size: 10 },
+                            padding: 6,
+                            callback: function (value) {
+                                const label = String(this.getLabelForValue(value) ?? '');
+                                return label.length > 16 ? (label.slice(0, 16) + '…') : label;
+                            },
+                        },
+                    },
                     y: { beginAtZero: true, precision: 0 },
                 },
             },
@@ -492,8 +513,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 datasets: [{
                     label: 'Số phiếu mượn',
                     data: borrowDailyCounts,
-                    tension: 0.25,
-                    fill: true,
+                    tension: 0,
+                    stepped: true,
+                    fill: false,
+                    pointRadius: 2,
+                    pointHoverRadius: 4,
+                    borderWidth: 2,
                 }],
             },
             options: {
@@ -503,7 +528,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     legend: { display: false },
                 },
                 scales: {
-                    y: { beginAtZero: true, precision: 0 },
+                    x: {
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10,
+                            minRotation: 0,
+                            maxRotation: 0,
+                            font: { size: 10 },
+                            callback: function (value) {
+                                const label = String(this.getLabelForValue(value) ?? '');
+                                // 2026-04-02 -> 04-02 (gọn hơn)
+                                return label.length >= 10 ? label.slice(5) : label;
+                            },
+                        },
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            stepSize: 1,
+                        },
+                        suggestedMax: Math.max(3, ...borrowDailyCounts) + 1,
+                    },
                 },
             },
         });

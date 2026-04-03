@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../auth.php';
+require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
 require_admin_permission('DOCGIA');
 error_reporting(E_ERROR | E_PARSE);
@@ -20,8 +20,8 @@ error_reporting(E_ERROR | E_PARSE);
     .form-grid label{display:block;font-weight:600;margin-bottom:4px;color:#333;}
     .form-grid input[type=text],.form-grid input[type=date]{width:100%;padding:8px 10px;border:1px solid #bbb;border-radius:4px;}
     .form-actions{display:flex;align-items:center;gap:12px;padding-top:8px;}
-    .btn{background:#007bff;color:#fff;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;transition:.2s;}
-    .btn:hover{background:#0056b3;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger){background:#007bff;color:#fff;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;transition:.2s;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger):hover{background:#0056b3;}
     .table-responsive{overflow-x:auto;}
     table{width:100%;border-collapse:collapse;margin-top:10px;}
     th,td{padding:10px 12px;border:1px solid #ddd;text-align:left;}
@@ -165,7 +165,7 @@ error_reporting(E_ERROR | E_PARSE);
             <th>SĐT</th>
             <th>Ngày sinh</th>
             <th>Địa chỉ</th>
-            <th>Hành động</th>
+            <th class="text-end">Thao tác</th>
           </tr>
         </thead>
         <tbody>
@@ -179,9 +179,9 @@ error_reporting(E_ERROR | E_PARSE);
               echo '<td>'.htmlspecialchars($row['sdt']).'</td>';
               echo '<td>'.htmlspecialchars($row['ngaysinh']).'</td>';
               echo '<td>'.htmlspecialchars($row['diachi']).'</td>';
-              echo '<td>';
-              echo '<a class="action-link edit" href="Sua_DocGia.php?madocgia='.urlencode($row['madocgia']).'">Sửa</a>';
-              echo '<a class="action-link delete" href="QL_DocGia.php?luachon=Xoa&madocgia='.urlencode($row['madocgia']).'" onclick="return confirm(\'Bạn có chắc muốn xóa?\')">Xóa</a>';
+              echo '<td class="text-end">';
+              echo '<a class="btn btn-sm btn-outline-primary me-1" href="Sua_DocGia.php?madocgia='.urlencode($row['madocgia']).'">Sửa</a>';
+              echo '<a class="btn btn-sm btn-outline-danger" href="QL_DocGia.php?luachon=Xoa&madocgia='.urlencode($row['madocgia']).'" onclick="return confirm(\'Bạn có chắc muốn xóa?\')">Xóa</a>';
               echo '</td>';
               echo '</tr>';
             }
