@@ -24,11 +24,11 @@
             <h2>Đăng Nhập</h2>
             <form id="loginForm">
                 <div class="input-box">
-                    <input type="email" name="email" required>
+                    <input type="email" name="email" required placeholder=" ">
                     <label>Email</label>
                 </div>
                 <div class="input-box">
-                    <input type="password" name="matkhau" required>
+                    <input type="password" name="matkhau" required placeholder=" ">
                     <label>Mật Khẩu</label>
                 </div>
                 <div class="remember-forgot">
@@ -48,24 +48,24 @@
                <div class="row g-0 mb-input">
                     <div class="col-6 pe-2">
                         <div class="input-box">
-                            <input type="text" name="hodocgia" required>
+                            <input type="text" name="hodocgia" required placeholder=" ">
                             <label>Họ</label>
                         </div>
                     </div>
                     <div class="col-6 ps-2">
                         <div class="input-box">
-                            <input type="text" name="tendocgia" required>
+                            <input type="text" name="tendocgia" required placeholder=" ">
                             <label>Tên</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="input-box">
-                    <input type="email" name="email" required>
+                    <input type="email" name="email" required placeholder=" ">
                     <label>Email</label>
                 </div>
                 <div class="input-box">
-                    <input type="password" name="matkhau" required>
+                    <input type="password" name="matkhau" required placeholder=" ">
                     <label>Mật Khẩu</label>
                 </div>
                 <div class="remember-forgot">
