@@ -1621,7 +1621,7 @@ CREATE TABLE `vitri` (
 INSERT INTO `vitri` (`mavitri`, `khuvuc`, `ke`, `mota`) VALUES
 ('VT001', 'Tầng 1', 'Kệ A1', 'Khu vực văn học'),
 ('VT002', 'Tầng 1', 'Kệ B2', 'Khu vực trinh thám'),
-('VT003', 'Tầng 2', 'Kệ C1', 'Khu vực kỹ năng')
+('VT003', 'Tầng 2', 'Kệ C1', 'Khu vực kỹ năng');
 
 --
 -- Table structure for table `giohang`

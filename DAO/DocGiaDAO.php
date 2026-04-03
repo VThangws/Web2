@@ -45,7 +45,7 @@ class DocGiaDAO {
     }
 
     public function ToanBoDanhSach($conn) {
-        $sql = "SELECT * FROM docgia ORDER BY madocgia DESC";
+        $sql = "SELECT * FROM docgia WHERE diachi <> 'Nhân viên' ORDER BY madocgia DESC";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -68,7 +68,7 @@ class DocGiaDAO {
 
 
     public function TimKiem($conn, $keyword) {
-        $sql = "SELECT * FROM docgia WHERE madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ? ORDER BY madocgia DESC";
+        $sql = "SELECT * FROM docgia WHERE diachi <> 'Nhân viên' AND (madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ?) ORDER BY madocgia DESC";
         $stmt = $conn->prepare($sql);
         $like = '%' . $keyword . '%';
         $stmt->bind_param('sss', $like, $like, $like);
