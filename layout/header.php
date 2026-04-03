@@ -19,6 +19,7 @@ $docgia = $_SESSION['docgia'] ?? null;
 
 <link rel="stylesheet" href="/assets/css/login.css">
 <link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="/assets/css/responsive.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <header class="main-header">
@@ -54,13 +55,13 @@ $docgia = $_SESSION['docgia'] ?? null;
         <!-- Icon + nút bên phải -->
         <div class="main-actions">
             <div class="header-support">
-                <div class="support-icon">
+                <!-- <div class="support-icon">
                     <i class="fa-solid fa-phone-volume"></i>
-                </div>
-                <div class="support-info">
+                </div> -->
+                <!-- <div class="support-info">
                     <span class="support-title">Hỗ trợ khách hàng</span>
                     <strong class="support-phone">0987654321</strong>
-                </div>
+                </div> -->
             </div>
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($docgia): ?>

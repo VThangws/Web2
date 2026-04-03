@@ -1,0 +1,115 @@
+/* 1. QUY TẮC TOÀN CỤC (Áp dụng cho mọi màn hình) */
+img {
+    max-width: 100% !important;
+    height: auto;
+}
+
+/* Cấm cuộn ngang trên toàn bộ website */
+body, html {
+    overflow-x: hidden;
+}
+
+/* 2. ĐIỆN THOẠI & TABLET NHỎ (Màn hình dưới 768px) */
+@media (max-width: 768px) {
+    
+    /* --- XỬ LÝ HEADER ÉP KHUNG --- */
+    .main-header, .main-header-inner {
+        height: auto !important; 
+        min-height: auto !important;
+        padding-bottom: 15px !important; 
+    }
+
+    /* Ép buộc bật chế độ rớt dòng */
+    .main-header-inner {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+    }
+
+    body {
+        padding-top: 15px !important; 
+    }
+
+    /* Vị trí số 1: Logo nằm góc trái */
+    .main-logo {
+        flex: 0 0 40% !important; 
+        max-width: 40% !important;
+        order: 1 !important;
+    }
+
+    /* Vị trí số 2: Nút bấm nằm góc phải */
+    .main-actions {
+        flex: 0 0 60% !important; 
+        max-width: 60% !important;
+        order: 2 !important;
+        justify-content: flex-end !important;
+    }
+
+    /* Vị trí số 3: Thanh tìm kiếm rớt xuống hàng thứ 2 */
+    .header-search-big {
+        flex: 0 0 100% !important; 
+        max-width: 100% !important;
+        order: 3 !important; 
+        margin-top: 15px !important;
+    }
+
+    .search-big-box {
+        width: 100% !important;
+    }
+
+    /* Ẩn các thứ rườm rà trên Mobile cho gọn */
+    .search-category-mini, 
+    .header-support {
+        display: none !important; 
+    }
+
+    /* --- XỬ LÝ CỘT (GRID) --- */
+    /* Ép tất cả các container giãn kịch kim hai bên lề */
+    .container, .container-md {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    /* --- XỬ LÝ CÁC PHẦN TỬ HIỂN THỊ DẠNG DANH SÁCH --- */
+    /* (Dùng chung cho sách liên quan, giỏ hàng...) */
+    .book-thumbnail-grid {
+        justify-content: flex-start !important; /* Để người dùng lướt ngang được */
+    }
+
+    /* --- XỬ LÝ FOOTER --- */
+    /* Ép tất cả các hàng trong thẻ footer phải xếp dọc */
+    footer .row, .footer .row { 
+        display: flex !important;
+        flex-direction: column !important; 
+    }
+    
+    /* Ép tất cả các cột trong footer giãn full 100% màn hình */
+    footer [class^="col-"], .footer [class^="col-"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+        margin-bottom: 25px !important; /* Tạo khoảng cách giữa các khối */
+        text-align: center !important; /* Canh giữa */
+    }
+}
+
+/* 3. ĐIỆN THOẠI NHỎ (Màn hình dưới 576px) */
+@media (max-width: 576px) {
+    /* Ép các nút bấm dàn trải full chiều ngang cho dễ bấm bằng ngón tay */
+    .btn, .main-btn, .btn-cart-custom {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+
+    /* Trang chi tiết sách: Xếp chữ và ảnh chồng lên nhau thay vì nằm ngang */
+    .book-details-container {
+        flex-direction: column !important;
+    }
+    
+    .book-cover-column, .book-info-column {
+        width: 100% !important;
+        padding: 0 !important;
+    }
+}
