@@ -163,7 +163,7 @@ error_reporting(E_ERROR | E_PARSE);
             <th>Tên</th>
             <th>Email</th>
             <th>SĐT</th>
-            <!-- <th>Ngày sinh</th> -->
+            <th>Ngày sinh</th>
             <th>Địa chỉ</th>
             <th class="text-end">Thao tác</th>
           </tr>
