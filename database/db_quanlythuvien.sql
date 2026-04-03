@@ -1,110 +1,678 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Mar 15, 2026 at 04:57 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- ============================================================
+-- phpMyAdmin SQL Dump - FIXED & REORDERED
+-- Database: db_quanlythuvien
+-- Thứ tự: Tắt FK → Tạo bảng → Insert dữ liệu độc lập trước
+--         → Insert dữ liệu phụ thuộc sau → Bật FK lại
+-- ============================================================
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+SET NAMES utf8mb4;
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
 
---
--- Database: `db_quanlythuvien`
---
+-- Tắt kiểm tra FK trong quá trình tạo & seed để tránh xung đột thứ tự
+SET FOREIGN_KEY_CHECKS = 0;
 
--- --------------------------------------------------------
+CREATE DATABASE IF NOT EXISTS `db_quanlythuvien`
+  DEFAULT CHARACTER SET utf8mb4
+  DEFAULT COLLATE utf8mb4_general_ci;
+USE `db_quanlythuvien`;
 
---
--- Table structure for table `ctphieumuon`
---
-USE db_quanlythuvien;
-CREATE TABLE `ctphieumuon` (
-  `mamuon` varchar(50) NOT NULL,
+-- ============================================================
+-- BƯỚC 1: TẠO CÁC BẢNG ĐỘC LẬP (không có FK)
+-- ============================================================
+
+-- 1.1 vitri
+CREATE TABLE IF NOT EXISTS `vitri` (
+  `mavitri`  varchar(50)  NOT NULL,
+  `khuvuc`   varchar(100) DEFAULT NULL,
+  `ke`       varchar(50)  DEFAULT NULL,
+  `mota`     varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`mavitri`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.2 tacgia
+CREATE TABLE IF NOT EXISTS `tacgia` (
+  `matacgia`  varchar(50)  NOT NULL,
+  `tentacgia` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`matacgia`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.3 theloai
+CREATE TABLE IF NOT EXISTS `theloai` (
+  `matheloai`  varchar(50)  NOT NULL,
+  `tentheloai` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`matheloai`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.4 nhaxuatban
+CREATE TABLE IF NOT EXISTS `nhaxuatban` (
+  `manxb`  varchar(50)  NOT NULL,
+  `tennxb` varchar(255) DEFAULT NULL,
+  `diachi` varchar(255) DEFAULT NULL,
+  `sdt`    varchar(20)  DEFAULT NULL,
+  `email`  varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`manxb`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.5 nhacungcap
+CREATE TABLE IF NOT EXISTS `nhacungcap` (
+  `mancc`    varchar(50)  NOT NULL,
+  `tenncc`   varchar(255) DEFAULT NULL,
+  `diachincc` varchar(255) DEFAULT NULL,
+  `sdt`      varchar(20)  DEFAULT NULL,
+  `email`    varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`mancc`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.6 nhanvien
+CREATE TABLE IF NOT EXISTS `nhanvien` (
+  `manv`      varchar(50)  NOT NULL,
+  `honv`      varchar(100) DEFAULT NULL,
+  `tennv`     varchar(100) DEFAULT NULL,
+  `gioitinh`  varchar(10)  DEFAULT NULL,
+  `sdt`       varchar(20)  DEFAULT NULL,
+  `ngaysinh`  date         DEFAULT NULL,
+  PRIMARY KEY (`manv`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.7 docgia
+CREATE TABLE IF NOT EXISTS `docgia` (
+  `madocgia`  varchar(50)  NOT NULL,
+  `hodocgia`  varchar(100) DEFAULT NULL,
+  `tendocgia` varchar(100) DEFAULT NULL,
+  `email`     varchar(100) DEFAULT NULL,
+  `sdt`       varchar(20)  DEFAULT NULL,
+  `ngaysinh`  date         DEFAULT NULL,
+  `diachi`    varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`madocgia`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.8 nhomquyen
+CREATE TABLE IF NOT EXISTS `nhomquyen` (
+  `manhomquyen`  varchar(50)  NOT NULL,
+  `tennhomquyen` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`manhomquyen`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 1.9 danhmucchucnang
+CREATE TABLE IF NOT EXISTS `danhmucchucnang` (
+  `machucnang`  varchar(50)  NOT NULL,
+  `tenchucnang` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`machucnang`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ============================================================
+-- BƯỚC 2: TẠO CÁC BẢNG CÓ FK CẤP 1
+-- ============================================================
+
+-- 2.1 dausach (FK → tacgia, theloai, nhaxuatban)
+CREATE TABLE IF NOT EXISTS `dausach` (
+  `madausach`  varchar(50)  NOT NULL,
+  `tensach`    varchar(255) DEFAULT NULL,
+  `namxuatban` int(11)      DEFAULT NULL,
+  `dongia`     decimal(12,2) DEFAULT NULL,
+  `matacgia`   varchar(50)  DEFAULT NULL,
+  `matheloai`  varchar(50)  DEFAULT NULL,
+  `manxb`      varchar(50)  DEFAULT NULL,
+  `mota`       text         DEFAULT NULL,
+  `anhbia`     varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`madausach`),
+  KEY `fk_dausach_tacgia` (`matacgia`),
+  KEY `fk_dausach_theloai` (`matheloai`),
+  KEY `fk_dausach_nxb` (`manxb`),
+  CONSTRAINT `fk_dausach_tacgia`  FOREIGN KEY (`matacgia`)  REFERENCES `tacgia`  (`matacgia`),
+  CONSTRAINT `fk_dausach_theloai` FOREIGN KEY (`matheloai`) REFERENCES `theloai` (`matheloai`),
+  CONSTRAINT `fk_dausach_nxb`     FOREIGN KEY (`manxb`)     REFERENCES `nhaxuatban` (`manxb`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 2.2 cuonsach (FK → dausach, vitri)
+CREATE TABLE IF NOT EXISTS `cuonsach` (
   `macuonsach` varchar(50) NOT NULL,
-  `tinhtrang_truoc` varchar(50) DEFAULT NULL
+  `madausach`  varchar(50) DEFAULT NULL,
+  `mavitri`    varchar(50) DEFAULT NULL,
+  `trangthai`  varchar(50) DEFAULT NULL,
+  `tinhtrang`  varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`macuonsach`),
+  KEY `fk_cuonsach_dausach` (`madausach`),
+  KEY `fk_cuonsach_vitri`   (`mavitri`),
+  CONSTRAINT `fk_cuonsach_dausach` FOREIGN KEY (`madausach`) REFERENCES `dausach` (`madausach`),
+  CONSTRAINT `fk_cuonsach_vitri`   FOREIGN KEY (`mavitri`)   REFERENCES `vitri`   (`mavitri`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `ctphieunhap`
---
-
-CREATE TABLE `ctphieunhap` (
-  `maphieunhap` varchar(50) NOT NULL,
-  `madausach` varchar(50) NOT NULL,
-  `dongianhap` decimal(10,2) DEFAULT NULL,
-  `soluong` int(11) DEFAULT NULL
+-- 2.3 taikhoan (FK → nhomquyen, nhanvien, docgia)
+CREATE TABLE IF NOT EXISTS `taikhoan` (
+  `tendangnhap` varchar(50)  NOT NULL,
+  `matkhau`     varchar(255) DEFAULT NULL,
+  `manhomquyen` varchar(50)  DEFAULT NULL,
+  `manv`        varchar(50)  DEFAULT NULL,
+  `madocgia`    varchar(50)  DEFAULT NULL,
+  PRIMARY KEY (`tendangnhap`),
+  KEY `fk_taikhoan_nhomquyen` (`manhomquyen`),
+  KEY `fk_taikhoan_nhanvien`  (`manv`),
+  KEY `fk_taikhoan_docgia`    (`madocgia`),
+  CONSTRAINT `fk_taikhoan_nhomquyen` FOREIGN KEY (`manhomquyen`) REFERENCES `nhomquyen` (`manhomquyen`),
+  CONSTRAINT `fk_taikhoan_nhanvien`  FOREIGN KEY (`manv`)        REFERENCES `nhanvien`  (`manv`),
+  CONSTRAINT `fk_taikhoan_docgia`    FOREIGN KEY (`madocgia`)     REFERENCES `docgia`    (`madocgia`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `ctphieuphat`
---
-
-CREATE TABLE `ctphieuphat` (
-  `maphat` varchar(50) NOT NULL,
-  `macuonsach` varchar(50) NOT NULL,
-  `lydo` varchar(255) DEFAULT NULL,
-  `songayquahan` int(11) DEFAULT NULL,
-  `sotienphat` decimal(10,2) DEFAULT NULL
+-- 2.4 ctquyen (FK → nhomquyen, danhmucchucnang)
+CREATE TABLE IF NOT EXISTS `ctquyen` (
+  `manhomquyen` varchar(50)  NOT NULL,
+  `machucnang`  varchar(50)  NOT NULL,
+  `hanhdong`    varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`manhomquyen`, `machucnang`),
+  KEY `fk_ctq_chucnang` (`machucnang`),
+  CONSTRAINT `fk_ctq_nhomquyen` FOREIGN KEY (`manhomquyen`) REFERENCES `nhomquyen`      (`manhomquyen`),
+  CONSTRAINT `fk_ctq_chucnang`  FOREIGN KEY (`machucnang`)  REFERENCES `danhmucchucnang` (`machucnang`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
---
--- Table structure for table `ctphieutra`
---
-
-CREATE TABLE `ctphieutra` (
-  `matra` varchar(50) NOT NULL,
-  `macuonsach` varchar(50) NOT NULL,
-  `maphat` varchar(50) NOT NULL,
-  `tinhtrang_sau` varchar(50) DEFAULT NULL,
-  `tienphathuha` decimal(10,2) DEFAULT NULL,
-  `songayquahan` int(11) DEFAULT NULL,
-  `tienphatquahan` decimal(10,2) DEFAULT NULL
+-- 2.5 phieunhap (FK → nhanvien, nhacungcap)
+CREATE TABLE IF NOT EXISTS `phieunhap` (
+  `maphieunhap` varchar(50)   NOT NULL,
+  `thoigiantao` datetime      DEFAULT NULL,
+  `tongtien`    decimal(10,2) DEFAULT NULL,
+  `manv`        varchar(50)   DEFAULT NULL,
+  `mancc`       varchar(50)   DEFAULT NULL,
+  PRIMARY KEY (`maphieunhap`),
+  KEY `fk_phieunhap_nhanvien`  (`manv`),
+  KEY `fk_phieunhap_nhacungcap` (`mancc`),
+  CONSTRAINT `fk_phieunhap_nhanvien`   FOREIGN KEY (`manv`)  REFERENCES `nhanvien`  (`manv`),
+  CONSTRAINT `fk_phieunhap_nhacungcap` FOREIGN KEY (`mancc`) REFERENCES `nhacungcap` (`mancc`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
+-- 2.6 phieumuon (FK → nhanvien, docgia)
+CREATE TABLE IF NOT EXISTS `phieumuon` (
+  `mamuon`     varchar(50)  NOT NULL,
+  `ngaymuon`   datetime     DEFAULT NULL,
+  `ngayhethan` datetime     DEFAULT NULL,
+  `manv`       varchar(50)  DEFAULT NULL,
+  `madocgia`   varchar(50)  DEFAULT NULL,
+  `trangthai`  varchar(50)  DEFAULT NULL,
+  `ghichu`     varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`mamuon`),
+  KEY `fk_phieumuon_docgia`   (`madocgia`),
+  KEY `fk_phieumuon_nhanvien` (`manv`),
+  CONSTRAINT `fk_phieumuon_docgia`   FOREIGN KEY (`madocgia`) REFERENCES `docgia`   (`madocgia`),
+  CONSTRAINT `fk_phieumuon_nhanvien` FOREIGN KEY (`manv`)     REFERENCES `nhanvien` (`manv`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Table structure for table `ctquyen`
---
+-- 2.7 phieutra (FK → phieumuon, nhanvien)
+CREATE TABLE IF NOT EXISTS `phieutra` (
+  `matra`       varchar(50)   NOT NULL,
+  `mamuon`      varchar(50)   DEFAULT NULL,
+  `ngaytra`     datetime      DEFAULT NULL,
+  `manv`        varchar(50)   DEFAULT NULL,
+  `tongtienphat` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`matra`),
+  KEY `fk_phieutra_phieumuon` (`mamuon`),
+  KEY `fk_phieutra_nhanvien`  (`manv`),
+  CONSTRAINT `fk_phieutra_phieumuon` FOREIGN KEY (`mamuon`) REFERENCES `phieumuon` (`mamuon`),
+  CONSTRAINT `fk_phieutra_nhanvien`  FOREIGN KEY (`manv`)   REFERENCES `nhanvien`  (`manv`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `ctquyen` (
   `manhomquyen` varchar(50) NOT NULL,
   `machucnang` varchar(50) NOT NULL,
   `hanhdong` varchar(100) NOT NULL
+
+-- 2.8 phieuphat (FK → docgia, phieutra)
+CREATE TABLE IF NOT EXISTS `phieuphat` (
+  `maphat`      varchar(50)   NOT NULL,
+  `madocgia`    varchar(50)   DEFAULT NULL,
+  `matra`       varchar(50)   DEFAULT NULL,
+  `ngaylap`     datetime      DEFAULT NULL,
+  `tongtienphat` decimal(10,2) DEFAULT NULL,
+  `trangthai`   varchar(50)   DEFAULT NULL,
+  `ghichu`      varchar(255)  DEFAULT NULL,
+  PRIMARY KEY (`maphat`),
+  KEY `fk_phieuphat_docgia`   (`madocgia`),
+  KEY `fk_phieuphat_phieutra` (`matra`),
+  CONSTRAINT `fk_phieuphat_docgia`   FOREIGN KEY (`madocgia`) REFERENCES `docgia`   (`madocgia`),
+  CONSTRAINT `fk_phieuphat_phieutra` FOREIGN KEY (`matra`)    REFERENCES `phieutra` (`matra`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
+-- ============================================================
+-- BƯỚC 3: TẠO BẢNG CHI TIẾT (FK → bảng cha cấp 1 & 2)
+-- ============================================================
 
---
--- Table structure for table `cuonsach`
---
-
-CREATE TABLE `cuonsach` (
-  `macuonsach` varchar(50) NOT NULL,
-  `madausach` varchar(50) DEFAULT NULL,
-  `mavitri` varchar(50) DEFAULT NULL,
-  `trangthai` varchar(50) DEFAULT NULL,
-  `tinhtrang` varchar(50) DEFAULT NULL
+-- 3.1 ctphieumuon (FK → phieumuon, cuonsach)
+CREATE TABLE IF NOT EXISTS `ctphieumuon` (
+  `mamuon`        varchar(50) NOT NULL,
+  `macuonsach`    varchar(50) NOT NULL,
+  `tinhtrang_truoc` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`mamuon`, `macuonsach`),
+  KEY `fk_ctpm_cuonsach` (`macuonsach`),
+  CONSTRAINT `fk_ctpm_phieumuon` FOREIGN KEY (`mamuon`)     REFERENCES `phieumuon` (`mamuon`),
+  CONSTRAINT `fk_ctpm_cuonsach`  FOREIGN KEY (`macuonsach`) REFERENCES `cuonsach`  (`macuonsach`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `cuonsach`
---
+-- 3.2 ctphieunhap (FK → phieunhap, dausach)
+CREATE TABLE IF NOT EXISTS `ctphieunhap` (
+  `maphieunhap` varchar(50)   NOT NULL,
+  `madausach`   varchar(50)   NOT NULL,
+  `dongianhap`  decimal(10,2) DEFAULT NULL,
+  `soluong`     int(11)       DEFAULT NULL,
+  PRIMARY KEY (`maphieunhap`, `madausach`),
+  KEY `fk_ctpn_dausach` (`madausach`),
+  CONSTRAINT `fk_ctpn_phieunhap` FOREIGN KEY (`maphieunhap`) REFERENCES `phieunhap` (`maphieunhap`),
+  CONSTRAINT `fk_ctpn_dausach`   FOREIGN KEY (`madausach`)   REFERENCES `dausach`   (`madausach`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- 3.3 ctphieuphat (FK → phieuphat, cuonsach)
+CREATE TABLE IF NOT EXISTS `ctphieuphat` (
+  `maphat`     varchar(50)   NOT NULL,
+  `macuonsach` varchar(50)   NOT NULL,
+  `lydo`       varchar(255)  DEFAULT NULL,
+  `songayquahan` int(11)     DEFAULT NULL,
+  `sotienphat` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`maphat`, `macuonsach`),
+  KEY `fk_ctpp_cuonsach` (`macuonsach`),
+  CONSTRAINT `fk_ctpp_phieuphat` FOREIGN KEY (`maphat`)     REFERENCES `phieuphat` (`maphat`),
+  CONSTRAINT `fk_ctpp_cuonsach`  FOREIGN KEY (`macuonsach`) REFERENCES `cuonsach`  (`macuonsach`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 3.4 ctphieutra (FK → phieutra, cuonsach)
+CREATE TABLE IF NOT EXISTS `ctphieutra` (
+  `matra`          varchar(50)   NOT NULL,
+  `macuonsach`     varchar(50)   NOT NULL,
+  `maphat`         varchar(50)   NOT NULL,
+  `tinhtrang_sau`  varchar(50)   DEFAULT NULL,
+  `tienphathuha`   decimal(10,2) DEFAULT NULL,
+  `songayquahan`   int(11)       DEFAULT NULL,
+  `tienphatquahan` decimal(10,2) DEFAULT NULL,
+  PRIMARY KEY (`matra`, `macuonsach`, `maphat`),
+  KEY `fk_ctpt_cuonsach` (`macuonsach`),
+  CONSTRAINT `fk_ctpt_phieutra` FOREIGN KEY (`matra`)      REFERENCES `phieutra` (`matra`),
+  CONSTRAINT `fk_ctpt_cuonsach` FOREIGN KEY (`macuonsach`) REFERENCES `cuonsach` (`macuonsach`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 3.5 giohang (FK → docgia, dausach)
+CREATE TABLE IF NOT EXISTS `giohang` (
+  `madocgia`  varchar(10) NOT NULL,
+  `madausach` varchar(10) NOT NULL,
+  `soluong`   int         DEFAULT 1,
+  PRIMARY KEY (`madocgia`, `madausach`),
+  KEY `fk_giohang_dausach` (`madausach`),
+  CONSTRAINT `fk_giohang_docgia`  FOREIGN KEY (`madocgia`)  REFERENCES `docgia`  (`madocgia`)  ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_giohang_dausach` FOREIGN KEY (`madausach`) REFERENCES `dausach` (`madausach`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 3.6 diachi (FK → docgia)
+CREATE TABLE IF NOT EXISTS `diachi` (
+  `madiachi`    varchar(50) NOT NULL,
+  `madocgia`    varchar(50) NOT NULL,
+  `diachi`      text        NOT NULL,
+  `tinh`        varchar(100) DEFAULT NULL,
+  `quan`        varchar(100) DEFAULT NULL,
+  `phuong`      varchar(100) DEFAULT NULL,
+  `ngaycapnhat` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`madiachi`),
+  CONSTRAINT `fk_diachi_docgia` FOREIGN KEY (`madocgia`) REFERENCES `docgia` (`madocgia`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ALTER TABLE diachi MODIFY COLUMN madiachi INT AUTO_INCREMENT;
+
+-- ============================================================
+-- BƯỚC 4: INSERT DỮ LIỆU — thứ tự theo dependency
+-- ============================================================
+
+-- 4.1 vitri
+INSERT INTO `vitri` (`mavitri`, `khuvuc`, `ke`, `mota`) VALUES
+('VT001', 'Tầng 1', 'Kệ A1', 'Khu vực văn học'),
+('VT002', 'Tầng 1', 'Kệ B2', 'Khu vực trinh thám'),
+('VT003', 'Tầng 2', 'Kệ C1', 'Khu vực kỹ năng')
+ON DUPLICATE KEY UPDATE `khuvuc` = VALUES(`khuvuc`), `ke` = VALUES(`ke`), `mota` = VALUES(`mota`);
+
+-- 4.2 tacgia
+INSERT INTO `tacgia` (`matacgia`, `tentacgia`) VALUES
+('TG001', 'Bách Tùng'),
+('TG002', 'Leader Thanh'),
+('TG003', 'Joe Vitale'),
+('TG004', 'Andrea Fryrear'),
+('TG005', 'Khôi'),
+('TG006', 'Richard Moore'),
+('TG007', 'Matt Johnson PhD, Prince Ghuman'),
+('TG008', 'Dan White'),
+('TG009', 'Lydia Michael'),
+('TG010', 'Inamori Kazuo'),
+('TG011', 'Jeb Blount, Anthony Iannarino'),
+('TG012', 'Nhiều tác giả'),
+('TG013', 'Aaron Ross, Marylou Tyler'),
+('TG014', 'Dan S. Kennedy'),
+('TG015', 'Russell Brunson'),
+('TG016', 'Joseph F. Hair, Jr., Dana E. Harrison, Haya Ajjan'),
+('TG017', 'Allan J. Kimmel'),
+('TG018', 'Mary Roach'),
+('TG019', 'Alex Goldfayn'),
+('TG020', 'Bình Nguyễn, Việt Anh Nori'),
+('TG021', 'Marcel Gaultier'),
+('TG022', 'Hàn Chung Lượng'),
+('TG023', 'Đinh Hùng'),
+('TG024', 'Jeremy Dronfield'),
+('TG025', 'Denise Affonço'),
+('TG026', 'Edgar Parin D\'Aulaire, Ingri'),
+('TG027', 'Lucy Maud Montgomery'),
+('TG028', 'Harper Lee'),
+('TG029', 'Stephen King'),
+('TG030', 'Armand Mattelart, Michèle Mattelart'),
+('TG031', 'Howard Schultz'),
+('TG032', 'Barbara Butcher'),
+('TG033', 'BTS, Myeongseok Kang'),
+('TG034', 'Guillem Balague'),
+('TG035', 'David Beckham & Tom Watt'),
+('TG036', 'Debbie Beckrman'),
+('TG037', 'Raphael Honigstein'),
+('TG038', 'Andrés Iniesta'),
+('TG039', 'Thẩm Ninh'),
+('TG040', 'TS Nguyễn Thu Hương'),
+('TG041', 'Hương Bùi'),
+('TG042', 'Kim Sarah'),
+('TG043', 'Becca Anderson'),
+('TG044', 'Emma Phạm'),
+('TG045', 'Craig Kessler'),
+('TG046', 'Park Soyuong'),
+('TG047', 'Nguyễn Ngọc Ái Quỳnh'),
+('TG048', 'James E. Hughes Jr., Susan E. Massenzio, Keith Whitaker'),
+('TG049', 'Lý Tĩnh'),
+('TG050', 'Vũ Thị Huệ'),
+('TG051', 'Bác Sĩ, Thạc Sĩ Phạm Thánh Hoa'),
+('TG052', 'Dương Ý'),
+('TG053', 'Toshiyuki Shiomi, Eiko Kuryu'),
+('TG054', 'FLIPFLOPs'),
+('TG055', 'Nomomarino'),
+('TG056', 'Uma Agri'),
+('TG057', 'Tiểu Lam Và Những Người Bạn'),
+('TG058', 'Suzuka'),
+('TG059', 'Lương Minh Quang'),
+('TG060', 'Uraroji'),
+('TG061', 'Ameko'),
+('TG062', 'Khuyển Nhất'),
+('TG063', 'Phan'),
+('TG064', 'Linh Thạch'),
+('TG065', 'Lâm Bảo Thi'),
+('TG066', 'Scott McCloud'),
+('TG067', 'Worry Lines'),
+('TG068', 'Sói Ăn Chay'),
+('TG069', 'Lê Thư'),
+('TG070', 'Nguyễn Tú Tuấn'),
+('TG071', 'Gretchen Rubin'),
+('TG072', 'Jean Case'),
+('TG073', 'Robin Sharma'),
+('TG074', 'John Leach'),
+('TG075', 'Rae Earl'),
+('TG076', 'Takuya Senda'),
+('TG077', 'Karen Hough'),
+('TG078', 'Ezra Bayda & Elizabeth Hamilton'),
+('TG079', 'Pat Flynn'),
+('TG080', 'Lý Thế Cường'),
+('TG081', 'Kishimi Ichiro & Koga Fumitake'),
+('TG082', 'Tiến sĩ Lê Nguyễn Hồng Phương'),
+('TG083', 'Ann Mei Chang & Eric Ries'),
+('TG084', 'Jack Canfield & D.D. Watkins'),
+('TG085', 'Mr. Q'),
+('TG086', 'Ki Ju Lee'),
+('TG087', 'Damon Zahariades'),
+('TG088', 'Liễu Nhất Thu'),
+('TG089', 'Mike Leibling'),
+('TG090', 'Tiến sĩ Ali Fenwick'),
+('TG091', 'ARC ACADEMY'),
+('TG092', 'Hitoko Sasaki, Noriko Matsumoto'),
+('TG093', 'Nguyễn Thị Thu Huế'),
+('TG094', 'BINO'),
+('TG095', 'Trí Thức Việt'),
+('TG096', 'Nguyễn Đại'),
+('TG097', 'Cho Hang Rok, Lee Ji Yeong'),
+('TG098', 'Nguyễn Phương Anh'),
+('TG099', 'Bùi Thành Việt'),
+('TG100', 'Nhung Đỗ, Giang Vi'),
+('TG101', 'Louise Edington'),
+('TG102', 'George S. Clason'),
+('TG103', 'Nhóm tác giả Thu Khai'),
+('TG104', 'Richard Fenton & Andrea Waltz'),
+('TG105', 'PGS. TS Thái Phan Vàng Anh'),
+('TG106', 'ThS. Lê Nguyệt & Trần Thanh Hà'),
+('TG107', 'Vũ Hải'),
+('TG108', 'TS. Hoàng Thị Thanh Huyền'),
+('TG109', 'ThS. Hoàng Nhật Linh'),
+('TG110', 'ThS. Đào Hữu Trọng'),
+('TG111', 'Hồ Như Hiển & Trần Mơ'),
+('TG112', 'TS. Nguyễn Đình Nguyên'),
+('TG113', 'Nguyễn Thị Hồng Châu & Nguyễn Thị Hải Yến'),
+('TG114', 'Rhonda Byrne'),
+('TG115', 'Ryoichi Kakui'),
+('TG116', 'Bloomsbury Publishing'),
+('TG117', 'Martha Heller'),
+('TG118', 'Lê Tiến Thành'),
+('TG119', 'Jason Barron'),
+('TG120', 'Karthik Ramanna'),
+('TG121', 'ThaiHaBooks'),
+('TG122', 'Russ Laraway')
+ON DUPLICATE KEY UPDATE `tentacgia` = VALUES(`tentacgia`);
+
+-- 4.3 theloai
+INSERT INTO `theloai` (`matheloai`, `tentheloai`) VALUES
+('TL001', 'Kinh Tế'),
+('TL002', 'Văn Học Trong Nước'),
+('TL003', 'Văn Học Nước Ngoài'),
+('TL004', 'Thưởng Thức Đời Sống'),
+('TL005', 'Thiếu Nhi'),
+('TL006', 'Phát Triển Bản Thân'),
+('TL007', 'Tin Học Ngoại Ngữ'),
+('TL008', 'Giáo Khoa - Giáo Trình')
+ON DUPLICATE KEY UPDATE `tentheloai` = VALUES(`tentheloai`);
+
+-- 4.4 nhaxuatban
+INSERT INTO `nhaxuatban` (`manxb`, `tennxb`, `diachi`, `sdt`, `email`) VALUES
+('NXB001', 'NXB Trẻ',                         '161 Lý Chính Thắng, Võ Thị Sáu, Quận 3, TP.HCM', '02839316237', 'tre@nxbtre.com.vn'),
+('NXB002', 'NXB Thế Giới',                    '55 Quang Trung, Hà Nội',                           '02439434730', 'info@nxbkimdong.com.vn'),
+('NXB003', 'NXB Thông Tấn',                   '11 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội',             '02439331149', 'vnanet@vnanet.vn'),
+('NXB004', 'NXB Công Thương',                 'Hà Nội',                                           '02400000000', 'info@nxbcongthuong.vn'),
+('NXB005', 'NXB Dân Trí',                     'Hà Nội',                                           '02400000001', 'info@nxbdantri.vn'),
+('NXB006', 'NXB Hồng Đức',                    '65 Tràng Thi, Hoàn Kiếm, Hà Nội',                 '02439260024', 'info@nxbhongduc.vn'),
+('NXB007', 'NXB Hà Nội',                      '4 Tống Duy Tân, Hoàn Kiếm, Hà Nội',               '02438252916', 'info@nxbhanoi.com.vn'),
+('NXB008', 'NXB Khoa Học Xã Hội',             '26 Lý Thường Kiệt, Hoàn Kiếm, Hà Nội',            '02438252916', 'nxbkhxh@vass.gov.vn'),
+('NXB009', 'NXB Hội Nhà Văn',                 '65 Nguyễn Du, Hai Bà Trưng, Hà Nội',              '02439439472', 'nxbhoinhavan@gmail.com'),
+('NXB010', 'NXB Văn Học',                     '18 Nguyễn Trường Tộ, Ba Đình, Hà Nội',            '02438438266', 'nxbvanhoc@gmail.com'),
+('NXB011', 'NXB Chính Trị Quốc Gia Sự Thật', '6/86 Duy Tân, Cầu Giấy, Hà Nội',                 '02437910000', 'info@nxbctqg.org.vn'),
+('NXB012', 'NXB Kim Đồng',                    '55 Quang Trung, Hai Bà Trưng, Hà Nội',            '02439434730', 'info@nxbkimdong.com.vn'),
+('NXB013', 'NXB Lao Động',                    '175 Giảng Võ, Đống Đa, Hà Nội',                   '02438515380', 'nxblaodong@gmail.com'),
+('NXB014', 'NXB Thanh Hóa',                   '19 Phan Chu Trinh, TP Thanh Hóa',                 '02373852945', 'nxbthanhhoa@gmail.com'),
+('NXB015', 'NXB Tri Thức',                    '53 Nguyễn Du, Hai Bà Trưng, Hà Nội',              '02439439562', 'info@nxbtrithuc.com.vn'),
+('NXB016', 'NXB Phụ Nữ Việt Nam',             '39 Hàng Chuối, Hai Bà Trưng, Hà Nội',            '02439710717', 'nxbphunu@nxbphunu.vn')
+ON DUPLICATE KEY UPDATE `tennxb` = VALUES(`tennxb`), `diachi` = VALUES(`diachi`);
+
+-- 4.5 nhacungcap
+INSERT INTO `nhacungcap` (`mancc`, `tenncc`, `diachincc`, `sdt`, `email`) VALUES
+('NCC_FAHASA',    'Công ty Cổ phần Phát hành Sách TP.HCM - FAHASA',    '60-62 Lê Lợi, Quận 1, TP.HCM',                   '1900636467',  'info@fahasa.com.vn'),
+('NCC_NHANAM',    'Công ty Cổ phần Văn hóa và Truyền thông Nhã Nam',   '59 Đỗ Quang, Trung Hòa, Cầu Giấy, Hà Nội',      '02435146205', 'info@nhanam.vn'),
+('NCC_PHUONGNAM', 'Công ty Cổ phần Văn hóa Phương Nam',                '940 Đường 3/2, Phường 15, Quận 11, TP.HCM',     '19006656',    'hotro@phuongnambook.com'),
+('NCC_SAIGONBOOKS','Công ty Cổ phần Sách Sài Gòn (Saigon Books)',      '97 Nguyễn Bỉnh Khiêm, Đa Kao, Quận 1, TP.HCM', '02862822666', 'contact@saigonbooks.vn'),
+('NCC_THAIHA',    'Công ty Cổ phần Sách Thái Hà (ThaiHaBooks)',        '119 C3, Tập thể Mai Động, Hoàng Mai, Hà Nội',   '02437533909', 'info@thaihabooks.com'),
+('NCC_TRE',       'Nhà xuất bản Trẻ',                                  '161 Lý Chính Thắng, Phường Võ Thị Sáu, Quận 3, TP.HCM','02839316237','tre@nxbtre.com.vn')
+ON DUPLICATE KEY UPDATE `tenncc` = VALUES(`tenncc`);
+
+-- 4.6 nhomquyen
+INSERT INTO `nhomquyen` (`manhomquyen`, `tennhomquyen`) VALUES
+('ADMIN',  'Quản trị'),
+('STAFF',  'Nhân viên'),
+('KETOAN', 'Kế toán'),
+('DG',     'Độc giả')
+ON DUPLICATE KEY UPDATE `tennhomquyen` = VALUES(`tennhomquyen`);
+
+-- 4.7 danhmucchucnang
+INSERT INTO `danhmucchucnang` (`machucnang`, `tenchucnang`) VALUES
+('DASHBOARD',   'Bảng điều khiển'),
+('SACH',        'Quản lý sách'),
+('HOADON',      'Quản lý hóa đơn'),
+('TAIKHOAN',    'Quản lý tài khoản'),
+('DOCGIA',      'Quản lý độc giả'),
+('NHANVIEN',    'Quản lý nhân viên'),
+('TACGIA',      'Quản lý tác giả'),
+('THELOAI',     'Quản lý thể loại'),
+('NXB',         'Quản lý nhà xuất bản'),
+('NHACUNGCAP',  'Quản lý nhà cung cấp')
+ON DUPLICATE KEY UPDATE `tenchucnang` = VALUES(`tenchucnang`);
+
+-- 4.8 ctquyen (phụ thuộc nhomquyen + danhmucchucnang)
+-- ADMIN: full access
+INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
+('ADMIN', 'DASHBOARD',  'ALL'),
+('ADMIN', 'SACH',       'ALL'),
+('ADMIN', 'HOADON',     'ALL'),
+('ADMIN', 'TAIKHOAN',   'ALL'),
+('ADMIN', 'DOCGIA',     'ALL'),
+('ADMIN', 'NHANVIEN',   'ALL'),
+('ADMIN', 'TACGIA',     'ALL'),
+('ADMIN', 'THELOAI',    'ALL'),
+('ADMIN', 'NXB',        'ALL'),
+('ADMIN', 'NHACUNGCAP', 'ALL'),
+-- STAFF
+('STAFF', 'DASHBOARD',  'ALL'),
+('STAFF', 'SACH',       'ALL'),
+('STAFF', 'DOCGIA',     'ALL'),
+('STAFF', 'NHACUNGCAP', 'ALL'),
+('STAFF', 'NXB',        'ALL'),
+('STAFF', 'TACGIA',     'ALL'),
+('STAFF', 'THELOAI',    'ALL'),
+-- KETOAN
+('KETOAN', 'DASHBOARD', 'ALL'),
+('KETOAN', 'HOADON',    'ALL')
+ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
+
+-- 4.9 docgia (bảng độc lập — insert trước taikhoan & phieumuon)
+INSERT INTO `docgia` (`madocgia`, `hodocgia`, `tendocgia`, `email`, `sdt`, `ngaysinh`, `diachi`) VALUES
+('DG001', 'Nguyen', 'Van A',  'user@example.com', '0123456789', '2000-01-01', NULL),
+('DG002', 'Trần',   'Thị B',  'dg2@example.com',  '0900000002', '2001-02-02', 'Q.1, TP.HCM'),
+('DG003', 'Lê',     'Văn C',  'dg3@example.com',  '0900000003', '2002-03-03', 'Q.3, TP.HCM'),
+('DG004', 'Phạm',   'Thị D',  'dg4@example.com',  '0900000004', '2003-04-04', 'Q.5, TP.HCM'),
+('DG005', 'Hoàng',  'Văn E',  'dg5@example.com',  '0900000005', '2004-05-05', 'Q.7, TP.HCM'),
+('DG006', 'Võ',     'Thị F',  'dg6@example.com',  '0900000006', '2000-06-06', 'TP. Thủ Đức'),
+('DG007', 'Đặng',   'Văn G',  'dg7@example.com',  '0900000007', '1999-07-07', 'Bình Thạnh, TP.HCM'),
+('DG008', 'Ngô',    'Thị H',  'dg8@example.com',  '0900000008', '1998-08-08', 'Gò Vấp, TP.HCM'),
+('DG009', 'Bùi',    'Văn I',  'dg9@example.com',  '0900000009', '2001-09-09', 'Tân Bình, TP.HCM'),
+('DG010', 'Phan',   'Thị K',  'dg10@example.com', '0900000010', '2002-10-10', 'Tân Phú, TP.HCM')
+ON DUPLICATE KEY UPDATE
+  `hodocgia`  = VALUES(`hodocgia`),
+  `tendocgia` = VALUES(`tendocgia`),
+  `email`     = VALUES(`email`),
+  `sdt`       = VALUES(`sdt`),
+  `ngaysinh`  = VALUES(`ngaysinh`),
+  `diachi`    = VALUES(`diachi`);
+
+-- 4.10 taikhoan (phụ thuộc nhomquyen, nhanvien, docgia)
+--   admin / password: 123456
+INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`, `madocgia`) VALUES
+('admin',           '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN', NULL,   NULL),
+('user@example.com','$2y$10$9lhJHHQY7h0sPX5HEat.hOydlfyTfuxd7nV2y9TvbJPDwk0Gtf2KS', 'DG',    NULL,   'DG001')
+ON DUPLICATE KEY UPDATE
+  `matkhau`     = VALUES(`matkhau`),
+  `manhomquyen` = VALUES(`manhomquyen`),
+  `manv`        = VALUES(`manv`),
+  `madocgia`    = VALUES(`madocgia`);
+
+-- 4.11 dausach (phụ thuộc tacgia, theloai, nhaxuatban)
+INSERT INTO `dausach` (`madausach`, `tensach`, `namxuatban`, `dongia`, `matacgia`, `matheloai`, `manxb`, `mota`, `anhbia`) VALUES
+('DS001', 'Cách Tạo Video Triệu View', 2026, 268000.00, 'TG001', 'TL001', 'NXB003', 'Cách Tạo Video Triệu View\n\nBAN SẼ HOC ĐƯỢC GÌ TỪ CUỐN SÁCH NÀY?\n\n- Kiến thức nhập môn liên quan đến kịch bản video ngắn bao gồm cấu trúc tinh tiết và phân tích tâm lý, thông qua các bước cư thể như lựa chọn chủ để, lên kế hoạch chủ để, quay phim, cách biểu đạt tới thoại và ngôn ngữ mấy quay.\n\n- 129 kỳ thuật viết kịch bản bao cảm xác định nội dung chính, tình tiết cao tiếng vang thiết lập các nút thắc, quản lý tiết tấu cầu chuyện, xây dựng nhân vật, bố cục cảnh quay.\n\n- Các nguyên tốc viết kịch bản, logic cảm xúc và kỳ thuật tạo xung đột, đẩy cảm xúc đến cao trào.', '8935235247314_4fb356aaf56f479f929b31c15c378e2a_medium.jpg'),
+('DS002', 'Đặt Tên Thương Hiệu', 2024, 70000.00, 'TG002', 'TL001', 'NXB002', 'Đặt Tên Thương Hiệu\n\nTên thương hiệu là một thành tố cực kỳ quan trọng của thương hiệu.', 'b_a---_t-t_n-th_ng-hi_u_fc80c58702074f9c8023365cee90350e_medium.jpg'),
+('DS003', 'Ứng Dụng Agile Marketing', 2025, 195000.00, 'TG004', 'TL001', 'NXB004', 'Ứng Dụng Agile Marketing\n\nTrong một thị trường thay đổi từng ngày, marketing không thể vận hành theo lối mòn.', 'ung-dung-agile-marketing---converted-01_576b070204534ec38be121b19d116aa8_medium.jpg'),
+('DS004', 'Manifest Marketing', 2025, 159000.00, 'TG003', 'TL001', 'NXB004', 'Manifest Marketing\n\nTrong một thế giới kỹ thuật số ngày càng minh bạch, niềm tin đã trở thành yếu tố sống còn.', 'manifest-marketing---b_a-1_4357b56059e34434b9e1b8c99d30cedc_medium.jpg'),
+('DS005', 'Công Thức Bán Hàng Bất Bại', 2025, 88000.00, 'TG005', 'TL001', 'NXB002', 'Công Thức Bán Hàng Bất Bại - Làm chủ tâm lý - Thống trị doanh số.', '9786326042788_80ee7caa4bfa488fa274d1b90a563f91_medium.jpg'),
+('DS006', 'Đổi Mới Với Intergrated Brand Thinking', 2025, 250000.00, 'TG006', 'TL001', 'NXB005', '"Đổi Mới Với Integrated Brand Thinking" là cuốn sách thứ hai trong bộ ba ấn phẩm về xây dựng thương hiệu.', '8936170870902_e6e16aea8b3144edbe8fc40862c97744_medium.jpg'),
+('DS007', 'Thuật Cạnh Tranh', 2025, 229000.00, 'TG007', 'TL001', 'NXB004', 'Thuật Cạnh Tranh\n\nTại sao cùng một món ăn nhưng nó lại trở nên ngon miệng hơn chỉ nhờ cách trình bày bắt mắt?', 'thu_t-c_nh-tranh---b_a-1_53f298b3db0d4b6a9d70df8e2ef1e76f_medium.jpg'),
+('DS008', 'Chiến Lược Marketing Thực Chiến', 2025, 169000.00, 'TG008', 'TL001', 'NXB004', 'Chiến Lược Marketing Thực Chiến\n\nTrong một thế giới mà hành vi tiêu dùng không ngừng biến chuyển.', 'b_a-1_5_34_216867ec60e340409dcde4350f989732_medium.jpg'),
+('DS009', 'Human Branding - Nuôi Dưỡng Thương Hiệu Bằ̀ng Sự Thấu Cảm', 2025, 219000.00, 'TG009', 'TL001', 'NXB004', 'Human Branding - Nuôi Dưỡng Thương Hiệu Bằ̀ng Sự Thấu Cảm', 'nding--nuoi-duong-bang-su-thau-cam------full-----t1-2025----outline-02_17ba7d5bdd584466a5895d17371669c1_medium.jpg'),
+('DS010', 'Inamori Kazuo Mỗi Ngày Một Câu Nói Nâng Tầm Vận Mệnh', 2021, 95000.00, 'TG010', 'TL001', 'NXB001', 'Inamori Kazuo Mỗi Ngày Một Câu Nói Nâng Tầm Vận Mệnh', '2025_01_13_16_45_47_1-390x510_1ea3a854d455410f948c98b2696f949d_medium.jpg'),
+('DS011', 'The AI Edge - Khai Thác Thế Mạnh AI Trong Sales Và Marketing', 2025, 219000.00, 'TG011', 'TL001', 'NXB004', 'The AI Edge - Khai Thác Thế Mạnh AI Trong Sales Và Marketing', 'the-ai-edge---bia-1_724ce444630e4d97b4a92074ffe8dea4_medium.jpg'),
+('DS012', 'Inbox Marketing', 2022, 198000.00, 'TG012', 'TL001', 'NXB002', 'Tăng Khách Hàng Và Chốt Sales Với Chatbot', 'inbox_marketing_15afb629ea474cb5a9ad344b439c7308_22276044ff2840b9a6bbab9f0e24f20b_medium.jpg'),
+('DS013', 'Thấy Trước Doanh Thu - Aaron Ross, Marylou Tyler', 2024, 250000.00, 'TG013', 'TL001', 'NXB002', 'Đây không phải một cuốn sách khác về cách có những cuộc gọi lạnh hay chốt giao dịch.', 'thay_truoc_doanh_thu_6f4812d84de049068dfedc6405a76699_2244be3944224857a078d77494e3f9f9_medium.jpg'),
+('DS014', 'Marketing Trực Tiếp - Dan S. Kennedy', 2019, 85000.00, 'TG014', 'TL001', 'NXB002', 'Cẩm Nang Bách Thắng - Marketing Trực Tiếp', 'marketing_truc_tiep_0181e1af8c2d4d009ece017382dccb53_cbb0f857539f4305874b787103978ccd_medium.jpg'),
+('DS015', 'Bán Hàng Cho Người Giàu - Dan S Kennedy', 2018, 79000.00, 'TG014', 'TL001', 'NXB002', 'Cẩm Nang Bách Thắng - Bán Hàng Cho Người Giàu (Tái Bản)', 'ban_hang_cho_nguoi_giau_4ba2acb9b52742eea9151eac9a7231af_61bcd38d676d49b59c1a94c9e29f8eed_medium.jpg'),
+('DS016', 'Bí Mật Traffic - Russell Brunson', 2023, 185000.00, 'TG015', 'TL001', 'NXB002', 'Bí mật - Traffic - Bìa Cứng', 'bi_mat_-_traffic_-_bia_cung_f21cc7cf71894c5fa8a6a1aae4d1aca2_61c81c3e2fa347d0925a6d13ab8f8d4a_medium.jpg'),
+('DS017', 'Phân Tích Dữ Liệu Marketing', 2022, 350000.00, 'TG016', 'TL001', 'NXB002', 'TEXTBOOK - PHÂN TÍCH DỮ LIỆU MARKETING', 'ph_n_t_ch_d_li_u_marketing_-_b_a_1_5fcbefdf10ac4cddbd395acd581ba96c_medium.jpg'),
+('DS018', 'Trò Chơi Tâm Lý Trong Marketing', 2021, 110000.00, 'TG017', 'TL001', 'NXB004', 'Trò Chơi Tâm Lý Trong Marketing', 'tro-choi-tam-ly-trong-marketing_e4254fea668e4f86aaac77269595bee5_medium.jpg'),
+('DS019', 'Nghệ Thuật Bán Hàng Của Người Hướng Nội - Trở Thành Số 1 Bán Hàng Khi Là Người Nhút Nhát', 2020, 95000.00, 'TG019', 'TL001', 'NXB005', 'Nghệ Thuật Bán Hàng Của Người Hướng Nội', '8935235243231_7195ea3c5e9f4c548f374831c9035533_medium.jpg'),
+('DS020', 'GAM7 BOOK SPECIAL 2020 - Marketing Thời Bình Thường Mới', 2019, 165000.00, 'TG012', 'TL001', 'NXB005', 'GAM7 Special 2020', 'image_195509_1_45100_1_f305e36ac4bd44c68cd62c7c6daacba2_medium.jpg'),
+('DS021', 'Conversion Hacking - Gia Tăng Tỷ Lệ Chốt Đơn Hàng', 2024, 140000.00, 'TG020', 'TL001', 'NXB005', 'Conversion Hacking - Gia Tăng Tỷ Lệ Chốt Đơn Hàng', 'untitled__8__307f3c28ba554e09b11107a5c1f716e1_medium.jpg'),
+('DS022', 'Vua Gia Long', 2024, 159000.00, 'TG021', 'TL002', 'NXB002', 'Cuốn sách là công trình biên khảo bằng tiếng Pháp của Marcel Gaultier xuất bản năm 1933.', 'p92245mgia_long_43ef89bb604545f2bb6c89a8198a6cc0_large_f5e9f038c9e1400c922ba4c5f165fb12_medium.jpg'),
+('DS023', 'Ngụy Võ Đế Tào Tháo', 2022, 468000.00, 'TG022', 'TL002', 'NXB006', 'Ngụy Võ Đế - Tào Tháo (Tái bản 2022)', '2023_04_07_16_24_56_1-390x510_2910246c38494fe69a18f389533e74ef_medium.jpg'),
+('DS024', 'Tập Văn Họa Kỷ Niệm Nguyễn Du (Bản giấy dó)', 2020, 1000000.00, 'TG016', 'TL002', 'NXB002', 'Giới thiệu sách Tập Văn Họa Kỷ Niệm Nguyễn Du (Bản giấy dó)', 'tap-van-hoa-ky-niem-nguyen-du_d84377dcb9994eb3bd1d5c778b1f59d1_medium.jpg'),
+('DS025', 'Mùa Gặt Mới - Số 2', 2021, 2500000.00, 'TG012', 'TL002', 'NXB007', 'MANG NGUỒN SỐNG MỚI TỪ THẾ KỶ CŨ', '9786043396744_4ab3680cc463407988c03decbb3b22d1_medium.jpg'),
+('DS026', 'Mùa Gặt Mới - Số 1', 2020, 2500000.00, 'TG012', 'TL002', 'NXB007', NULL, 'so_1_536e2e0ae3d54fe8a89e560cdeb5bf2e_medium.jpg'),
+('DS027', 'Đường Vào Tình Sử (Bản Đặc Biệt)', 2022, 800000.00, 'TG023', 'TL002', 'NXB008', 'Tác giả Đinh Hùng (1920-1967) là một nhà thơ Việt Nam thời tiền chiến.', 'duong-vao-tinh-su-ban-dac-biet_d96996649f134168b55595ad20ecf33c_medium.jpg'),
+('DS028', 'Nghệ Thuật Trang Trí Bắc Kỳ - Bìa giả da', 2019, 550000.00, 'TG012', 'TL002', 'NXB008', 'Nghệ Thuật luôn là một thứ vô tận.', 'nghe-thuat-trang-tri-bac-ky-bia-gia-da_e52eec11fbae4456bdd6abb56035c50a_medium.png'),
+('DS029', 'Hệ Thống Cơ Quan Giám Sát Triều Nguyễn (1802 - 1885) Từ Thiết Chế, Định Chế Đến Thực Tiễn (Bìa Cứng)', 2013, 235000.00, 'TG012', 'TL002', 'NXB008', 'Hệ Thống Cơ Quan Giám Sát Triều Nguyễn', '2__55761_1df171585bab4c91b57ab15dd8c74c14_medium.jpg'),
+('DS030', 'HOẠT ĐỘNG CHẾ TẠO VÀ QUẢN LÝ SỬ DỤNG VŨ KHÍ DƯỚI TRIỀU NGUYỄN GIAI ĐOẠN 1802-1883 ( Bìa Cứng)', 2020, 215000.00, 'TG012', 'TL002', 'NXB008', 'Triều Nguyễn là vương triều cuối cùng của chế độ quân chủ Việt Nam.', 'hoat-dong-che-tao-bc_a8b829a964894bca97804591c307433b_medium.png'),
+('DS031', 'Chính Sách Tôn Giáo Thời Tự Đức (1848-1883)- Bìa cứng', 2020, 235000.00, 'TG012', 'TL002', 'NXB008', 'Chính Sách Tôn Giáo Thời Tự Đức (1848-1883)', 'chinh-sach-ton-giao-thoi-tu-duc_fe0a204cc6f4404c95f55e054b4e0131_medium.png'),
+('DS032', 'Lược Khảo Binh Chế Việt Nam Qua Các Thời Đại', 2022, 215000.00, 'TG012', 'TL002', 'NXB008', 'Lược Khảo Binh Chế Việt Nam Qua Các Thời Đại', '2ae559fe8bda3405f49a877ba968afe0_12797ac2aa494822858411c3d07c4dc4_medium.jpg'),
+('DS033', 'Chữ, Văn Quốc Ngữ - Bìa Cứng', 2020, 175000.00, 'TG012', 'TL002', 'NXB008', 'Chữ Quốc Ngữ là thứ chữ mà các giáo sĩ phương Tây dùng chữ Latinh để ghi âm tiếng Việt.', '2022_06_21_14_40_50_1-390x510__00541_image2_800_big_5afc0b671ecb45ae9fd62a37a70b2a7f_medium.jpg'),
+('DS034', 'Binh Pháp Tinh Hoa - Bìa Cứng', 2018, 175000.00, 'TG012', 'TL002', 'NXB008', 'Luận giải 13 Thiên Binh Pháp Tôn Võ Tử.', 'binh---phap---tinh---hoa---bia---cung_d7154f688f5541078d55be40136ea7cd_medium.png'),
+('DS035', 'Việt Kiều Tại Các Xứ Lân Bang - Bìa Cứng', 2015, 299000.00, 'TG012', 'TL002', 'NXB008', 'Việt Kiều Tại Các Xứ Lân Bang được khảo cứu dưới khía cạnh địa lý, nhân văn.', '3b16440891b2549a78869c6ae9ae27a5_5cefe110925d449bb868b9b9cd8b53bc_medium.jpg'),
+('DS036', 'Yên Bái Đêm Đỏ Lửa _ Bìa Cứng', 2012, 319000.00, 'TG012', 'TL002', 'NXB008', 'Đêm 9 rạng ngày 10/2/1930, Khởi nghĩa Yên Bái bùng nổ.', '858d76ac8747bbc24c6f770cfad71363_f303947077c84385b8c4bafab42224e0_medium.jpg'),
+('DS037', 'Hát Văn và âm nhạc hát văn', 2018, 219000.00, 'TG012', 'TL002', 'NXB008', NULL, '4c7ac45a0e6e315b9c5a0c3b11dbfc96_967b8076d01b4bf1a56c30523fa68ed6_medium.jpg'),
+('DS038', 'Lịch sử hình thành và phát triển ngôn ngữ', 2020, 385000.00, 'TG012', 'TL002', 'NXB009', NULL, '9786043945096_8143d14a09ee4e66935eaaa8da6d69aa_medium.jpg'),
+('DS039', 'Vụ Án Truyện Kiều', 2018, 89000.00, 'TG012', 'TL002', 'NXB009', NULL, '9786043839609_fd7813cc53c342338c6c27a16456e031_medium.jpg'),
+('DS040', 'Thà có một con chim trong tay', 2015, 89000.00, 'TG012', 'TL002', 'NXB008', NULL, '9786043826180_0efaeede468945a4956a09bd50bb67d6_medium.jpg'),
+('DS041', 'Yên Bái Đêm Đỏ Lửa', 2010, 250000.00, 'TG012', 'TL002', 'NXB009', NULL, '9786043640137_87e16eb4414d4a528f07f762b015036f_medium.jpg'),
+('DS042', 'Hoạt động chế tạo và quản lý sử dụng vũ khí dưới triều Nguyễn giai đoạn 1802-1883 (Mềm)', 2020, 155000.00, 'TG024', 'TL002', 'NXB008', NULL, 'he-tao-va-quan-ly-su-dung-vu-khi-duoi-trieu-nguyen-giai-doan-1802-1883_01b5f31e0f3a4c01bc40168c3b4c9774_medium.jpg'),
+('DS043', 'Khâm thiên giám triều Nguyễn giai đoạn 1802-1883 (Mềm)', 2016, 165000.00, 'TG025', 'TL002', 'NXB009', NULL, 'kham-thien-giam-trieu-nguyen-giai-doan-1802-1883_06a8d4bb37d04db6a05187c23fbcbbf1_medium.jpg'),
+('DS044', 'Hệ thống cơ quan giám sát triều Nguyễn (1802-1885): từ thiết chế, định chế đến thực tiễn (Mềm)', 2013, 165000.00, 'TG019', 'TL002', 'NXB009', NULL, '9786043085877_2a3bbd88b77e4710b0bd80af3edfbbf5_medium.jpg'),
+('DS045', 'Cùng Cha Tới Auschwits', 2022, 225000.00, 'TG024', 'TL002', 'NXB010', 'Câu chuyện có thật về gia đình và sự sống sót trong thời kỳ Holocaust.', 'bia_1_9ae046a49b9f4ccebadfac97dbb2c210_master.png'),
+('DS046', 'Thoát Khỏi Địa Ngục Khmer Đỏ - Hồi Ký Của Một Người Còn Sống', 2024, 73000.00, 'TG025', 'TL002', 'NXB011', 'Hồi ký của Denise Affonço về những năm tháng kiệt quệ dưới Khmer đỏ.', '8935279163403_7db9ad0beba54074806072de0d332eec_master.jpg'),
+('DS047', 'Thần Thoại Hy Lạp Trọn Bộ 2 Tập (Bìa Cứng)', 2018, 219000.00, 'TG023', 'TL003', 'NXB011', 'Thần thoại Hy Lạp, di sản văn hóa của nhân dân Hy Lạp.', '856939087335_554732de4a374e9ea39e8c920eb5ecea_medium.jpg'),
+('DS048', 'Truyện Thạch Yêu', 2020, 116000.00, 'TG026', 'TL003', 'NXB010', 'Ingri và Edgar d\'Aulaire - Truyện Thạch Yêu xuất bản lần đầu năm 1972.', 'p92022mtruyen_th___ch_yeu_01_e73e7a6234fa47efaf5c2823955efb25_medium.jpg'),
+('DS049', 'Rilla Dưới Mái Nhà Bên Ánh Lửa', 2022, 200000.00, 'TG027', 'TL003', 'NXB009', 'Chưa tròn mười lăm, Rilla ùa vào đời với niềm háo hức vẹn nguyên.', 'p94953mrilla_duoi_mai_nha_ben_anh_lua_01_2b6289475163404a88b5da9e7add091d_medium.jpg'),
+('DS050', 'Giết Con Chim Nhại (Tái Bản 2019)', 2018, 145000.00, 'TG028', 'TL003', 'NXB010', 'Harper Lee - Giết Con Chim Nhại.', 'p94902mimage_180771_538aa219d5604ec1af896cf9efb511f7_medium.jpg'),
+('DS051', 'Cửa Hàng Ma Quái', 2024, 349000.00, 'TG029', 'TL003', 'NXB005', 'Needful Things – Cửa hàng ma quái - Stephen King.', 'ma_9e38e85878204ab8af03e84984a53aae_master.png'),
+('DS052', 'Lịch Sử Các Lý Thuyết Truyền Thông', 2024, 175000.00, 'TG030', 'TL003', 'NXB008', 'Histoire Des Théories De La Communication - Armand Mattelart.', '8935280501508_12c78c778c0c440aad2eb37e53ba6a5b_master.jpg'),
+('DS053', 'Vươn Lên Từ Đáy - Hành Trình Tái Hiện Giấc Mơ Mỹ', 2024, 215000.00, 'TG031', 'TL003', 'NXB001', 'Howard Schultz - Vươn Lên Từ Đáy.', '8934974201106_7211232daf0443aeb60ca8161c6fcef5_master.jpg'),
+('DS054', 'Người Chết Biết Điều Gì', 2024, 175000.00, 'TG032', 'TL003', 'NXB005', 'Người Chết Biết Điều Gì - 18 câu chuyện dựa trên sự kiện có thật.', 'b_a-1-ng_i-ch_t-bi_t-_i_u-g_-1_04ecfa96a8c54b16aa53420e206d9546_master.jpg'),
+('DS055', 'Beyond The Story - 10 Year Record Of BTS', 2023, 589000.00, 'TG033', 'TL003', 'NXB002', '10-Year Record Of BTS - Beyond The Story', 'sp3_11_96dd3b417173463cbab8fe6cc2c2998f_master.jpg'),
+('DS056', 'CR7 - Hành trình lên đỉnh thế giới - Phiên bản 2023', 2023, 278400.00, 'TG034', 'TL003', 'NXB007', 'Sách - CR7 - Hành trình lên đỉnh thế giới', '0b036713badb4f6a24144eff7a2f6143.jpg'),
+('DS057', 'Who? Chuyện Kể Về Danh Nhân Thế Giới: Lionel Messi', 2023, 61000.00, 'TG012', 'TL003', 'NXB012', 'Lionel Messi - Từ một cậu bé thấp còi trở thành siêu sao.', '28ed80689efdd3d985fb94f1283b0f6a.jpg'),
+('DS058', 'Tự truyện David Beckham - Góc cạnh đời tôi', 2022, 210000.00, 'TG035', 'TL003', 'NXB007', 'Tự Truyện David Beckham - Góc Cạnh Đời Tôi', '7dd5799dd382ba022683adea64abe800.jpg'),
+('DS059', 'Tự truyện "VOI RỪNG" Drogba - Cầu thủ vĩ đại bậc nhất Chelsea', 2023, 200000.00, 'TG036', 'TL003', 'NXB013', 'Tự truyện của Didier Drogba.', 'vn-11134207-7ras8-m3hblq7cmo4o6d.jpg'),
+('DS060', 'Jurgen Klopp - Thổi bùng huyên náo', 2022, 130000.00, 'TG037', 'TL003', 'NXB007', 'Jurgen Klopp - Chiến lược gia hàng đầu của bóng đá đương đại', 'e0061cf7eda9fda8b33092a143e436d8.jpg'),
+('DS061', 'Messi Vs. Ronaldo - Sự Đối Đầu Của Hai Cầu Thủ Vĩ Đại', 2023, 145000.00, 'TG012', 'TL003', 'NXB001', 'Joshua Robinson và Jonathan Clegg - Messi Vs. Ronaldo', 'vn-11134201-7r98o-logb4yg6xiuv8c.jpg'),
+('DS062', 'Andrés Iniesta the artist - Khi bóng đá là nghệ thuật', 2023, 150000.00, 'TG038', 'TL003', 'NXB007', 'Andrés Iniesta - Khi bóng đá là nghệ thuật', '51119dedb23e3b6209ab129fde8cdb38.jpg'),
+('DS063', 'Dưỡng Nhan Đánh Tan Lão Hóa', 2025, 148000.00, 'TG039', 'TL004', 'NXB014', 'Dưỡng Nhan Đánh Tan Lão Hóa', '8935074137906_05703475ae514cbcb3578db19bdd7339_master.jpg'),
+('DS064', 'Khỏe Đẹp Từ Gốc', 2025, 499000.00, 'TG040', 'TL004', 'NXB015', 'Bí quyết giảm cân & làm chậm quá trình lão hóa thuần tự nhiên', 'kh_e_p_t_g_c_-_b_a_1_a41f68018e264b6d97dc89b4c103f686_medium.jpg'),
+('DS065', 'Cẩm Nang Độ Dáng Tại Nhà', 2025, 299000.00, 'TG041', 'TL004', 'NXB002', 'Bí quyết chinh phục bờ mông trái đào.', '9786047754601_de40e10bbdce41beab899f01e020779e_medium.jpg'),
+('DS066', 'Đi Bộ Giảm Cân', 2024, 128000.00, 'TG042', 'TL004', 'NXB014', 'Đi Bộ Giảm Cân - Siêu mẫu Kim Sarah', '2024_11_13_16_47_48_1-390x510_9b947e38763e4860bd7ff2e534479e0c_medium.jpg'),
+('DS067', 'Đẹp Đỉnh Cao Chao Đao Thế Giới', 2025, 105000.00, 'TG043', 'TL004', 'NXB014', 'Lời vàng từ những chị đại.', 'image_223605_0724a78798da45d8b7805bbda0d0bfad_medium.jpg'),
+('DS068', 'Green Smoothies - Giảm Cân, Làm Đẹp Da, Tăng Cường Sức Đề Kháng', 2024, 159000.00, 'TG044', 'TL004', 'NXB002', '7 ngày uống sinh tố xanh giúp giảm cân, làm đẹp da.', 'image_195509_1_37298_5417b41da6bf43678cffd0d03e3ca451_medium.jpg'),
+('DS069', 'Những Lá Thư Cha Gửi Con', 2025, 179000.00, 'TG045', 'TL004', 'NXB005', 'Những Lá Thư Cha Gửi Con - Hơn 40 lá thư từ các người cha.', 'nhung-la-thu-cha-gui-con-01_d57e94e65ae942fa9239626e0b759c80_medium.jpg'),
+('DS070', 'Một Đứa Trẻ Giàu Tâm Hồn Sẻ Trưởng Thành Như Thế Nào', 2025, 279000.00, 'TG046', 'TL004', 'NXB004', 'Cẩm Nang Giúp Cha Mẹ Nuôi Con Hạnh Phúc', '8935280920637_e4246711791d4119972b2c19648927c8_medium.jpg'),
+('DS071', 'Con Tha Thứ Rồi, Ba Mẹ Ơi! - I Forgive You, Mom And Dad!', 2025, 149000.00, 'TG047', 'TL004', 'NXB004', 'Cuốn sách song ngữ Việt – Anh, được in màu tuyệt đẹp.', 'bia_con-tha-thu-roi-ba-me-oi_bia-1_2a5dbd6a223d428d80110e44825d8ceb_medium.jpg'),
+('DS072', 'Thịnh Vượng Gia Tộc', 2025, 199000.00, 'TG048', 'TL004', 'NXB005', 'Phương Thức Bảo Tồn Và Chuyển Giao Gia Sản Con Người, Trí Tuệ Và Tài Chính Qua Các Thế Hệ', '8936219420037_34471be4c98144bb805894c78a2c0ff4_medium.jpg'),
+('DS073', 'Chuyện Trò Cùng Con - Gieo Yêu Thương, Gặt Niềm Vui', 2025, 80000.00, 'TG049', 'TL004', 'NXB016', 'Là cha mẹ, chắc hẳn ai trong chúng ta cũng thường cảm thấy đau đầu.', '8936238100712_5104ffe310ee4a2190ced07aec797664_medium.jpg'),
+('DS074', 'Cha Mẹ Gen Y - Đồng Hành Cùng Con, Bắt Đầu Từ Việc Hiểu Chính Mình', 2025, 115000.00, 'TG050', 'TL004', 'NXB004', 'Cha Mẹ Gen Y - Đồng Hành Cùng Con', 'cha-m_-gen-y_bia-1_3337e517d61a4a37b668fffb5f3808fb_medium.jpg'),
+('DS075', 'Bé Khỏe Lại Ngay Đánh Ngay Bệnh Vặt', 2024, 189000.00, 'TG051', 'TL004', 'NXB002', 'Cẩm nang y học cổ truyền xử lý bệnh thường gặp ở trẻ.', '8935280920200_7c15538506eb4d64882049fb1c542f71_medium.jpg'),
+('DS076', 'Con Tôi Bị Trầm Cảm, Nhưng Tôi Cứ Tưởng Con Chỉ Không Vui', 2025, 205000.00, 'TG052', 'TL004', 'NXB005', 'Nhận diện và phân biệt trầm cảm với cảm xúc tiêu cực thông thường.', '8935235245754_9d9147bbabe6405983f66aa7ff059011_medium.jpg'),
+('DS077', 'Rèn Luyện Não Bộ Cho Trẻ Thông Qua Trò Chơi Trí Tuệ', 2024, 159000.00, 'TG053', 'TL004', 'NXB013', '12 tháng đầu đời của trẻ – giai đoạn não bộ phát triển nhanh nhất.', '-bo-cho-tre-thong-qua-tro-choi-tri-tue---full-----t5-2025---outline-02_d15dbbfee5d34bafa5447359d0ec5edc_medium.jpg'),
+('DS078', 'Trò Chơi Tiến Hóa - Darwin\'s Game - Tập 1 + Tập 2', 2025, 139000.00, 'TG054', 'TL005', 'NXB006', 'Bộ Manga về đề tài sinh tồn – hành động Darwin\'s Game.', '0444c3d83e12407ca6e357520648e918_bbf9382b26534f2e91513e494d35de93_medium.png'),
+('DS079', 'Bộ Manga - Gấu Trúc Đi Lạc - Tập 1 + Tập 2', 2024, 160000.00, 'TG055', 'TL005', 'NXB007', 'Bộ Manga - Gấu Trúc Đi Lạc', '1-_12__7f3f1a335bf7462f8225e9c6ffec8d6a_medium.jpg'),
+('DS080', 'Studio Cabana - Bản Tình Ca Cho Em - Tập 4', 2025, 89000.00, 'TG056', 'TL005', 'NXB013', 'Studio Cabana - Bản Tình Ca Cho Em - Tập 4', 'tbph4_24237914a9274cbaa18fe8671624ed83_medium.jpg'),
+('DS081', 'Studio Cabana - Bản Tình Ca Cho Em - Tập 3', 2025, 83000.00, 'TG056', 'TL005', 'NXB013', 'Studio Cabana - Bản Tình Ca Cho Em - Tập 3', 'tbph1_7_1967e12b53c04d17877cb9270dc62a8d_medium.jpg'),
+('DS082', 'Vui Được Ngày Nào Hay Ngày Nấy', 2024, 195000.00, 'TG057', 'TL005', 'NXB007', 'Cuốn truyện tranh nạp năng lượng tích cực cho mình mỗi ngày!', 'vui_d__c_ng_y_n_o_hay_ng_y__y_4ab6341ff9af4f0b90737a741789c00c_medium.jpg'),
+('DS083', 'Cuộc Nổi Dậy Của Cô Nàng Mọt Sách', 2025, 98000.00, 'TG058', 'TL005', 'NXB007', 'Một nữ sinh viên tái sinh thành con gái của một binh sĩ.', 'motsach-adv_c8e93efc38c44f3b9deffb89e0ad94c6_medium.png'),
+('DS084', '13 Giờ Sáng - Khung Giờ Vô Thực Cho Những Câu Chuyện Bất Thường', 2025, 88000.00, 'TG059', 'TL005', 'NXB007', '13 giờ sáng - Tuyển tập 17 mẩu truyện ngắn kì bí.', '_nh-ttph-2---13-gi_-s_ng_225460a2a47e4824a80442b92db494d4_medium.jpg'),
+('DS085', 'Tanukoi - Mùa Xuân Của Tanuki - Tập 2', 2025, 71000.00, 'TG060', 'TL005', 'NXB007', 'Tanukoi - Mùa Xuân Của Tanuki 2', '_nh-ttph-1---tanukoi-2_c0b052668ffa4980a0bfdbb55d7aef1a_medium.jpg'),
+('DS086', 'Bộ Manga - Sa Vào Lưới Tình Với Shiina: Tập 1 - 3', 2025, 258000.00, 'TG061', 'TL005', 'NXB007', 'Sa Vào Lưới Tình Với Shiina - Bộ 3 tập', 'z7147353759741_d898e1b78fb668f3e7b05d94a67df463_e22c0c6897984ab4a9e7a562f77aca2f_medium.jpg'),
+('DS087', 'Ánh Sao Bên Tôi - Tập 3', 2025, 175000.00, 'TG062', 'TL005', 'NXB010', 'Ánh Sao Bên Tôi - Tập 3', 'z7115361916121_5de75eeaaf3498cef8ddcf3d9abd6cae_813b9af4f57d4046b6f643f08f8af192_medium.jpg'),
+('DS088', 'Thị Trấn Hoa Mười Giờ - Tập 1', 2023, 75000.00, 'TG063', 'TL005', 'NXB010', 'Truyện tranh Thị Trấn Hoa Mười Giờ tập 1', 'image_223631_4e39ab4d37494885b4623f1c5d27707b_medium.jpg'),
+('DS089', 'Thị Trấn Hoa Mười Giờ - Tập 2', 2023, 75000.00, 'TG063', 'TL005', 'NXB010', 'Truyện tranh Thị Trấn Hoa Mười Giờ tập 2', '22458eb1cbb90384e3fdc876eabf8ec9_48b559fa9eb4424a94347f886a7cc5aa_medium.jpg'),
+('DS090', 'Thị Trấn Hoa Mười Giờ - Tập 3', 2023, 80000.00, 'TG063', 'TL005', 'NXB010', 'Truyện tranh Thị Trấn Hoa Mười Giờ tập 3', 'z3825076506886_c56b80d01335e3353dd3c6c9723b73d1_5f8ee1af29414aa28b9fb484f087a851_medium.jpg'),
+('DS091', 'Thị Trấn Hoa Mười Giờ - Tập 4', 2024, 80000.00, 'TG063', 'TL005', 'NXB010', 'Truyện tranh Thị Trấn Hoa Mười Giờ tập 4', 'tthmg4_biatruoc_636e25a42dd44c52a244a939d615c072_medium.jpg'),
+('DS092', 'Vạn Nhân Ký - Noãn', 2023, 120000.00, 'TG064', 'TL005', 'NXB016', 'Tiểu thuyết/Truyện tranh Vạn Nhân Ký', 'z6401500381656_476cf6fb6d7de9f300ef530d45affba6_b484932e98d74a1193c3a54cdfdf6cea_medium.jpg'),
+('DS093', 'Cú Mèo', 2022, 95000.00, 'TG063', 'TL005', 'NXB010', 'Truyện tranh Cú Mèo của tác giả Phan', 'image_200739_df52fd9a666e4ffda5dd551fdb9dbd7a_medium.jpg'),
+('DS094', 'Lột Được Vỏ Chanh Mở Được Tiệm Nail', 2023, 115000.00, 'TG065', 'TL005', 'NXB010', '17 câu chuyện vượt gian khó và vận hành tiệm nail thành công', '976000181590c58ee7161a87ce46ac3c_13464cb74c7646408146a6f368b9c20f_medium.jpg')
+ON DUPLICATE KEY UPDATE `tensach` = VALUES(`tensach`), `dongia` = VALUES(`dongia`);
+
+-- 4.12 cuonsach (phụ thuộc dausach, vitri)
 INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinhtrang`) VALUES
 ('CS0001', 'DS001', 'VT001', 'SanSang', 'Tot'),
 ('CS0002', 'DS001', 'VT002', 'SanSang', 'Moi'),
@@ -157,7 +725,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0049', 'DS008', 'VT001', 'SanSang', 'Moi'),
 ('CS0050', 'DS008', 'VT001', 'SanSang', 'Tot'),
 ('CS0051', 'DS008', 'VT003', 'DangMuon', 'Moi'),
-('CS0052', 'DS008', 'VT001', 'Hong', 'HuHong'),
+('CS0052', 'DS008', 'VT001', 'Hong',     'HuHong'),
 ('CS0053', 'DS008', 'VT003', 'DangMuon', 'Tot'),
 ('CS0054', 'DS008', 'VT001', 'SanSang', 'Moi'),
 ('CS0055', 'DS008', 'VT002', 'SanSang', 'Tot'),
@@ -170,7 +738,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0062', 'DS009', 'VT003', 'SanSang', 'Moi'),
 ('CS0063', 'DS009', 'VT001', 'SanSang', 'Moi'),
 ('CS0064', 'DS009', 'VT001', 'SanSang', 'Moi'),
-('CS0065', 'DS009', 'VT001', 'Hong', 'HuHong'),
+('CS0065', 'DS009', 'VT001', 'Hong',     'HuHong'),
 ('CS0066', 'DS010', 'VT003', 'SanSang', 'Moi'),
 ('CS0067', 'DS010', 'VT003', 'SanSang', 'Tot'),
 ('CS0068', 'DS010', 'VT001', 'SanSang', 'Tot'),
@@ -213,7 +781,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0105', 'DS015', 'VT002', 'SanSang', 'Moi'),
 ('CS0106', 'DS016', 'VT001', 'SanSang', 'Moi'),
 ('CS0107', 'DS016', 'VT001', 'SanSang', 'Tot'),
-('CS0108', 'DS016', 'VT003', 'Hong', 'HuHong'),
+('CS0108', 'DS016', 'VT003', 'Hong',     'HuHong'),
 ('CS0109', 'DS016', 'VT003', 'DangMuon', 'Moi'),
 ('CS0110', 'DS016', 'VT002', 'SanSang', 'Tot'),
 ('CS0111', 'DS016', 'VT002', 'SanSang', 'Tot'),
@@ -266,7 +834,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0158', 'DS021', 'VT002', 'SanSang', 'Moi'),
 ('CS0159', 'DS022', 'VT003', 'SanSang', 'Tot'),
 ('CS0160', 'DS022', 'VT002', 'SanSang', 'Tot'),
-('CS0161', 'DS022', 'VT003', 'Hong', 'HuHong'),
+('CS0161', 'DS022', 'VT003', 'Hong',     'HuHong'),
 ('CS0162', 'DS022', 'VT002', 'DangMuon', 'Tot'),
 ('CS0163', 'DS022', 'VT003', 'SanSang', 'Tot'),
 ('CS0164', 'DS022', 'VT002', 'SanSang', 'Moi'),
@@ -274,18 +842,18 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0166', 'DS022', 'VT003', 'SanSang', 'Moi'),
 ('CS0167', 'DS022', 'VT003', 'SanSang', 'Tot'),
 ('CS0168', 'DS022', 'VT001', 'SanSang', 'Tot'),
-('CS0169', 'DS023', 'VT001', 'Hong', 'HuHong'),
+('CS0169', 'DS023', 'VT001', 'Hong',     'HuHong'),
 ('CS0170', 'DS023', 'VT002', 'SanSang', 'Tot'),
-('CS0171', 'DS023', 'VT003', 'Hong', 'HuHong'),
+('CS0171', 'DS023', 'VT003', 'Hong',     'HuHong'),
 ('CS0172', 'DS023', 'VT001', 'DangMuon', 'Moi'),
 ('CS0173', 'DS023', 'VT001', 'DangMuon', 'Tot'),
 ('CS0174', 'DS023', 'VT002', 'SanSang', 'Moi'),
-('CS0175', 'DS023', 'VT002', 'Hong', 'HuHong'),
+('CS0175', 'DS023', 'VT002', 'Hong',     'HuHong'),
 ('CS0176', 'DS023', 'VT003', 'SanSang', 'Moi'),
 ('CS0177', 'DS024', 'VT003', 'SanSang', 'Moi'),
 ('CS0178', 'DS024', 'VT001', 'DangMuon', 'Tot'),
 ('CS0179', 'DS024', 'VT002', 'SanSang', 'Moi'),
-('CS0180', 'DS024', 'VT003', 'Hong', 'HuHong'),
+('CS0180', 'DS024', 'VT003', 'Hong',     'HuHong'),
 ('CS0181', 'DS024', 'VT001', 'SanSang', 'Tot'),
 ('CS0182', 'DS024', 'VT003', 'SanSang', 'Moi'),
 ('CS0183', 'DS024', 'VT003', 'SanSang', 'Tot'),
@@ -311,10 +879,10 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0203', 'DS027', 'VT002', 'SanSang', 'Moi'),
 ('CS0204', 'DS027', 'VT002', 'DangMuon', 'Tot'),
 ('CS0205', 'DS027', 'VT001', 'SanSang', 'Tot'),
-('CS0206', 'DS027', 'VT001', 'Hong', 'HuHong'),
+('CS0206', 'DS027', 'VT001', 'Hong',     'HuHong'),
 ('CS0207', 'DS028', 'VT003', 'DangMuon', 'Tot'),
 ('CS0208', 'DS028', 'VT001', 'DangMuon', 'Tot'),
-('CS0209', 'DS028', 'VT002', 'Hong', 'HuHong'),
+('CS0209', 'DS028', 'VT002', 'Hong',     'HuHong'),
 ('CS0210', 'DS028', 'VT003', 'SanSang', 'Moi'),
 ('CS0211', 'DS028', 'VT003', 'DangMuon', 'Tot'),
 ('CS0212', 'DS029', 'VT003', 'SanSang', 'Moi'),
@@ -337,7 +905,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0229', 'DS031', 'VT002', 'SanSang', 'Moi'),
 ('CS0230', 'DS031', 'VT003', 'SanSang', 'Tot'),
 ('CS0231', 'DS031', 'VT001', 'SanSang', 'Moi'),
-('CS0232', 'DS031', 'VT002', 'Hong', 'HuHong'),
+('CS0232', 'DS031', 'VT002', 'Hong',     'HuHong'),
 ('CS0233', 'DS031', 'VT002', 'SanSang', 'Moi'),
 ('CS0234', 'DS031', 'VT002', 'SanSang', 'Tot'),
 ('CS0235', 'DS031', 'VT003', 'SanSang', 'Moi'),
@@ -368,7 +936,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0260', 'DS035', 'VT003', 'SanSang', 'Moi'),
 ('CS0261', 'DS035', 'VT002', 'SanSang', 'Tot'),
 ('CS0262', 'DS035', 'VT003', 'SanSang', 'Tot'),
-('CS0263', 'DS035', 'VT001', 'Hong', 'HuHong'),
+('CS0263', 'DS035', 'VT001', 'Hong',     'HuHong'),
 ('CS0264', 'DS035', 'VT002', 'SanSang', 'Tot'),
 ('CS0265', 'DS036', 'VT003', 'SanSang', 'Tot'),
 ('CS0266', 'DS036', 'VT001', 'SanSang', 'Tot'),
@@ -385,7 +953,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0277', 'DS037', 'VT002', 'DangMuon', 'Moi'),
 ('CS0278', 'DS038', 'VT002', 'SanSang', 'Tot'),
 ('CS0279', 'DS038', 'VT003', 'DangMuon', 'Tot'),
-('CS0280', 'DS038', 'VT001', 'Hong', 'HuHong'),
+('CS0280', 'DS038', 'VT001', 'Hong',     'HuHong'),
 ('CS0281', 'DS038', 'VT001', 'SanSang', 'Tot'),
 ('CS0282', 'DS038', 'VT001', 'SanSang', 'Moi'),
 ('CS0283', 'DS038', 'VT002', 'SanSang', 'Tot'),
@@ -455,8 +1023,8 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0347', 'DS046', 'VT002', 'SanSang', 'Tot'),
 ('CS0348', 'DS047', 'VT003', 'DangMuon', 'Tot'),
 ('CS0349', 'DS047', 'VT002', 'DangMuon', 'Tot'),
-('CS0350', 'DS047', 'VT002', 'Hong', 'HuHong'),
-('CS0351', 'DS047', 'VT003', 'Hong', 'HuHong'),
+('CS0350', 'DS047', 'VT002', 'Hong',     'HuHong'),
+('CS0351', 'DS047', 'VT003', 'Hong',     'HuHong'),
 ('CS0352', 'DS047', 'VT002', 'SanSang', 'Tot'),
 ('CS0353', 'DS047', 'VT002', 'DangMuon', 'Moi'),
 ('CS0354', 'DS047', 'VT001', 'DangMuon', 'Moi'),
@@ -471,7 +1039,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0363', 'DS048', 'VT003', 'SanSang', 'Tot'),
 ('CS0364', 'DS048', 'VT001', 'SanSang', 'Tot'),
 ('CS0365', 'DS048', 'VT001', 'SanSang', 'Tot'),
-('CS0366', 'DS049', 'VT002', 'Hong', 'HuHong'),
+('CS0366', 'DS049', 'VT002', 'Hong',     'HuHong'),
 ('CS0367', 'DS049', 'VT003', 'DangMuon', 'Tot'),
 ('CS0368', 'DS049', 'VT002', 'SanSang', 'Tot'),
 ('CS0369', 'DS049', 'VT002', 'SanSang', 'Tot'),
@@ -487,7 +1055,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0379', 'DS050', 'VT001', 'SanSang', 'Tot'),
 ('CS0380', 'DS051', 'VT003', 'SanSang', 'Moi'),
 ('CS0381', 'DS051', 'VT001', 'SanSang', 'Tot'),
-('CS0382', 'DS051', 'VT001', 'Hong', 'HuHong'),
+('CS0382', 'DS051', 'VT001', 'Hong',     'HuHong'),
 ('CS0383', 'DS051', 'VT001', 'SanSang', 'Moi'),
 ('CS0384', 'DS051', 'VT001', 'SanSang', 'Moi'),
 ('CS0385', 'DS052', 'VT003', 'SanSang', 'Moi'),
@@ -503,7 +1071,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0395', 'DS053', 'VT001', 'SanSang', 'Moi'),
 ('CS0396', 'DS053', 'VT002', 'SanSang', 'Moi'),
 ('CS0397', 'DS054', 'VT002', 'SanSang', 'Tot'),
-('CS0398', 'DS054', 'VT003', 'Hong', 'HuHong'),
+('CS0398', 'DS054', 'VT003', 'Hong',     'HuHong'),
 ('CS0399', 'DS054', 'VT002', 'SanSang', 'Tot'),
 ('CS0400', 'DS054', 'VT001', 'SanSang', 'Moi'),
 ('CS0401', 'DS054', 'VT003', 'DangMuon', 'Tot'),
@@ -531,10 +1099,10 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0423', 'DS057', 'VT003', 'SanSang', 'Tot'),
 ('CS0424', 'DS057', 'VT003', 'SanSang', 'Tot'),
 ('CS0425', 'DS057', 'VT003', 'SanSang', 'Tot'),
-('CS0426', 'DS058', 'VT003', 'Hong', 'HuHong'),
+('CS0426', 'DS058', 'VT003', 'Hong',     'HuHong'),
 ('CS0427', 'DS058', 'VT003', 'DangMuon', 'Tot'),
 ('CS0428', 'DS058', 'VT002', 'SanSang', 'Moi'),
-('CS0429', 'DS058', 'VT003', 'Hong', 'HuHong'),
+('CS0429', 'DS058', 'VT003', 'Hong',     'HuHong'),
 ('CS0430', 'DS058', 'VT001', 'SanSang', 'Moi'),
 ('CS0431', 'DS058', 'VT002', 'SanSang', 'Tot'),
 ('CS0432', 'DS058', 'VT001', 'SanSang', 'Moi'),
@@ -570,7 +1138,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0462', 'DS062', 'VT003', 'DangMuon', 'Tot'),
 ('CS0463', 'DS062', 'VT002', 'SanSang', 'Tot'),
 ('CS0464', 'DS062', 'VT003', 'SanSang', 'Tot'),
-('CS0465', 'DS062', 'VT003', 'Hong', 'HuHong'),
+('CS0465', 'DS062', 'VT003', 'Hong',     'HuHong'),
 ('CS0466', 'DS062', 'VT002', 'SanSang', 'Tot'),
 ('CS0467', 'DS062', 'VT003', 'SanSang', 'Moi'),
 ('CS0468', 'DS062', 'VT001', 'SanSang', 'Tot'),
@@ -592,7 +1160,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0484', 'DS064', 'VT001', 'SanSang', 'Tot'),
 ('CS0485', 'DS065', 'VT003', 'SanSang', 'Tot'),
 ('CS0486', 'DS065', 'VT003', 'SanSang', 'Moi'),
-('CS0487', 'DS065', 'VT001', 'Hong', 'HuHong'),
+('CS0487', 'DS065', 'VT001', 'Hong',     'HuHong'),
 ('CS0488', 'DS065', 'VT001', 'DangMuon', 'Tot'),
 ('CS0489', 'DS065', 'VT003', 'SanSang', 'Tot'),
 ('CS0490', 'DS065', 'VT003', 'DangMuon', 'Moi'),
@@ -639,7 +1207,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0531', 'DS070', 'VT003', 'SanSang', 'Moi'),
 ('CS0532', 'DS070', 'VT003', 'SanSang', 'Moi'),
 ('CS0533', 'DS071', 'VT001', 'SanSang', 'Moi'),
-('CS0534', 'DS071', 'VT003', 'Hong', 'HuHong'),
+('CS0534', 'DS071', 'VT003', 'Hong',     'HuHong'),
 ('CS0535', 'DS071', 'VT003', 'SanSang', 'Tot'),
 ('CS0536', 'DS071', 'VT002', 'DangMuon', 'Moi'),
 ('CS0537', 'DS071', 'VT002', 'DangMuon', 'Tot'),
@@ -655,14 +1223,14 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0547', 'DS073', 'VT003', 'SanSang', 'Tot'),
 ('CS0548', 'DS073', 'VT001', 'SanSang', 'Moi'),
 ('CS0549', 'DS073', 'VT001', 'SanSang', 'Tot'),
-('CS0550', 'DS074', 'VT001', 'Hong', 'HuHong'),
+('CS0550', 'DS074', 'VT001', 'Hong',     'HuHong'),
 ('CS0551', 'DS074', 'VT001', 'SanSang', 'Tot'),
-('CS0552', 'DS074', 'VT002', 'Hong', 'HuHong'),
+('CS0552', 'DS074', 'VT002', 'Hong',     'HuHong'),
 ('CS0553', 'DS074', 'VT003', 'DangMuon', 'Moi'),
 ('CS0554', 'DS074', 'VT003', 'SanSang', 'Tot'),
 ('CS0555', 'DS074', 'VT002', 'DangMuon', 'Tot'),
 ('CS0556', 'DS074', 'VT003', 'SanSang', 'Tot'),
-('CS0557', 'DS075', 'VT002', 'Hong', 'HuHong'),
+('CS0557', 'DS075', 'VT002', 'Hong',     'HuHong'),
 ('CS0558', 'DS075', 'VT003', 'DangMuon', 'Moi'),
 ('CS0559', 'DS075', 'VT003', 'SanSang', 'Moi'),
 ('CS0560', 'DS075', 'VT002', 'SanSang', 'Moi'),
@@ -695,7 +1263,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0587', 'DS078', 'VT003', 'SanSang', 'Moi'),
 ('CS0588', 'DS078', 'VT002', 'SanSang', 'Moi'),
 ('CS0589', 'DS078', 'VT002', 'DangMuon', 'Moi'),
-('CS0590', 'DS079', 'VT003', 'Hong', 'HuHong'),
+('CS0590', 'DS079', 'VT003', 'Hong',     'HuHong'),
 ('CS0591', 'DS079', 'VT003', 'SanSang', 'Moi'),
 ('CS0592', 'DS079', 'VT002', 'DangMuon', 'Tot'),
 ('CS0593', 'DS079', 'VT003', 'DangMuon', 'Tot'),
@@ -704,7 +1272,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0596', 'DS079', 'VT003', 'SanSang', 'Moi'),
 ('CS0597', 'DS079', 'VT001', 'SanSang', 'Tot'),
 ('CS0598', 'DS080', 'VT002', 'SanSang', 'Tot'),
-('CS0599', 'DS080', 'VT001', 'Hong', 'HuHong'),
+('CS0599', 'DS080', 'VT001', 'Hong',     'HuHong'),
 ('CS0600', 'DS080', 'VT002', 'DangMuon', 'Moi'),
 ('CS0601', 'DS080', 'VT003', 'SanSang', 'Moi'),
 ('CS0602', 'DS080', 'VT003', 'SanSang', 'Moi'),
@@ -712,10 +1280,10 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0604', 'DS080', 'VT002', 'SanSang', 'Moi'),
 ('CS0605', 'DS081', 'VT003', 'SanSang', 'Moi'),
 ('CS0606', 'DS081', 'VT002', 'DangMuon', 'Tot'),
-('CS0607', 'DS081', 'VT002', 'Hong', 'HuHong'),
+('CS0607', 'DS081', 'VT002', 'Hong',     'HuHong'),
 ('CS0608', 'DS081', 'VT001', 'DangMuon', 'Tot'),
 ('CS0609', 'DS081', 'VT002', 'SanSang', 'Tot'),
-('CS0610', 'DS081', 'VT003', 'Hong', 'HuHong'),
+('CS0610', 'DS081', 'VT003', 'Hong',     'HuHong'),
 ('CS0611', 'DS081', 'VT003', 'SanSang', 'Moi'),
 ('CS0612', 'DS081', 'VT001', 'SanSang', 'Moi'),
 ('CS0613', 'DS081', 'VT002', 'SanSang', 'Tot'),
@@ -726,7 +1294,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0618', 'DS082', 'VT003', 'SanSang', 'Moi'),
 ('CS0619', 'DS082', 'VT001', 'DangMuon', 'Moi'),
 ('CS0620', 'DS082', 'VT002', 'SanSang', 'Tot'),
-('CS0621', 'DS082', 'VT001', 'Hong', 'HuHong'),
+('CS0621', 'DS082', 'VT001', 'Hong',     'HuHong'),
 ('CS0622', 'DS082', 'VT002', 'SanSang', 'Tot'),
 ('CS0623', 'DS082', 'VT001', 'SanSang', 'Moi'),
 ('CS0624', 'DS082', 'VT002', 'DangMuon', 'Tot'),
@@ -742,7 +1310,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0634', 'DS083', 'VT002', 'DangMuon', 'Tot'),
 ('CS0635', 'DS084', 'VT001', 'SanSang', 'Moi'),
 ('CS0636', 'DS084', 'VT001', 'SanSang', 'Tot'),
-('CS0637', 'DS084', 'VT002', 'Hong', 'HuHong'),
+('CS0637', 'DS084', 'VT002', 'Hong',     'HuHong'),
 ('CS0638', 'DS084', 'VT002', 'SanSang', 'Tot'),
 ('CS0639', 'DS084', 'VT003', 'SanSang', 'Moi'),
 ('CS0640', 'DS084', 'VT003', 'SanSang', 'Moi'),
@@ -750,7 +1318,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0642', 'DS084', 'VT003', 'SanSang', 'Tot'),
 ('CS0643', 'DS084', 'VT003', 'SanSang', 'Moi'),
 ('CS0644', 'DS085', 'VT001', 'SanSang', 'Tot'),
-('CS0645', 'DS085', 'VT003', 'Hong', 'HuHong'),
+('CS0645', 'DS085', 'VT003', 'Hong',     'HuHong'),
 ('CS0646', 'DS085', 'VT001', 'SanSang', 'Tot'),
 ('CS0647', 'DS085', 'VT002', 'DangMuon', 'Moi'),
 ('CS0648', 'DS085', 'VT003', 'SanSang', 'Moi'),
@@ -767,7 +1335,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0659', 'DS087', 'VT001', 'SanSang', 'Moi'),
 ('CS0660', 'DS087', 'VT003', 'SanSang', 'Moi'),
 ('CS0661', 'DS087', 'VT001', 'DangMuon', 'Tot'),
-('CS0662', 'DS087', 'VT002', 'Hong', 'HuHong'),
+('CS0662', 'DS087', 'VT002', 'Hong',     'HuHong'),
 ('CS0663', 'DS087', 'VT003', 'DangMuon', 'Moi'),
 ('CS0664', 'DS087', 'VT001', 'SanSang', 'Tot'),
 ('CS0665', 'DS087', 'VT001', 'SanSang', 'Tot'),
@@ -781,7 +1349,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0673', 'DS088', 'VT002', 'SanSang', 'Tot'),
 ('CS0674', 'DS088', 'VT001', 'SanSang', 'Tot'),
 ('CS0675', 'DS088', 'VT003', 'DangMuon', 'Tot'),
-('CS0676', 'DS088', 'VT003', 'Hong', 'HuHong'),
+('CS0676', 'DS088', 'VT003', 'Hong',     'HuHong'),
 ('CS0677', 'DS089', 'VT003', 'SanSang', 'Moi'),
 ('CS0678', 'DS089', 'VT003', 'SanSang', 'Moi'),
 ('CS0679', 'DS089', 'VT002', 'SanSang', 'Moi'),
@@ -790,13 +1358,13 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0682', 'DS090', 'VT002', 'SanSang', 'Tot'),
 ('CS0683', 'DS090', 'VT003', 'SanSang', 'Tot'),
 ('CS0684', 'DS090', 'VT003', 'SanSang', 'Tot'),
-('CS0685', 'DS090', 'VT001', 'Hong', 'HuHong'),
+('CS0685', 'DS090', 'VT001', 'Hong',     'HuHong'),
 ('CS0686', 'DS090', 'VT001', 'SanSang', 'Moi'),
 ('CS0687', 'DS090', 'VT003', 'SanSang', 'Tot'),
 ('CS0688', 'DS090', 'VT002', 'SanSang', 'Tot'),
 ('CS0689', 'DS090', 'VT001', 'SanSang', 'Tot'),
 ('CS0690', 'DS090', 'VT003', 'DangMuon', 'Moi'),
-('CS0691', 'DS090', 'VT001', 'Hong', 'HuHong'),
+('CS0691', 'DS090', 'VT001', 'Hong',     'HuHong'),
 ('CS0692', 'DS091', 'VT003', 'SanSang', 'Moi'),
 ('CS0693', 'DS091', 'VT003', 'DangMuon', 'Tot'),
 ('CS0694', 'DS091', 'VT003', 'DangMuon', 'Tot'),
@@ -807,7 +1375,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0699', 'DS092', 'VT003', 'DangMuon', 'Tot'),
 ('CS0700', 'DS092', 'VT002', 'SanSang', 'Tot'),
 ('CS0701', 'DS092', 'VT003', 'SanSang', 'Tot'),
-('CS0702', 'DS092', 'VT001', 'Hong', 'HuHong'),
+('CS0702', 'DS092', 'VT001', 'Hong',     'HuHong'),
 ('CS0703', 'DS092', 'VT001', 'SanSang', 'Moi'),
 ('CS0704', 'DS092', 'VT001', 'SanSang', 'Tot'),
 ('CS0705', 'DS092', 'VT003', 'SanSang', 'Tot'),
@@ -822,7 +1390,7 @@ INSERT INTO `cuonsach` (`macuonsach`, `madausach`, `mavitri`, `trangthai`, `tinh
 ('CS0714', 'DS093', 'VT002', 'SanSang', 'Tot'),
 ('CS0715', 'DS093', 'VT003', 'SanSang', 'Tot'),
 ('CS0716', 'DS093', 'VT001', 'DangMuon', 'Tot'),
-('CS0717', 'DS093', 'VT002', 'Hong', 'HuHong'),
+('CS0717', 'DS093', 'VT002', 'Hong',     'HuHong'),
 ('CS0718', 'DS094', 'VT002', 'SanSang', 'Moi'),
 ('CS0719', 'DS094', 'VT001', 'SanSang', 'Moi'),
 ('CS0720', 'DS094', 'VT003', 'SanSang', 'Moi'),
@@ -1503,16 +2071,17 @@ ON DUPLICATE KEY UPDATE
 -- manv để NULL để không phụ thuộc dữ liệu nhân viên.
 -- --------------------------------------------------------
 
+-- 4.13 phieumuon (phụ thuộc docgia — manv NULL không cần nhanvien)
 INSERT INTO `phieumuon` (`mamuon`, `ngaymuon`, `ngayhethan`, `manv`, `madocgia`, `trangthai`, `ghichu`) VALUES
-('PM0001', DATE_SUB(NOW(), INTERVAL 1 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 1 DAY),  INTERVAL 14 DAY), NULL, 'DG001', 'DaTra',    'Seed demo'),
-('PM0002', DATE_SUB(NOW(), INTERVAL 2 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 2 DAY),  INTERVAL 14 DAY), NULL, 'DG002', 'DangMuon', 'Seed demo'),
-('PM0003', DATE_SUB(NOW(), INTERVAL 3 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 3 DAY),  INTERVAL 14 DAY), NULL, 'DG003', 'DaTra',    'Seed demo'),
-('PM0004', DATE_SUB(NOW(), INTERVAL 4 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 4 DAY),  INTERVAL 14 DAY), NULL, 'DG004', 'ChoDuyet', 'Seed demo'),
-('PM0005', DATE_SUB(NOW(), INTERVAL 5 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 5 DAY),  INTERVAL 14 DAY), NULL, 'DG005', 'DaTra',    'Seed demo'),
-('PM0006', DATE_SUB(NOW(), INTERVAL 6 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 6 DAY),  INTERVAL 14 DAY), NULL, 'DG001', 'DangMuon', 'Seed demo'),
-('PM0007', DATE_SUB(NOW(), INTERVAL 7 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 7 DAY),  INTERVAL 14 DAY), NULL, 'DG006', 'DaTra',    'Seed demo'),
-('PM0008', DATE_SUB(NOW(), INTERVAL 8 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 8 DAY),  INTERVAL 14 DAY), NULL, 'DG007', 'DaTra',    'Seed demo'),
-('PM0009', DATE_SUB(NOW(), INTERVAL 9 DAY),  DATE_ADD(DATE_SUB(NOW(), INTERVAL 9 DAY),  INTERVAL 14 DAY), NULL, 'DG008', 'DaTra',    'Seed demo'),
+('PM0001', DATE_SUB(NOW(), INTERVAL 1  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 1  DAY), INTERVAL 14 DAY), NULL, 'DG001', 'DaTra',    'Seed demo'),
+('PM0002', DATE_SUB(NOW(), INTERVAL 2  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 2  DAY), INTERVAL 14 DAY), NULL, 'DG002', 'DangMuon', 'Seed demo'),
+('PM0003', DATE_SUB(NOW(), INTERVAL 3  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 3  DAY), INTERVAL 14 DAY), NULL, 'DG003', 'DaTra',    'Seed demo'),
+('PM0004', DATE_SUB(NOW(), INTERVAL 4  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 4  DAY), INTERVAL 14 DAY), NULL, 'DG004', 'ChoDuyet', 'Seed demo'),
+('PM0005', DATE_SUB(NOW(), INTERVAL 5  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 5  DAY), INTERVAL 14 DAY), NULL, 'DG005', 'DaTra',    'Seed demo'),
+('PM0006', DATE_SUB(NOW(), INTERVAL 6  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 6  DAY), INTERVAL 14 DAY), NULL, 'DG001', 'DangMuon', 'Seed demo'),
+('PM0007', DATE_SUB(NOW(), INTERVAL 7  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 7  DAY), INTERVAL 14 DAY), NULL, 'DG006', 'DaTra',    'Seed demo'),
+('PM0008', DATE_SUB(NOW(), INTERVAL 8  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 8  DAY), INTERVAL 14 DAY), NULL, 'DG007', 'DaTra',    'Seed demo'),
+('PM0009', DATE_SUB(NOW(), INTERVAL 9  DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 9  DAY), INTERVAL 14 DAY), NULL, 'DG008', 'DaTra',    'Seed demo'),
 ('PM0010', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 10 DAY), INTERVAL 14 DAY), NULL, 'DG009', 'DaTra',    'Seed demo'),
 ('PM0011', DATE_SUB(NOW(), INTERVAL 11 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 11 DAY), INTERVAL 14 DAY), NULL, 'DG010', 'DangMuon', 'Seed demo'),
 ('PM0012', DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 12 DAY), INTERVAL 14 DAY), NULL, 'DG001', 'DaTra',    'Seed demo'),
@@ -1525,13 +2094,12 @@ INSERT INTO `phieumuon` (`mamuon`, `ngaymuon`, `ngayhethan`, `manv`, `madocgia`,
 ('PM0019', DATE_SUB(NOW(), INTERVAL 19 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 19 DAY), INTERVAL 14 DAY), NULL, 'DG008', 'DangMuon', 'Seed demo'),
 ('PM0020', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_ADD(DATE_SUB(NOW(), INTERVAL 20 DAY), INTERVAL 14 DAY), NULL, 'DG009', 'DaTra',    'Seed demo')
 ON DUPLICATE KEY UPDATE
-  `ngaymuon` = VALUES(`ngaymuon`),
-  `ngayhethan` = VALUES(`ngayhethan`),
-  `manv` = VALUES(`manv`),
-  `madocgia` = VALUES(`madocgia`),
+  `ngaymuon`  = VALUES(`ngaymuon`),
+  `ngayhethan`= VALUES(`ngayhethan`),
   `trangthai` = VALUES(`trangthai`),
-  `ghichu` = VALUES(`ghichu`);
+  `ghichu`    = VALUES(`ghichu`);
 
+-- 4.14 ctphieumuon (phụ thuộc phieumuon + cuonsach)
 INSERT INTO `ctphieumuon` (`mamuon`, `macuonsach`, `tinhtrang_truoc`) VALUES
 ('PM0001', 'CS0001', 'Tot'),
 ('PM0001', 'CS0002', 'Moi'),
@@ -1870,13 +2438,6 @@ ALTER TABLE `phieutra`
   ADD CONSTRAINT `fk_phieutra_nhanvien` FOREIGN KEY (`manv`) REFERENCES `nhanvien` (`manv`),
   ADD CONSTRAINT `fk_phieutra_phieumuon` FOREIGN KEY (`mamuon`) REFERENCES `phieumuon` (`mamuon`);
 
---
--- Constraints for table `taikhoan`
---
-ALTER TABLE `taikhoan`
-  ADD CONSTRAINT `fk_taikhoan_nhanvien` FOREIGN KEY (`manv`) REFERENCES `nhanvien` (`manv`),
-  ADD CONSTRAINT `fk_taikhoan_docgia` FOREIGN KEY (`madocgia`) REFERENCES `docgia` (`madocgia`),
-  ADD CONSTRAINT `fk_taikhoan_nhomquyen` FOREIGN KEY (`manhomquyen`) REFERENCES `nhomquyen` (`manhomquyen`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

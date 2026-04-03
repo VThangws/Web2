@@ -24,7 +24,7 @@ function json_out(string $status, string $message, array $extra = []): void {
     exit;
 }
 
-// Tắt warning/notice để không bể JSON (nhưng vẫn bắt Throwable để trả JSON lỗi)
+// Tắt warning/notice để không bể JSON
 error_reporting(0);
 ini_set('display_errors', '0');
 
@@ -66,17 +66,12 @@ try {
     }
     $conn->set_charset('utf8mb4');
 
-    /**
-     * Admin session theo admin/login.php:
-     * $_SESSION['admin_user'] = ['tendangnhap','manhomquyen','manv','madocgia']
-     */
     $admin = $_SESSION['admin_user'] ?? null;
     $manv = is_array($admin) ? trim((string)($admin['manv'] ?? '')) : '';
     if ($manv === '') {
         json_out('error', 'Bạn chưa đăng nhập admin hoặc thiếu mã nhân viên (manv).');
     }
 
-    // 1) Input
     $mamuon = $_POST['mamuon'] ?? '';
     $mamuon = is_string($mamuon) ? trim($mamuon) : '';
     if ($mamuon === '') {
@@ -120,7 +115,6 @@ try {
         json_out('error', 'Phiếu đang ở trạng thái "' . $currentStatus . '" nên không thể cập nhật.');
     }
 
-    // 4) Transaction
     $conn->begin_transaction();
 
     // 4.1) Update phieumuon + lưu manv
@@ -287,7 +281,7 @@ try {
 
     $conn->commit();
 
-    json_out('success', 'Cập nhật thành công!', [
+    json_out('success', 'Trạng thái chuyển thành: ' . $newStatus, [
         'mamuon' => $mamuon,
         'oldStatus' => $currentStatus,
         'newStatus' => $newStatus,
@@ -296,6 +290,5 @@ try {
     ]);
 
 } catch (Throwable $e) {
-    // Đảm bảo luôn trả JSON thay vì chết 500
     json_out('error', 'Server error: ' . $e->getMessage());
 }

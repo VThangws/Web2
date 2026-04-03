@@ -1,5 +1,5 @@
 <?php
-$mamuon = $_GET['id'] ?? 0;
+$mamuon = $_GET['id'] ?? 'KHONG-XAC-DINH';
 // Sử dụng API của QuickChart (ổn định và không bị chặn)
 // Chỉ truyền đúng ID số vào mã QR để thủ thư quét cho chuẩn
 $qr_api = "https://quickchart.io/qr?text=" . $mamuon . "&size=250";
@@ -12,7 +12,7 @@ $qr_api = "https://quickchart.io/qr?text=" . $mamuon . "&size=250";
         </div>
         
         <h2 class="fw-bold mb-2">MƯỢN SÁCH THÀNH CÔNG!</h2>
-        <p class="text-muted mb-4">Mã phiếu của bạn là: <strong class="text-dark">#<?= str_pad($mamuon, 6, '0', STR_PAD_LEFT) ?></strong></p>
+        <p class="text-muted mb-4">Mã phiếu của bạn là: <strong class="text-dark"><?= htmlspecialchars($mamuon) ?></strong></p>
         
         <div class="bg-white p-3 border rounded-3 mb-4 d-inline-block">
             <img src="<?= $qr_api ?>" alt="Mã QR Phiếu Mượn" class="img-fluid">
