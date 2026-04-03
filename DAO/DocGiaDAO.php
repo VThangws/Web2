@@ -7,6 +7,23 @@ class DocGiaDAO {
         $this->conn = ConnectDB::getInstance()->getConnection();
     }
 
+    private function taikhoanHasTrangThai(): bool {
+        $sql = "SELECT 1
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'taikhoan'
+                  AND COLUMN_NAME = 'trangthai'
+                LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->execute();
+        $ok = $stmt->get_result()->num_rows > 0;
+        $stmt->close();
+        return $ok;
+    }
+
 
 // =========================== DAO ADMIN =============================== // 
     public function Them($conn, $madocgia, $hodocgia, 
@@ -174,10 +191,14 @@ class DocGiaDAO {
     // ==================== ĐĂNG NHẬP ====================
     public function dangNhap($email, $matkhau)
     {
+        $hasTrangThai = $this->taikhoanHasTrangThai();
         $sql  = "SELECT tk.matkhau, tk.manhomquyen, tk.manv, dg.*
             FROM taikhoan tk
             JOIN docgia dg ON tk.madocgia = dg.madocgia
             WHERE tk.tendangnhap = ?";
+        if ($hasTrangThai) {
+            $sql .= " AND COALESCE(tk.trangthai, 1) = 1";
+        }
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();

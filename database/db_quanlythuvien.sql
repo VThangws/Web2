@@ -1414,7 +1414,8 @@ CREATE TABLE `taikhoan` (
   `matkhau` varchar(255) DEFAULT NULL,
   `manhomquyen` varchar(50) DEFAULT NULL,
   `manv` varchar(50) DEFAULT NULL,
-  `madocgia` varchar(50) DEFAULT NULL
+  `madocgia` varchar(50) DEFAULT NULL,
+  `trangthai` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /* account user test*/

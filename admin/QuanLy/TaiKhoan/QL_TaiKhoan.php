@@ -97,6 +97,7 @@ try {
 }
 
 $hasMadocgiaCol = column_exists($conn, 'taikhoan', 'madocgia');
+$hasTrangthaiCol = column_exists($conn, 'taikhoan', 'trangthai');
 
 // Load employees for quick selection (optional)
 $employees = [];
@@ -155,6 +156,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             redirect_with(['msg' => 'Đã xóa tài khoản ' . $tendangnhap]);
+        }
+
+        if ($mode === 'toggle_status') {
+            if (!$hasTrangthaiCol) {
+                throw new RuntimeException('Bảng taikhoan chưa có cột trangthai để khóa/mở tài khoản.');
+            }
+
+            $tendangnhap = get_str($_POST, 'tendangnhap');
+            $nextStatusRaw = get_str($_POST, 'next_status');
+            $nextStatus = ($nextStatusRaw === '0') ? 0 : 1;
+
+            if ($tendangnhap === '') {
+                throw new RuntimeException('Thiếu tên đăng nhập.');
+            }
+            if ($tendangnhap === 'admin' && $nextStatus === 0) {
+                throw new RuntimeException('Không thể khóa tài khoản admin.');
+            }
+            if ($currentUsername !== '' && $tendangnhap === $currentUsername && $nextStatus === 0) {
+                throw new RuntimeException('Không thể tự khóa tài khoản đang đăng nhập.');
+            }
+
+            $stmt = $conn->prepare('UPDATE taikhoan SET trangthai = ? WHERE tendangnhap = ?');
+            if (!$stmt) {
+                throw new RuntimeException('Không thể chuẩn bị câu lệnh khóa/mở.');
+            }
+            $stmt->bind_param('is', $nextStatus, $tendangnhap);
+            if (!$stmt->execute()) {
+                throw new RuntimeException($stmt->error ?: 'Cập nhật trạng thái thất bại.');
+            }
+            $stmt->close();
+
+            $label = $nextStatus === 1 ? 'mở khóa' : 'khóa';
+            redirect_with(['msg' => 'Đã ' . $label . ' tài khoản ' . $tendangnhap]);
         }
 
         $tendangnhap = get_str($_POST, 'tendangnhap');
@@ -221,8 +255,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException('Mật khẩu không được để trống khi tạo tài khoản mới.');
         }
 
-        $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv)
-                               VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''))");
+        if ($hasTrangthaiCol) {
+            $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv, trangthai)
+                                   VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), 1)");
+        } else {
+            $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv)
+                                   VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''))");
+        }
         if (!$stmt) {
             throw new RuntimeException('Không thể chuẩn bị câu lệnh thêm mới.');
         }
@@ -247,11 +286,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $q = get_str($_GET, 'q');
 $edit = get_str($_GET, 'edit');
+$statusSelect = $hasTrangthaiCol ? 'tk.trangthai' : '1 AS trangthai';
 
 $editingRow = null;
 if ($edit !== '') {
     $sqlEdit =
-        "SELECT tk.tendangnhap, tk.manhomquyen, tk.manv,
+        "SELECT tk.tendangnhap, tk.manhomquyen, tk.manv, {$statusSelect},
                 nq.tennhomquyen,
                 CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
          FROM taikhoan tk
@@ -272,7 +312,7 @@ try {
     if ($q !== '') {
         $like = '%' . $q . '%';
         $sql =
-            "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv,
+                "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv, {$statusSelect},
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
@@ -297,7 +337,7 @@ try {
         $stmt->close();
     } else {
         $sql =
-            "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv,
+                "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv, {$statusSelect},
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
@@ -445,6 +485,7 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                         <tr>
                             <th>Username</th>
                             <th>Nhóm quyền</th>
+                            <th>Trạng thái</th>
                             <th>Mã NV</th>
                             <th>Tên nhân viên</th>
                             <th class="text-end">Thao tác</th>
@@ -459,6 +500,7 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                             <?php foreach ($rows as $r): ?>
                                 <?php
                                 $username = (string)($r['tendangnhap'] ?? '');
+                                $isActive = (int)($r['trangthai'] ?? 1) === 1;
                                 $editUrl = '/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php?edit=' . rawurlencode($username) . ($q !== '' ? ('&q=' . rawurlencode($q)) : '');
                                 ?>
                                 <tr>
@@ -467,10 +509,29 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                                         <div><?= h((string)($r['tennhomquyen'] ?? '')) ?></div>
                                         <div class="text-muted small"><?= h((string)($r['manhomquyen'] ?? '')) ?></div>
                                     </td>
+                                    <td>
+                                        <?php if (!$hasTrangthaiCol): ?>
+                                            <span class="badge text-bg-light">Chưa cấu hình</span>
+                                        <?php elseif ($isActive): ?>
+                                            <span class="badge text-bg-success">Đang hoạt động</span>
+                                        <?php else: ?>
+                                            <span class="badge text-bg-secondary">Đã khóa</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= h((string)($r['manv'] ?? '')) ?></td>
                                     <td><?= h((string)($r['ten_nhanvien'] ?? '')) ?></td>
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-primary" href="<?= h($editUrl) ?>">Sửa</a>
+                                        <?php if ($hasTrangthaiCol): ?>
+                                            <form method="post" class="d-inline" onsubmit="return confirm('<?= $isActive ? 'Khóa' : 'Mở khóa' ?> tài khoản <?= h($username) ?>?')">
+                                                <input type="hidden" name="mode" value="toggle_status">
+                                                <input type="hidden" name="tendangnhap" value="<?= h($username) ?>">
+                                                <input type="hidden" name="next_status" value="<?= $isActive ? '0' : '1' ?>">
+                                                <button class="btn btn-sm <?= $isActive ? 'btn-outline-warning' : 'btn-outline-success' ?>" type="submit" <?= ($username === 'admin' || ($currentUsername !== '' && $username === $currentUsername)) ? 'disabled' : '' ?>>
+                                                    <?= $isActive ? 'Khóa' : 'Mở' ?>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
                                         <form method="post" class="d-inline" onsubmit="return confirm('Xóa tài khoản <?= h($username) ?>?')">
                                             <input type="hidden" name="mode" value="delete">
                                             <input type="hidden" name="tendangnhap" value="<?= h($username) ?>">
