@@ -183,10 +183,16 @@ document.addEventListener('DOMContentLoaded', () => {
   // 5) Hiệu ứng placeholder typing: xóa/gõ từng ký tự với nhiều câu gợi ý
   if (searchInputHeader) {
     const messages = [
-      'Tìm theo thương hiệu...',
-      'Tìm kiếm theo tên sách...',
-      'Tìm kiếm theo tác giả...',
-      'Tìm kiếm theo thể loại...'
+      'Cách Tạo Video Triệu View',
+      'Chữ, Văn Quốc Ngữ',
+      'Tự truyện David Beckham',
+      'Khỏe Đẹp Từ Gốc',
+      'Ánh Sao Bên Tôi',
+      'Bạn Là Ai Và Làm Thế Nào Để Sống Tốt Hơn',
+      'Nihongo So-matome N4 Kanji',
+      '1500 Từ Vựng Dành Cho Kỳ Thi Năng Lực Nhật Ngữ N4',
+      'Thuyết Trình Tiếng Anh',
+      'Chinh Phục Công Thức Viết Đoạn Văn Và Bài Văn Nghị Luận Văn Học'
     ];
 
     let msgIndex = 0;

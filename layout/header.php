@@ -19,6 +19,7 @@ $docgia = $_SESSION['docgia'] ?? null;
 
 <link rel="stylesheet" href="/assets/css/login.css">
 <link rel="stylesheet" href="/assets/css/header.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <header class="main-header">
     <div class="main-header-inner">
@@ -108,10 +109,10 @@ $docgia = $_SESSION['docgia'] ?? null;
         <button type="button" class="btn btn-mini-close w-100 fw-bold py-2" data-bs-dismiss="offcanvas">Đóng</button>
     </div>
 </div>
-<script src="/assets/js/header.js" defer></script>
-<script>
-    window.user_id = <?= $docgia ? json_encode($docgia->getMadocgia()) : 'null' ?>;
-</script>
 
 <script src="/assets/js/header.js" defer></script>
 <script src="/assets/js/cart.js" defer></script>
+
+<script>
+    window.user_id = <?= $docgia ? json_encode($docgia->getMadocgia()) : 'null' ?>;
+</script>
