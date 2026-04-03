@@ -57,8 +57,11 @@ function make_id_from_mamuon(string $prefix, string $mamuon): string
 function backfill_phieutra_from_phieumuon(mysqli $conn, int $limit = 200): void
 {
     // Chỉ backfill những phiếu đã trả nhưng chưa có phiếu trả
-    $sql = "SELECT pm.mamuon, pm.madocgia, pm.manv, pm.ngaymuon, pm.ngayhethan
+        $sql = "SELECT pm.mamuon, pm.madocgia,
+               CASE WHEN nv.manv IS NULL THEN NULL ELSE pm.manv END AS manv,
+               pm.ngaymuon, pm.ngayhethan
             FROM phieumuon pm
+            LEFT JOIN nhanvien nv ON nv.manv = pm.manv
             LEFT JOIN phieutra pt ON pt.mamuon = pm.mamuon
             WHERE pm.trangthai = 'DaTra' AND pt.matra IS NULL
             ORDER BY pm.ngaymuon DESC
@@ -83,7 +86,13 @@ function backfill_phieutra_from_phieumuon(mysqli $conn, int $limit = 200): void
         }
 
         $matra = make_id_from_mamuon('PT', $mamuon);
-        $manv = (string)($row['manv'] ?? '');
+        $manv = $row['manv'] ?? null;
+        if (is_string($manv)) {
+            $manv = trim($manv);
+            if ($manv === '') {
+                $manv = null;
+            }
+        }
         $ngaytra = (string)($row['ngayhethan'] ?? '');
         if ($ngaytra === '') {
             $ngaytra = (string)($row['ngaymuon'] ?? '');
