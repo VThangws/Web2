@@ -58,10 +58,10 @@ require_admin_permission('DOCGIA');
           <label for="sdt">Số điện thoại</label>
           <input type="text" id="sdt" name="sdt" value="<?php echo $docgia->getSdt(); ?>" required>
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="ngaysinh">Ngày sinh</label>
-          <input type="date" id="ngaysinh" name="ngaysinh" value="<?php echo $docgia->getNgaysinh(); ?>" required>
-        </div>
+          <input type="date" id="ngaysinh" name="ngaysinh" value="<?php //echo $docgia->getNgaysinh(); ?>" required>
+        </div> -->
         <div class="form-group">
           <label for="diachi">Địa chỉ</label>
           <input type="text" id="diachi" name="diachi" value="<?php echo $docgia->getDiachi(); ?>" required>

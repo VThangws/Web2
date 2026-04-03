@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
-require_admin_permission('TAIKHOAN');
+require_admin_permission_for_request('TAIKHOAN');
 
 require_once __DIR__ . '/../../../database/ConnectDB.php';
 
@@ -96,11 +96,29 @@ try {
     // keep empty
 }
 
+$hasMadocgiaCol = column_exists($conn, 'taikhoan', 'madocgia');
+
 // Load employees for quick selection (optional)
 $employees = [];
+$suggestedManv = '';
 try {
-    $res = $conn->query("SELECT manv, CONCAT(COALESCE(honv,''),' ',COALESCE(tennv,'')) AS hoten FROM nhanvien ORDER BY tennv ASC LIMIT 300");
+    $res = $conn->query("SELECT manv, CONCAT(COALESCE(honv,''),' ',COALESCE(tennv,'')) AS hoten FROM nhanvien ORDER BY manv ASC LIMIT 300");
     $employees = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+
+    // Suggest the first employee (by manv) that hasn't been linked to any staff account yet.
+    // This enables auto-filling sequentially when creating multiple accounts.
+    $sqlSuggest =
+        "SELECT nv.manv
+         FROM nhanvien nv
+         LEFT JOIN taikhoan tk ON tk.manv = nv.manv" .
+        " WHERE tk.manv IS NULL
+         ORDER BY nv.manv ASC
+         LIMIT 1";
+    $resSuggest = $conn->query($sqlSuggest);
+    if ($resSuggest) {
+        $rowSuggest = $resSuggest->fetch_assoc();
+        $suggestedManv = is_array($rowSuggest) ? (string)($rowSuggest['manv'] ?? '') : '';
+    }
 } catch (Throwable $e) {
     // keep empty
 }
@@ -230,8 +248,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $q = get_str($_GET, 'q');
 $edit = get_str($_GET, 'edit');
 
-$hasMadocgiaCol = column_exists($conn, 'taikhoan', 'madocgia');
-
 $editingRow = null;
 if ($edit !== '') {
     $sqlEdit =
@@ -242,9 +258,6 @@ if ($edit !== '') {
          LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
          LEFT JOIN nhanvien nv ON nv.manv = tk.manv
          WHERE tk.tendangnhap = ?";
-    if ($hasMadocgiaCol) {
-        $sqlEdit .= " AND tk.madocgia IS NULL";
-    }
     $stmt = $conn->prepare($sqlEdit);
     if ($stmt) {
         $stmt->bind_param('s', $edit);
@@ -263,12 +276,8 @@ try {
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
-        if ($hasMadocgiaCol) {
-            $sql .= " WHERE tk.madocgia IS NULL AND (";
-        } else {
-            $sql .= " WHERE (";
-        }
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
+             WHERE (";
         $sql .=
             "tk.tendangnhap LIKE ?
                 OR tk.manv LIKE ?
@@ -292,11 +301,9 @@ try {
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
-        if ($hasMadocgiaCol) {
-            $sql .= " WHERE tk.madocgia IS NULL";
-        }
-        $sql .= " ORDER BY tk.tendangnhap ASC LIMIT 300";
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
+             ORDER BY tk.tendangnhap ASC
+             LIMIT 300";
 
         $res = $conn->query($sql);
         $rows = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
@@ -378,13 +385,30 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                         </div>
 
                         <div class="col-12 col-md-3">
-                            <label class="form-label mb-1">Mã nhân viên</label>
-                            <input class="form-control" name="manv" value="<?= h((string)($editingRow['manv'] ?? '')) ?>" list="manvList" placeholder="VD: NV001">
-                            <datalist id="manvList">
-                                <?php foreach ($employees as $e): ?>
-                                    <option value="<?= h((string)($e['manv'] ?? '')) ?>"><?= h((string)($e['hoten'] ?? '')) ?></option>
-                                <?php endforeach; ?>
-                            </datalist>
+                            <label class="form-label mb-1">Nhân viên (tùy chọn)</label>
+                            <?php if ($employees): ?>
+                                <select class="form-select" name="manv">
+                                    <?php
+                                    $selectedManv = '';
+                                    if ($editingRow) {
+                                        $selectedManv = (string)($editingRow['manv'] ?? '');
+                                    } else {
+                                        $selectedManv = $suggestedManv;
+                                    }
+                                    ?>
+                                    <option value="" <?= $selectedManv === '' ? 'selected' : '' ?>>-- Không gắn nhân viên --</option>
+                                    <?php foreach ($employees as $e): ?>
+                                        <?php
+                                        $manvOption = (string)($e['manv'] ?? '');
+                                        $hotenOption = (string)($e['hoten'] ?? '');
+                                        $selected = $manvOption !== '' && $selectedManv === $manvOption;
+                                        ?>
+                                        <option value="<?= h($manvOption) ?>" <?= $selected ? 'selected' : '' ?>><?= h($manvOption) ?><?= $hotenOption !== '' ? (' - ' . h($hotenOption)) : '' ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php else: ?>
+                                <input class="form-control" name="manv" value="<?= h((string)($editingRow['manv'] ?? '')) ?>" placeholder="VD: NV001">
+                            <?php endif; ?>
                             <?php if ($editingRow && (string)($editingRow['ten_nhanvien'] ?? '') !== ''): ?>
                                 <div class="text-muted small">Nhân viên: <?= h((string)$editingRow['ten_nhanvien']) ?></div>
                             <?php endif; ?>

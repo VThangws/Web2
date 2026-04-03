@@ -64,9 +64,7 @@ $totalCategories = ($resCategories) ? $resCategories->fetch_assoc()['total'] : 0
                             <span class="material-symbols-outlined">menu_book</span>
                             Đọc sách
                         </a>
-                        <button class="banner-like-btn" type="button">
-                            <span class="material-symbols-outlined">favorite</span>
-                        </button>
+                        
                     </div>
                 </div>
 

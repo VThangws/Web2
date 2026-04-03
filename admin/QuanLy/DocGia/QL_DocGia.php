@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
-require_admin_permission('DOCGIA');
+require_admin_permission_for_request('DOCGIA');
 error_reporting(E_ERROR | E_PARSE);
 ?>
 <!DOCTYPE html>
@@ -20,8 +20,8 @@ error_reporting(E_ERROR | E_PARSE);
     .form-grid label{display:block;font-weight:600;margin-bottom:4px;color:#333;}
     .form-grid input[type=text],.form-grid input[type=date]{width:100%;padding:8px 10px;border:1px solid #bbb;border-radius:4px;}
     .form-actions{display:flex;align-items:center;gap:12px;padding-top:8px;}
-    .btn{background:#007bff;color:#fff;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;transition:.2s;}
-    .btn:hover{background:#0056b3;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger){background:#007bff;color:#fff;border:none;padding:8px 16px;border-radius:5px;cursor:pointer;transition:.2s;}
+    .btn:not(.btn-outline-primary):not(.btn-outline-danger):hover{background:#0056b3;}
     .table-responsive{overflow-x:auto;}
     table{width:100%;border-collapse:collapse;margin-top:10px;}
     th,td{padding:10px 12px;border:1px solid #ddd;text-align:left;}
@@ -60,7 +60,7 @@ error_reporting(E_ERROR | E_PARSE);
                 || empty($_GET['tendocgia'])
                 || empty($_GET['email'])
                 || empty($_GET['sdt'])
-                || empty($_GET['ngaysinh'])
+                // || empty($_GET['ngaysinh'])
                 || empty($_GET['diachi'])
             ) {
                 echo "<script>alert('Thông tin đọc giả không được bỏ trống!');</script>";
@@ -70,10 +70,10 @@ error_reporting(E_ERROR | E_PARSE);
                 $tendocgia = $_GET['tendocgia'];
                 $email = $_GET['email'];
                 $sdt = $_GET['sdt'];
-                $ngaysinh = $_GET['ngaysinh'];
+                // $ngaysinh = $_GET['ngaysinh'];
                 $diachi = $_GET['diachi'];
 
-                $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
+                $dao->Them($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $diachi);
             }
         } elseif ($luachon === 'Sua') {
             $madocgia = $_GET['madocgia'] ?? '';
@@ -81,7 +81,7 @@ error_reporting(E_ERROR | E_PARSE);
             $tendocgia = $_GET['tendocgia'] ?? '';
             $email = $_GET['email'] ?? '';
             $sdt = $_GET['sdt'] ?? '';
-            $ngaysinh = $_GET['ngaysinh'] ?? '';
+            // $ngaysinh = $_GET['ngaysinh'] ?? '';
             $diachi = $_GET['diachi'] ?? '';
 
             if (
@@ -90,12 +90,12 @@ error_reporting(E_ERROR | E_PARSE);
                 || empty($tendocgia)
                 || empty($email)
                 || empty($sdt)
-                || empty($ngaysinh)
+                // || empty($ngaysinh)
                 || empty($diachi)
             ) {
                 echo "<script>alert('Thông tin đọc giả không được bỏ trống!');</script>";
             } else {
-                $dao->Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi);
+                $dao->Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $diachi);
             }
         } elseif ($luachon === 'Xoa') {
             $madocgia = $_GET['madocgia'] ?? '';
@@ -133,10 +133,10 @@ error_reporting(E_ERROR | E_PARSE);
           <label for="sdt">Số điện thoại</label>
           <input type="text" id="sdt" name="sdt" required>
         </div>
-        <div>
+        <!-- <div>
           <label for="ngaysinh">Ngày sinh</label>
           <input type="date" id="ngaysinh" name="ngaysinh" required>
-        </div>
+        </div> -->
         <div>
           <label for="diachi">Địa chỉ</label>
           <input type="text" id="diachi" name="diachi" required>
@@ -163,25 +163,25 @@ error_reporting(E_ERROR | E_PARSE);
             <th>Tên</th>
             <th>Email</th>
             <th>SĐT</th>
-            <th>Ngày sinh</th>
+            <!-- <th>Ngày sinh</th> -->
             <th>Địa chỉ</th>
-            <th>Hành động</th>
+            <th class="text-end">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           <?php
             while($row = $query->fetch_assoc()) {
               echo '<tr>';
-              echo '<td>'.htmlspecialchars($row['madocgia']).'</td>';
-              echo '<td>'.htmlspecialchars($row['hodocgia']).'</td>';
-              echo '<td>'.htmlspecialchars($row['tendocgia']).'</td>';
-              echo '<td>'.htmlspecialchars($row['email']).'</td>';
-              echo '<td>'.htmlspecialchars($row['sdt']).'</td>';
-              echo '<td>'.htmlspecialchars($row['ngaysinh']).'</td>';
-              echo '<td>'.htmlspecialchars($row['diachi']).'</td>';
-              echo '<td>';
-              echo '<a class="action-link edit" href="Sua_DocGia.php?madocgia='.urlencode($row['madocgia']).'">Sửa</a>';
-              echo '<a class="action-link delete" href="QL_DocGia.php?luachon=Xoa&madocgia='.urlencode($row['madocgia']).'" onclick="return confirm(\'Bạn có chắc muốn xóa?\')">Xóa</a>';
+              echo '<td>'.htmlspecialchars((string)($row['madocgia'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['hodocgia'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['tendocgia'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['email'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['sdt'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['ngaysinh'] ?? '')).'</td>';
+              echo '<td>'.htmlspecialchars((string)($row['diachi'] ?? '')).'</td>';
+              echo '<td class="text-end">';
+              echo '<a class="btn btn-sm btn-outline-primary me-1" href="Sua_DocGia.php?madocgia='.urlencode($row['madocgia']).'">Sửa</a>';
+              echo '<a class="btn btn-sm btn-outline-danger" href="QL_DocGia.php?luachon=Xoa&madocgia='.urlencode($row['madocgia']).'" onclick="return confirm(\'Bạn có chắc muốn xóa?\')">Xóa</a>';
               echo '</td>';
               echo '</tr>';
             }

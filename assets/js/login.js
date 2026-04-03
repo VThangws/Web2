@@ -33,7 +33,7 @@ if (loginForm) {
     loginForm?.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        fetch('./ajax/loginAjax.php', {
+        fetch('/ajax/loginAjax.php', {
             method: 'POST',
             body: new FormData(loginForm)
         })
@@ -68,7 +68,7 @@ if (registerForm) {
             return; // dừng lại, không fetch
         }
 
-        fetch('./ajax/registerAjax.php', {
+        fetch('/ajax/registerAjax.php', {
             method: 'POST',
             body: new FormData(registerForm)
         })
@@ -76,27 +76,25 @@ if (registerForm) {
             .then(data => {
                 if (data.success) {
                     // Hiện thông báo thành công
-                    showModal('success', 'Đăng ký thành công! Mã của bạn: ' + data.madocgia);
+                    showModal('true', 'Đăng ký thành công! Mã của bạn: ' + data.madocgia);
 
                     // Chuyển sang form đăng nhập sau 2 giây
                     setTimeout(() => {
                         wrapper.classList.remove('active');
                     }, 2000);
                 } else {
-                    showModal('error', data.message);
+                    showModal('false', data.message);
                 }
             })
             .catch(err => console.error('Lỗi:', err));
     });
 }
-
- // ===== PHẦN Update Profile AJAX =====
- //kiếm bên TaiKhoan.php nha các em
-       
 // ===== MODAL NOTICE =====
-function showModal(isSuccess, message) {
+function showModal(status, message) {
     const modalContent = document.getElementById("modalContent");
     const loginMessage = document.getElementById("loginMessage");
+
+    const isSuccess = status === true || status === 'success';
 
     if (isSuccess) {
         modalContent.className = "modal-content border-0 shadow-lg modal-success";

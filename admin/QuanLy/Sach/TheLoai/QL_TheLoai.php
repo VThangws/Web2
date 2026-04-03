@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../../login/auth.php';
 require_admin_login();
-require_admin_permission('THELOAI');
+require_admin_permission_for_request('THELOAI');
 error_reporting(E_ERROR | E_PARSE);
 ?>
 
@@ -19,8 +19,8 @@ error_reporting(E_ERROR | E_PARSE);
     .KhungThongTin form {display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;}
     .KhungThongTin label {display: block; margin-bottom: 4px; font-weight: 600; color: #333;}
     .KhungThongTin input[type="text"] {width: 100%; padding: 8px 10px; border: 1px solid #bbb; border-radius: 4px;}
-    .KhungThongTin input[type="submit"], .btn {background: #007bff; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: background .2s ease;}
-    .KhungThongTin input[type="submit"]:hover, .btn:hover {background: #0056b3;}
+    .KhungThongTin input[type="submit"], .btn:not(.btn-outline-primary):not(.btn-outline-danger) {background: #007bff; color: #fff; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; transition: background .2s ease;}
+    .KhungThongTin input[type="submit"]:hover, .btn:not(.btn-outline-primary):not(.btn-outline-danger):hover {background: #0056b3;}
     .table-responsive {overflow-x:auto;}
     table {width: 100%; border-collapse: collapse; margin-top: 8px;}
     th, td {padding: 10px 12px; border: 1px solid #ddd; text-align: left;}
@@ -128,8 +128,8 @@ error_reporting(E_ERROR | E_PARSE);
                 echo "<td>" . htmlspecialchars($theloai->getMatheloai()) . "</td>";
                 echo "<td>" . htmlspecialchars($theloai->getTentheloai()) . "</td>";
                 echo "<td>";
-                echo "<a class='action-link edit' href='Sua_TheLoai.php?luachon=Sua&matheloai=" . urlencode($theloai->getMatheloai()) . "&tentheloai=" . urlencode($theloai->getTentheloai()) . "'>Sửa</a>";
-                echo "<a class='action-link delete' href='QL_TheLoai.php?luachon=Xoa&matheloai=" . urlencode($theloai->getMatheloai()) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a>";
+                echo "<a class='btn btn-sm btn-outline-primary me-1' href='Sua_TheLoai.php?luachon=Sua&matheloai=" . urlencode($theloai->getMatheloai()) . "&tentheloai=" . urlencode($theloai->getTentheloai()) . "'>Sửa</a>";
+                echo "<a class='btn btn-sm btn-outline-danger' href='QL_TheLoai.php?luachon=Xoa&matheloai=" . urlencode($theloai->getMatheloai()) . "' onclick='return confirm(\"Bạn có chắc muốn xóa?\")'>Xóa</a>";
                 echo "</td>";
                 echo "</tr>";
               }

@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../model/DocGia.php';
-require_once __DIR__ . '/../model/TaiKhoan.php';  // thêm dòng này
+require_once __DIR__ . '/../model/TaiKhoan.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -25,6 +25,7 @@ if ($result) {
     $user     = $result['docgia'];
     $madocgia = $user->getMadocgia();
 
+<<<<<<< HEAD
     //-----------------Phần Giỏ Hàng-----------------
     // ĐỒNG BỘ GIỎ HÀNG
     $db = ConnectDB::getInstance();
@@ -36,6 +37,28 @@ if ($result) {
     if (!empty($guest_cart)) {
         foreach ($guest_cart as $ma => $item) {
             // Lấy tồn kho thực tế (đếm số cuốn 'SanSang')
+=======
+    // Lưu thông tin đăng nhập vào Session trước
+    $_SESSION['docgia'] = $user;
+    $_SESSION['taikhoan'] = new TaiKhoan(
+        $email,
+        $result['matkhau'], 
+        $result['quyen'],
+        null,
+        $madocgia
+    );
+
+    // XỬ LÝ GIỎ HÀNG: ĐỒNG BỘ & CHẶN QUOTA
+    $db = ConnectDB::getInstance();
+    $conn = $db->getConnection();
+
+    // 1. Lấy giỏ hàng khách đang chọn (nếu có)
+    $guest_cart = isset($_SESSION['cart']) ? $_SESSION['cart'] : [];
+
+    if (!empty($guest_cart)) {
+        foreach ($guest_cart as $ma => $item) {
+            // Lấy tồn kho thực tế ngay lúc này
+>>>>>>> 6976832b6d47c0050159b0074fa2e68781d05114
             $sql_stock = "SELECT (SELECT COUNT(*) FROM cuonsach cs WHERE cs.madausach = ds.madausach AND cs.trangthai = 'SanSang') as tonkho 
                           FROM dausach ds WHERE madausach = ?";
             $stmt_stock = $conn->prepare($sql_stock);
@@ -44,7 +67,11 @@ if ($result) {
             $tonkho = $stmt_stock->get_result()->fetch_assoc()['tonkho'] ?? 0;
 
             if ($tonkho > 0) {
+<<<<<<< HEAD
                 // Check xem user đã có sách này trong DB chưa
+=======
+                // Kiểm tra xem trong DB của user này đã có cuốn này chưa
+>>>>>>> 6976832b6d47c0050159b0074fa2e68781d05114
                 $sql_check = "SELECT soluong FROM giohang WHERE madocgia = ? AND madausach = ?";
                 $stmt_check = $conn->prepare($sql_check);
                 $stmt_check->bind_param("ss", $madocgia, $ma);
@@ -52,7 +79,11 @@ if ($result) {
                 $res_check = $stmt_check->get_result();
 
                 if ($row = $res_check->fetch_assoc()) {
+<<<<<<< HEAD
                     // CÓ RỒI -> CỘNG DỒN VÀ CHẶN TRẦN TỒN KHO
+=======
+                    // CÓ RỒI -> CỘNG DỒN VÀ ÉP KHÔNG VƯỢT QUÁ TỒN KHO
+>>>>>>> 6976832b6d47c0050159b0074fa2e68781d05114
                     $new_qty = min($row['soluong'] + $item['soluong'], $tonkho);
                     $stmt_upd = $conn->prepare("UPDATE giohang SET soluong = ? WHERE madocgia = ? AND madausach = ?");
                     $stmt_upd->bind_param("iss", $new_qty, $madocgia, $ma);
@@ -68,8 +99,13 @@ if ($result) {
         }
     }
 
+<<<<<<< HEAD
     // 2. Xóa giỏ tạm, kéo bản chuẩn từ DB lên Session để đồng bộ 100%
     $_SESSION['cart'] = [];
+=======
+    // 2. LẤY BẢN CHUẨN TỪ DB LÊN SESSION (Đảm bảo có biến 'tonkho')
+    $_SESSION['cart'] = []; // Xóa giỏ tạm
+>>>>>>> 6976832b6d47c0050159b0074fa2e68781d05114
     $sql_sync = "SELECT gh.madausach, gh.soluong, ds.tensach, ds.anhbia, ds.dongia,
                         (SELECT COUNT(*) FROM cuonsach cs WHERE cs.madausach = ds.madausach AND cs.trangthai = 'SanSang') as tonkho
                  FROM giohang gh
@@ -82,7 +118,11 @@ if ($result) {
 
     while ($row = $res_sync->fetch_assoc()) {
         if ($row['tonkho'] > 0) {
+<<<<<<< HEAD
             // Ép số lượng xuống nếu kho lỡ bị hụt (ai đó vừa mượn mất)
+=======
+            // Ép lại số lượng lần cuối đề phòng có người vừa mượn mất sách
+>>>>>>> 6976832b6d47c0050159b0074fa2e68781d05114
             $final_qty = min($row['soluong'], $row['tonkho']);
 
             $_SESSION['cart'][$row['madausach']] = [
@@ -90,10 +130,17 @@ if ($result) {
                 'anhbia'  => $row['anhbia'],
                 'dongia'  => $row['dongia'],
                 'soluong' => $final_qty,
+<<<<<<< HEAD
                 'tonkho'  => $row['tonkho']
             ];
         } else {
             // Hết sách thì xóa khỏi giỏ luôn cho sạch
+=======
+                'tonkho'  => $row['tonkho'] // QUAN TRỌNG: Lưu lại tồn kho để cart.php hiển thị
+            ];
+        } else {
+            // Kho hết sạch thì dọn rác luôn
+>>>>>>> 6976832b6d47c0050159b0074fa2e68781d05114
             $conn->query("DELETE FROM giohang WHERE madocgia = '$madocgia' AND madausach = '{$row['madausach']}'");
         }
     }
@@ -103,11 +150,12 @@ if ($result) {
     $_SESSION['docgia'] = $user;
 
     // Lưu session taikhoan (hash lấy từ DB)
+    // Nếu là tài khoản nhân viên/admin đã link qua docgia thì sẽ có manv
     $_SESSION['taikhoan'] = new TaiKhoan(
         $email,
         $result['matkhau'],   // hash từ DB
         $result['quyen'],
-        null,                 // manv (null nếu là docgia)
+        $result['manv'] ?? null,
         $madocgia
     );
 

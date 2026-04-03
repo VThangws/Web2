@@ -10,12 +10,12 @@ class DocGiaDAO {
 
 // =========================== DAO ADMIN =============================== // 
     public function Them($conn, $madocgia, $hodocgia, 
-        $tendocgia, $email, $sdt, $ngaysinh, $diachi) {
+        $tendocgia, $email, $sdt, $diachi) {
         $sql = "INSERT INTO docgia(madocgia, hodocgia, tendocgia,
-        email, sdt, ngaysinh, diachi) VALUES(?, ?, ?, ?, ?, ?, ?)";
+        email, sdt, diachi) VALUES(?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssds", $madocgia, $hodocgia, $tendocgia,
-        $email, $sdt, $ngaysinh, $diachi);
+        $stmt->bind_param("ssssss", $madocgia, $hodocgia, $tendocgia,
+        $email, $sdt, $diachi);
 
         // thực hiện thêm
         if($stmt->execute()) {
@@ -26,16 +26,16 @@ class DocGiaDAO {
         không thành công');</script>";
     }
 
-    public function Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $ngaysinh, $diachi) {
+    public function Sua($conn, $madocgia, $hodocgia, $tendocgia, $email, $sdt, $diachi) {
         $sql = "UPDATE docgia
         SET hodocgia=?, tendocgia=?,
-        email=?, sdt=?, ngaysinh=?, diachi=?
+        email=?, sdt=?, diachi=?
         WHERE madocgia=?";
 
         // thực hiện cập nhật
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssdss", $hodocgia, $tendocgia, $email, 
-        $sdt, $ngaysinh, $diachi, $madocgia);
+        $stmt->bind_param("ssssss", $hodocgia, $tendocgia, $email, 
+        $sdt, $diachi, $madocgia);
 
         // thông báo tính trạng cập nhật
         if($stmt->execute()) {
@@ -45,7 +45,7 @@ class DocGiaDAO {
     }
 
     public function ToanBoDanhSach($conn) {
-        $sql = "SELECT * FROM docgia";
+        $sql = "SELECT * FROM docgia ORDER BY madocgia DESC";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -68,7 +68,7 @@ class DocGiaDAO {
 
 
     public function TimKiem($conn, $keyword) {
-        $sql = "SELECT * FROM docgia WHERE madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ?";
+        $sql = "SELECT * FROM docgia WHERE madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ? ORDER BY madocgia DESC";
         $stmt = $conn->prepare($sql);
         $like = '%' . $keyword . '%';
         $stmt->bind_param('sss', $like, $like, $like);
@@ -151,17 +151,17 @@ class DocGiaDAO {
         $hodocgia = $dg->getHodocgia();
         $tendocgia = $dg->getTendocgia();
         $sdt = $dg->getSdt();
-        $ngaysinh = $dg->getNgaysinh();
+        // $ngaysinh = $dg->getNgaysinh();
         $diachi = $dg->getDiachi();
         $ma = $dg->getMadocgia();
 
-        $sql = "UPDATE docgia SET hodocgia=?, tendocgia=?, sdt=?, ngaysinh=?, diachi=? WHERE madocgia=?";
+        $sql = "UPDATE docgia SET hodocgia=?, tendocgia=?, sdt=?, diachi=? WHERE madocgia=?";
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("ssssss",
             $hodocgia,
             $tendocgia,
             $sdt,
-            $ngaysinh,
+            // $ngaysinh,
             $diachi,
             $ma
         );
@@ -174,7 +174,7 @@ class DocGiaDAO {
     // ==================== ĐĂNG NHẬP ====================
     public function dangNhap($email, $matkhau)
     {
-        $sql  = "SELECT tk.matkhau, tk.manhomquyen, dg.*
+        $sql  = "SELECT tk.matkhau, tk.manhomquyen, tk.manv, dg.*
             FROM taikhoan tk
             JOIN docgia dg ON tk.madocgia = dg.madocgia
             WHERE tk.tendangnhap = ?";
@@ -189,7 +189,7 @@ class DocGiaDAO {
                 $row['tendocgia'],
                 $row['email'],
                 $row['sdt'],
-                $row['ngaysinh'],
+                // $row['ngaysinh'],
                 $row['diachi'],
                 $row['madocgia']
             );
@@ -197,7 +197,8 @@ class DocGiaDAO {
             return [
                 'docgia'   => $docgia,
                 'matkhau'  => $row['matkhau'],      // hash từ DB
-                'quyen'    => $row['manhomquyen']
+                'quyen'    => $row['manhomquyen'],
+                'manv'     => $row['manv'] ?? null,
             ];
         }
         return null;
@@ -217,7 +218,7 @@ class DocGiaDAO {
                 $row['tendocgia'],
                 $row['email'],
                 $row['sdt'],
-                $row['ngaysinh'],
+                // $row['ngaysinh'],
                 $row['diachi'],
                 $row['madocgia']
             );
