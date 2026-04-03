@@ -91,7 +91,6 @@ $cart_empty = empty($_SESSION['cart']);
                     <span class="text-muted">Tổng cộng:</span>
                     <strong class="text-danger" id="total-price">0 VNĐ</strong>
                 </div>
-
                 <?php if (!isset($docgia)): ?>
                     <button type="button" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6" 
                             onclick="Swal.fire({
@@ -109,11 +108,10 @@ $cart_empty = empty($_SESSION['cart']);
                         XÁC NHẬN MƯỢN SÁCH
                     </button>
                 <?php else: ?>
-                    <a href="/index.php?page=checkout" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6 <?= $cart_empty ? 'disabled' : '' ?>">
+                    <button id="btn-checkout-submit" class="btn btn-cart-primary w-100 mb-3 py-2 fs-6 <?= $cart_empty ? 'disabled' : '' ?>">
                         XÁC NHẬN MƯỢN SÁCH
-                    </a>
+                    </button>
                 <?php endif; ?>
-
                 <a href="/index.php?page=books" class="btn btn-cart-secondary w-100 py-2 fs-6">
                     TIẾP TỤC TÌM KIẾM SÁCH
                 </a>
@@ -202,5 +200,38 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(err => console.error(err));
         });
     });
+    // =====================================
+    // 3. XỬ LÝ NÚT XÁC NHẬN MƯỢN SÁCH (CHỈ GỬI SẢN PHẨM ĐƯỢC CHỌN)
+    // =====================================
+    const btnCheckout = document.getElementById('btn-checkout-submit');
+    if (btnCheckout) {
+        btnCheckout.addEventListener('click', function() {
+            let selectedItems = [];
+            document.querySelectorAll('.item-checkbox:checked').forEach(cb => {
+                selectedItems.push(cb.value); // Lấy mã đầu sách
+            });
+
+            if (selectedItems.length === 0) {
+                alert('Bạn ơi, vui lòng chọn ít nhất 1 quyển sách để mượn nhé!');
+                return;
+            }
+
+            // Tạo form ẩn để gửi data sang trang checkout
+            let form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/index.php?page=checkout';
+
+            selectedItems.forEach(id => {
+                let input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'selected_items[]';
+                input.value = id;
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
 });
 </script>

@@ -24,7 +24,7 @@ function json_out(string $status, string $message, array $extra = []): void {
     exit;
 }
 
-// Tắt warning/notice để không bể JSON (nhưng vẫn bắt Throwable để trả JSON lỗi)
+// Tắt warning/notice để không bể JSON
 error_reporting(0);
 ini_set('display_errors', '0');
 
@@ -35,25 +35,20 @@ try {
     }
     $conn->set_charset('utf8mb4');
 
-    /**
-     * Admin session theo admin/login.php:
-     * $_SESSION['admin_user'] = ['tendangnhap','manhomquyen','manv','madocgia']
-     */
     $admin = $_SESSION['admin_user'] ?? null;
     $manv = is_array($admin) ? trim((string)($admin['manv'] ?? '')) : '';
     if ($manv === '') {
         json_out('error', 'Bạn chưa đăng nhập admin hoặc thiếu mã nhân viên (manv).');
     }
 
-    // 1) Input
     $mamuon = $_POST['mamuon'] ?? '';
     $mamuon = is_string($mamuon) ? trim($mamuon) : '';
     if ($mamuon === '') {
         json_out('error', 'Không tìm thấy mã phiếu mượn!');
     }
 
-    // 2) Lấy info phiếu mượn
-    $stmt = $conn->prepare("SELECT trangthai, loaimuon FROM phieumuon WHERE mamuon = ? LIMIT 1");
+    // 1) SỬA LỖI Ở ĐÂY: Select cột ghichu thay vì loaimuon
+    $stmt = $conn->prepare("SELECT trangthai, ghichu FROM phieumuon WHERE mamuon = ? LIMIT 1");
     if (!$stmt) {
         json_out('error', 'Lỗi prepare SELECT phieumuon: ' . $conn->error);
     }
@@ -72,35 +67,25 @@ try {
     }
 
     $currentStatus = (string)($result['trangthai'] ?? '');
-    $type = (string)($result['loaimuon'] ?? '');
+    $ghichu = (string)($result['ghichu'] ?? '');
     $newStatus = '';
 
-    // 3) Logic chuyển đổi trạng thái
-    if ($type === 'ONLINE') {
-        if ($currentStatus === 'PENDING') $newStatus = 'ACTIVE';
-        elseif ($currentStatus === 'ACTIVE') $newStatus = 'COMPLETED';
-    } else { // ON_SITE
-        if ($currentStatus === 'ACTIVE') $newStatus = 'COMPLETED';
+    // 2) SỬA LOGIC TRẠNG THÁI CHO KHỚP DB: ChoDuyet -> DangMuon -> DaTra
+    if (strpos($ghichu, 'Mượn mang về') !== false) {
+        if ($currentStatus === 'ChoDuyet') $newStatus = 'DangMuon'; // Khách đến lấy sách
+        elseif ($currentStatus === 'DangMuon') $newStatus = 'DaTra'; // Khách trả sách
+    } else { // Đọc tại chỗ
+        if ($currentStatus === 'DangMuon') $newStatus = 'DaTra'; // Khách đọc xong trả sách
     }
 
     if ($newStatus === '') {
         json_out('error', 'Phiếu đang ở trạng thái "' . $currentStatus . '" nên không thể cập nhật.');
     }
 
-    // 4) Transaction
     $conn->begin_transaction();
 
-    // 4.1) Update phieumuon + lưu manv & thời gian xác nhận
-    // Chỉ set ngaymuon khi chuyển sang ACTIVE (tránh ghi đè nếu COMPLETED)
-    $sqlUpdate = "
-        UPDATE phieumuon
-        SET trangthai = ?,
-            manv = ?,
-            thoigian_xacnhan = NOW()
-            " . ($newStatus === 'ACTIVE' ? ", ngaymuon = NOW()" : "") . "
-        WHERE mamuon = ?
-    ";
-
+    // 3) BỎ CỘT thoigian_xacnhan (Vì DB của ní không có) để tránh lỗi Unknown Column
+    $sqlUpdate = "UPDATE phieumuon SET trangthai = ?, manv = ? WHERE mamuon = ?";
     $up = $conn->prepare($sqlUpdate);
     if (!$up) {
         $conn->rollback();
@@ -116,8 +101,8 @@ try {
     }
     $up->close();
 
-    // 4.2) Nếu COMPLETED thì trả sách về SanSang (nếu có bảng ctphieumuon & cuonsach)
-    if ($newStatus === 'COMPLETED') {
+    // 4) Đổi chữ COMPLETED thành DaTra
+    if ($newStatus === 'DaTra') {
         $checkCt = $conn->query("SHOW TABLES LIKE 'ctphieumuon'");
         $checkCs = $conn->query("SHOW TABLES LIKE 'cuonsach'");
         $hasCt = $checkCt && $checkCt->num_rows > 0;
@@ -149,15 +134,13 @@ try {
 
     $conn->commit();
 
-    json_out('success', 'Cập nhật thành công!', [
+    json_out('success', 'Trạng thái chuyển thành: ' . $newStatus, [
         'mamuon' => $mamuon,
         'oldStatus' => $currentStatus,
         'newStatus' => $newStatus,
-        'manv' => $manv,
-        'type' => $type,
+        'manv' => $manv
     ]);
 
 } catch (Throwable $e) {
-    // Đảm bảo luôn trả JSON thay vì chết 500
     json_out('error', 'Server error: ' . $e->getMessage());
 }

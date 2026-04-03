@@ -1,3 +1,15 @@
+<?php
+// Nhận mảng các mã sách được chọn từ cart gửi qua
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items'])) {
+    $_SESSION['checkout_items'] = $_POST['selected_items'];
+}
+
+// Nếu người dùng vào thẳng link checkout mà chưa chọn sách nào
+if (empty($_SESSION['checkout_items'])) {
+    echo "<script>alert('Bạn chưa chọn sách nào để mượn!'); window.location.href='/index.php?page=cart';</script>";
+    exit;
+}
+?>
 <div class="container py-5">
     <div class="text-center mb-5 reveal-item">
         <h2 class="fw-bold" style="color: #20c997;">XÁC NHẬN MƯỢN SÁCH</h2>
