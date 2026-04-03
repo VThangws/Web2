@@ -81,12 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
         formData.append('madausach', madausach);
         formData.append('action', action);
 
-        // Giữ lại chiều rộng của nút để tránh giật layout khi đổi chữ thành "..."
-        let btnWidth = btn.offsetWidth;
-        btn.style.width = btnWidth + 'px';
         btn.disabled = true;
-        let originalContent = btn.innerHTML;
-        btn.innerHTML = '...'; 
 
         fetch('/ajax/update_cart.php', {
             method: 'POST',
@@ -101,10 +96,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     location.reload();
                 }
             } else {
-                alert('LỖI: ' + data.message); // Báo lỗi cho người dùng biết
                 btn.disabled = false;
-                btn.innerHTML = originalContent;
-                btn.style.width = 'auto';
+                Swal.fire({
+                    title: 'Thông báo',
+                    text: data.message, // Lấy đúng câu "Sách này trong kho chỉ còn..." từ add_to_cart.php
+                    icon: 'warning',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#7a52d0'
+                });
             }
         })
         .catch(err => {

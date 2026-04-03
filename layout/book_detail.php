@@ -240,7 +240,13 @@ document.getElementById('btn-add-cart').addEventListener('click', function() {
                 }, 200);
             }
         } else {
-            alert('Lỗi: ' + data.message);
+            Swal.fire({
+                title: 'Thông báo',
+                text: data.message, 
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#20c997' // Nút màu xanh rêu chuẩn tông web của ông
+            });
         }
     })
     .catch(error => {
