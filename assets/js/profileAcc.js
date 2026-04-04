@@ -18,6 +18,17 @@ document.querySelectorAll(".sidebar-item").forEach((item) => {
     document.getElementById(target).classList.remove("d-none");
   });
 });
+// ===== URL HASH TAB ACTIVATION =====
+document.addEventListener("DOMContentLoaded", function() {
+  const hash = window.location.hash.substring(1);
+  if (hash) {
+    const targetBtn = document.querySelector(`.sidebar-item[data-target="${hash}"]`);
+    if (targetBtn) {
+      targetBtn.click();
+    }
+  }
+});
+
 // ===== API TỈNH / QUẬN / PHƯỜNG =====
 const API_BASE = "https://esgoo.net/api-tinhthanh";
 

@@ -345,7 +345,7 @@ class DocGiaDAO {
 
         $sqlPhat = "SELECT MAX(DATEDIFF(NOW(), ngaylap)) as tre_phat 
                     FROM phieuphat 
-                    WHERE madocgia = ? AND trangthai IN ('ChuaDong', 'Chưa đóng', 'chuadong') 
+                    WHERE madocgia = ? AND trangthai IN ('ChuaDong', 'Chưa đóng', 'chuadong', 'ChuaNop', 'Chưa nộp', 'chuanop') 
                     AND DATEDIFF(NOW(), ngaylap) > 0";
         $stmtP = $this->conn->prepare($sqlPhat);
         $stmtP->bind_param("s", $madocgia);
@@ -361,7 +361,7 @@ class DocGiaDAO {
             $isLocked = true;
             $lockReasons[] = "sách trễ hạn trả hơn 2 ngày (chậm $treMuon ngày)";
         } elseif ($treMuon > 0) {
-            $warnings[] = "Bạn có sách đã trễ hạn trả $treMuon ngày. Tài khoản sẽ bị khóa nếu trễ quá 2 ngày.";
+            $warnings[] = "Bạn có sách đã trễ hạn trả $treMuon ngày. Phí phạt là 5.000đ/cuốn cho mỗi ngày trễ. Tài khoản sẽ bị khóa nếu trễ hơn 2 ngày!";
         }
 
         if ($trePhat > 7) {

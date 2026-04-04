@@ -25,7 +25,7 @@ $qr_api = "https://quickchart.io/qr?text=" . $mamuon . "&size=250";
 
         <div class="d-grid gap-2">
             <a href="/index.php" class="btn btn-success rounded-pill fw-bold">VỀ TRANG CHỦ</a>
-            <a href="/index.php?page=history" class="btn btn-outline-secondary rounded-pill fw-bold">XEM LỊCH SỬ MƯỢN</a>
+            <a href="/index.php?page=taikhoan#orders" class="btn btn-outline-secondary rounded-pill fw-bold">XEM LỊCH SỬ MƯỢN</a>
         </div>
     </div>
 </div>
