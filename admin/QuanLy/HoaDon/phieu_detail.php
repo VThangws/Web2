@@ -33,6 +33,27 @@ function fmt_dt(?string $value): string
     }
 }
 
+// 1. HÀM FOMAT TIỀN TỆ
+function fmt_money($value): string
+{
+    if (!is_numeric($value)) {
+        return '0 đ';
+    }
+    return number_format((float)$value, 0, ',', '.') . ' đ';
+}
+
+// 2. HÀM GẮN MÀU (BADGE) CHO TRẠNG THÁI
+function fmt_status(string $status): string
+{
+    $s = trim(mb_strtolower($status, 'UTF-8'));
+    if (in_array($s, ['chuadong', 'chưa đóng', 'chuanop', 'chưa nộp'])) return '<span class="badge bg-danger">Chưa nộp</span>';
+    if (in_array($s, ['dadong', 'đã đóng', 'danop', 'đã nộp'])) return '<span class="badge bg-success">Đã nộp</span>';
+    if (in_array($s, ['dangmuon', 'đang mượn', 'dangmuon'])) return '<span class="badge bg-warning text-dark">Đang mượn</span>';
+    if (in_array($s, ['datra', 'đã trả', 'datra'])) return '<span class="badge bg-success">Đã trả</span>';
+    if (in_array($s, ['choduyet', 'chờ duyệt'])) return '<span class="badge bg-info text-dark">Chờ duyệt</span>';
+    return '<span class="badge bg-secondary">' . h($status) . '</span>';
+}
+
 $allowedTypes = [
     'muon' => 'Phiếu mượn',
     'tra' => 'Phiếu trả',
@@ -212,6 +233,31 @@ $backUrl = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=' . rawurlencode($type);
             </div>
             <div class="d-flex gap-2">
                 <a class="btn btn-outline-secondary" href="<?= h($backUrl) ?>"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
+                
+                <?php if ($type === 'phat' && isset($header['trangthai']) && in_array(trim(mb_strtolower($header['trangthai'], 'UTF-8')), ['chuadong', 'chưa đóng', 'chua dong', 'chuanop', 'chưa nộp'])): ?>
+                    <button type="button" class="btn btn-success" onclick="thuTienPhat('<?= h($id) ?>')">
+                        <i class="fa-solid fa-money-bill"></i> Xác nhận đã nộp
+                    </button>
+                <?php endif; ?>
+
+                <?php if ($type === 'muon' && isset($header['trangthai'])): ?>
+                    <?php if ($header['trangthai'] === 'ChoDuyet'): ?>
+                        <button type="button" class="btn btn-success" onclick="duyetPhieuMuon('<?= h($id) ?>')">
+                            <i class="fa-solid fa-check"></i> Duyệt phiếu
+                        </button>
+                        <a class="btn btn-info text-white" href="/admin/QuanLy/HoaDon/phieu_muon_edit.php?mamuon=<?= rawurlencode($id) ?>">
+                            <i class="fa-solid fa-pen"></i> Sửa phiếu
+                        </a>
+                        <button type="button" class="btn btn-danger" onclick="huyPhieuMuon('<?= h($id) ?>')">
+                            <i class="fa-solid fa-trash"></i> Hủy phiếu
+                        </button>
+                    <?php elseif ($header['trangthai'] === 'DangMuon'): ?>
+                        <a class="btn btn-success" href="/admin/QuanLy/HoaDon/lap_phieu_tra.php?mamuon=<?= rawurlencode($id) ?>">
+                            <i class="fa-solid fa-right-left"></i> Lập phiếu trả
+                        </a>
+                    <?php endif; ?>
+                <?php endif; ?>
+
                 <a class="btn btn-primary" href="<?= h($printUrl) ?>" target="_blank"><i class="fa-solid fa-print"></i> In phiếu</a>
             </div>
         </div>
@@ -227,26 +273,26 @@ $backUrl = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=' . rawurlencode($type);
                             <div class="col-12 col-md-4"><div class="text-muted small">Nhân viên</div><div class="fw-semibold"><?= h(trim((string)($header['ten_nhanvien'] ?? ''))) ?></div><div class="text-muted small"><?= h((string)($header['manv'] ?? '')) ?></div></div>
                             <div class="col-6 col-md-2"><div class="text-muted small">Ngày mượn</div><div class="fw-semibold"><?= h(fmt_dt($header['ngaymuon'] ?? null)) ?></div></div>
                             <div class="col-6 col-md-2"><div class="text-muted small">Hết hạn</div><div class="fw-semibold"><?= h(fmt_dt($header['ngayhethan'] ?? null)) ?></div></div>
-                            <div class="col-12 col-md-4"><div class="text-muted small">Trạng thái</div><div class="fw-semibold"><?= h((string)($header['trangthai'] ?? '')) ?></div></div>
+                            <div class="col-12 col-md-4"><div class="text-muted small">Trạng thái</div><div class="fw-semibold"><?= fmt_status($header['trangthai'] ?? '') ?></div></div>
                             <div class="col-12 col-md-8"><div class="text-muted small">Ghi chú</div><div class="fw-semibold"><?= h((string)($header['ghichu'] ?? '')) ?></div></div>
                         <?php elseif ($type === 'tra'): ?>
                             <div class="col-12 col-md-4"><div class="text-muted small">Mã mượn</div><div class="fw-semibold"><?= h((string)($header['mamuon'] ?? '')) ?></div></div>
                             <div class="col-12 col-md-4"><div class="text-muted small">Độc giả</div><div class="fw-semibold"><?= h(trim((string)($header['ten_docgia'] ?? ''))) ?></div><div class="text-muted small"><?= h((string)($header['madocgia'] ?? '')) ?></div></div>
                             <div class="col-12 col-md-4"><div class="text-muted small">Nhân viên</div><div class="fw-semibold"><?= h(trim((string)($header['ten_nhanvien'] ?? ''))) ?></div><div class="text-muted small"><?= h((string)($header['manv'] ?? '')) ?></div></div>
                             <div class="col-6 col-md-3"><div class="text-muted small">Ngày trả</div><div class="fw-semibold"><?= h(fmt_dt($header['ngaytra'] ?? null)) ?></div></div>
-                            <div class="col-6 col-md-3"><div class="text-muted small">Tổng tiền phạt</div><div class="fw-semibold"><?= h((string)($header['tongtienphat'] ?? '0')) ?></div></div>
+                            <div class="col-6 col-md-3"><div class="text-muted small">Tổng tiền phạt</div><div class="fw-semibold text-danger"><?= h(fmt_money($header['tongtienphat'] ?? 0)) ?></div></div>
                         <?php elseif ($type === 'phat'): ?>
                             <div class="col-12 col-md-4"><div class="text-muted small">Độc giả</div><div class="fw-semibold"><?= h(trim((string)($header['ten_docgia'] ?? ''))) ?></div><div class="text-muted small"><?= h((string)($header['madocgia'] ?? '')) ?></div></div>
                             <div class="col-12 col-md-4"><div class="text-muted small">Mã trả</div><div class="fw-semibold"><?= h((string)($header['matra'] ?? '')) ?></div></div>
                             <div class="col-6 col-md-2"><div class="text-muted small">Ngày lập</div><div class="fw-semibold"><?= h(fmt_dt($header['ngaylap'] ?? null)) ?></div></div>
-                            <div class="col-6 col-md-2"><div class="text-muted small">Tổng tiền</div><div class="fw-semibold"><?= h((string)($header['tongtienphat'] ?? '0')) ?></div></div>
-                            <div class="col-12 col-md-4"><div class="text-muted small">Trạng thái</div><div class="fw-semibold"><?= h((string)($header['trangthai'] ?? '')) ?></div></div>
+                            <div class="col-6 col-md-2"><div class="text-muted small">Tổng tiền</div><div class="fw-semibold text-danger"><?= h(fmt_money($header['tongtienphat'] ?? 0)) ?></div></div>
+                            <div class="col-12 col-md-4"><div class="text-muted small">Trạng thái</div><div class="fw-semibold"><?= fmt_status($header['trangthai'] ?? '') ?></div></div>
                             <div class="col-12 col-md-8"><div class="text-muted small">Ghi chú</div><div class="fw-semibold"><?= h((string)($header['ghichu'] ?? '')) ?></div></div>
                         <?php else: ?>
                             <div class="col-12 col-md-5"><div class="text-muted small">Nhà cung cấp</div><div class="fw-semibold"><?= h((string)($header['tenncc'] ?? '')) ?></div><div class="text-muted small"><?= h((string)($header['mancc'] ?? '')) ?></div></div>
                             <div class="col-12 col-md-4"><div class="text-muted small">Nhân viên</div><div class="fw-semibold"><?= h(trim((string)($header['ten_nhanvien'] ?? ''))) ?></div><div class="text-muted small"><?= h((string)($header['manv'] ?? '')) ?></div></div>
                             <div class="col-6 col-md-3"><div class="text-muted small">Thời gian tạo</div><div class="fw-semibold"><?= h(fmt_dt($header['thoigiantao'] ?? null)) ?></div></div>
-                            <div class="col-6 col-md-3"><div class="text-muted small">Tổng tiền</div><div class="fw-semibold"><?= h((string)($header['tongtien'] ?? '0')) ?></div></div>
+                            <div class="col-6 col-md-3"><div class="text-muted small">Tổng tiền</div><div class="fw-semibold text-success"><?= h(fmt_money($header['tongtien'] ?? 0)) ?></div></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -273,7 +319,7 @@ $backUrl = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=' . rawurlencode($type);
                                     <th>Tình trạng sau</th>
                                     <th>Số ngày quá hạn</th>
                                     <th>Tiền phạt quá hạn</th>
-                                    <th>Tiền phạt thu</th>
+                                    <th>Tiền phạt hư hỏng</th>
                                     <th>Mã phạt</th>
                                 </tr>
                             <?php elseif ($type === 'phat'): ?>
@@ -313,8 +359,8 @@ $backUrl = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=' . rawurlencode($type);
                                             <td><?= h((string)($it['tensach'] ?? '')) ?></td>
                                             <td><?= h((string)($it['tinhtrang_sau'] ?? '')) ?></td>
                                             <td><?= h((string)($it['songayquahan'] ?? '')) ?></td>
-                                            <td><?= h((string)($it['tienphatquahan'] ?? '')) ?></td>
-                                            <td><?= h((string)($it['tienphathuha'] ?? '')) ?></td>
+                                            <td><?= h(fmt_money($it['tienphatquahan'] ?? 0)) ?></td>
+                                            <td><?= h(fmt_money($it['tienphathuha'] ?? 0)) ?></td>
                                             <td><?= h((string)($it['maphat'] ?? '')) ?></td>
                                         </tr>
                                     <?php elseif ($type === 'phat'): ?>
@@ -324,13 +370,13 @@ $backUrl = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=' . rawurlencode($type);
                                             <td><?= h((string)($it['tensach'] ?? '')) ?></td>
                                             <td><?= h((string)($it['lydo'] ?? '')) ?></td>
                                             <td><?= h((string)($it['songayquahan'] ?? '')) ?></td>
-                                            <td><?= h((string)($it['sotienphat'] ?? '')) ?></td>
+                                            <td><?= h(fmt_money($it['sotienphat'] ?? 0)) ?></td>
                                         </tr>
                                     <?php else: ?>
                                         <tr>
                                             <td class="fw-semibold"><?= h((string)$it['madausach']) ?></td>
                                             <td><?= h((string)($it['tensach'] ?? '')) ?></td>
-                                            <td><?= h((string)($it['dongianhap'] ?? '')) ?></td>
+                                            <td><?= h(fmt_money($it['dongianhap'] ?? 0)) ?></td>
                                             <td><?= h((string)($it['soluong'] ?? '')) ?></td>
                                         </tr>
                                     <?php endif; ?>
@@ -346,5 +392,84 @@ $backUrl = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=' . rawurlencode($type);
 </main>
 
 <script src="/assets/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+
+<script>
+function thuTienPhat(maphat) {
+    if(confirm('Bạn có chắc chắn đã nhận đủ tiền phạt cho mã phiếu ' + maphat + ' chưa?')) {
+        // Ní nhớ tạo file ajax_thu_tien_phat.php để chạy lệnh UPDATE trangthai='Đã đóng' trong CSDL nha
+        fetch('/ajax/ajax_thu_tien_phat.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'maphat=' + encodeURIComponent(maphat)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Xác nhận thu tiền thành công!');
+                location.reload(); // Tự động load lại trang để cập nhật màu xanh
+            } else {
+                alert('Có lỗi xảy ra: ' + (data.message || 'Không thể cập nhật trạng thái.'));
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            alert('Đã xảy ra lỗi kết nối với máy chủ!');
+        });
+    }
+}
+
+function huyPhieuMuon(mamuon) {
+    if(confirm('Bạn có chắc chắn muốn HỦY phiếu mượn ' + mamuon + ' này không?\n\nSách sẽ được trả về kho tự động và phiếu này sẽ bị xóa.')) {
+        fetch('/ajax/process_delete_phieumuon.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'mamuon=' + encodeURIComponent(mamuon)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Khôi phục sách về kho và hủy đơn thành công!');
+                window.location.href = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=muon'; 
+            } else {
+                alert('Có lỗi xảy ra: ' + (data.message || 'Không thể hủy.'));
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi:', error);
+            alert('Đã xảy ra lỗi kết nối với máy chủ!');
+        });
+    }
+}
+
+function duyetPhieuMuon(mamuon) {
+    if(confirm('Xác nhận: Thủ thư đã giao đủ sách cho độc giả này và Duyệt đơn ' + mamuon + '?')) {
+        fetch('/ajax/update_status_qr.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'mamuon=' + encodeURIComponent(mamuon)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'success') {
+                alert('Duyệt thành công! Phiếu đã chuyển sang Đang Mượn.');
+                location.reload();
+            } else if (data.status === 'redirect') {
+                window.location.href = data.url;
+            } else {
+                alert('Lỗi: ' + (data.message || 'Không thể duyệt.'));
+            }
+        })
+        .catch(err => {
+            console.error('Lỗi:', err);
+            alert('Lỗi kết nối máy chủ!');
+        });
+    }
+}
+</script>
+
 </body>
 </html>

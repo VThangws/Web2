@@ -7,6 +7,23 @@ class DocGiaDAO {
         $this->conn = ConnectDB::getInstance()->getConnection();
     }
 
+    private function taikhoanHasTrangThai(): bool {
+        $sql = "SELECT 1
+                FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'taikhoan'
+                  AND COLUMN_NAME = 'trangthai'
+                LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->execute();
+        $ok = $stmt->get_result()->num_rows > 0;
+        $stmt->close();
+        return $ok;
+    }
+
 
 // =========================== DAO ADMIN =============================== // 
     public function Them($conn, $madocgia, $hodocgia, 
@@ -45,7 +62,7 @@ class DocGiaDAO {
     }
 
     public function ToanBoDanhSach($conn) {
-        $sql = "SELECT * FROM docgia";
+        $sql = "SELECT * FROM docgia WHERE (diachi IS NULL OR diachi <> 'Nhân viên') ORDER BY madocgia DESC";
         $stmt = $conn->prepare($sql);
         $stmt->execute();
         $result = $stmt->get_result();
@@ -68,7 +85,7 @@ class DocGiaDAO {
 
 
     public function TimKiem($conn, $keyword) {
-        $sql = "SELECT * FROM docgia WHERE madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ?";
+        $sql = "SELECT * FROM docgia WHERE (diachi IS NULL OR diachi <> 'Nhân viên') AND (madocgia LIKE ? OR hodocgia LIKE ? OR tendocgia LIKE ?) ORDER BY madocgia DESC";
         $stmt = $conn->prepare($sql);
         $like = '%' . $keyword . '%';
         $stmt->bind_param('sss', $like, $like, $like);
@@ -157,7 +174,7 @@ class DocGiaDAO {
 
         $sql = "UPDATE docgia SET hodocgia=?, tendocgia=?, sdt=?, diachi=? WHERE madocgia=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssssss",
+        $stmt->bind_param("sssss",
             $hodocgia,
             $tendocgia,
             $sdt,
@@ -174,7 +191,8 @@ class DocGiaDAO {
     // ==================== ĐĂNG NHẬP ====================
     public function dangNhap($email, $matkhau)
     {
-        $sql  = "SELECT tk.matkhau, tk.manhomquyen, dg.*
+        $hasTrangThai = $this->taikhoanHasTrangThai();
+        $sql  = "SELECT tk.matkhau, tk.manhomquyen, tk.manv, tk.trangthai, dg.*
             FROM taikhoan tk
             JOIN docgia dg ON tk.madocgia = dg.madocgia
             WHERE tk.tendangnhap = ?";
@@ -184,6 +202,26 @@ class DocGiaDAO {
         $row  = $stmt->get_result()->fetch_assoc();
 
         if ($row && password_verify($matkhau, $row['matkhau'])) {
+            // Kiểm tra Auto-Lock/Unlock và cảnh báo trước
+            if ($hasTrangThai) {
+                $viPham = $this->kiemTraViPhamDocGia($email, $row['madocgia']);
+                if ($viPham['locked']) {
+                    return [
+                        'locked'  => true,
+                        'reasons' => $viPham['reasons']
+                    ];
+                }
+            }
+
+            // Nếu admin khóa thủ công trước đó (mà không do vi phạm tự động mở khóa) 
+            // Ở đây vì không do vi phạm, $viPham['locked'] = false, nên sẽ tới đây.
+            if ($hasTrangThai && isset($row['trangthai']) && (int)$row['trangthai'] === 0) {
+                 return [
+                    'locked'  => true,
+                    'reasons' => ['Tài khoản đã bị Admin khóa tạm thời.']
+                 ];
+            }
+
             $docgia = new DocGia(
                 $row['hodocgia'],
                 $row['tendocgia'],
@@ -197,7 +235,8 @@ class DocGiaDAO {
             return [
                 'docgia'   => $docgia,
                 'matkhau'  => $row['matkhau'],      // hash từ DB
-                'quyen'    => $row['manhomquyen']
+                'quyen'    => $row['manhomquyen'],
+                'manv'     => $row['manv'] ?? null,
             ];
         }
         return null;
@@ -290,6 +329,87 @@ class DocGiaDAO {
             return ["success" => true, "message" => "Đổi mật khẩu thành công"];
         } else {
             return ["success" => false, "message" => "Lỗi khi cập nhật mật khẩu"];
+        }
+    }
+    // ==================== AUTO CHECK VI PHẠM MƯỢN TRẢ ====================
+    public function kiemTraViPhamDocGia($tendangnhap, $madocgia) {
+        $sqlMuon = "SELECT MAX(DATEDIFF(NOW(), ngayhethan)) as tre_muon 
+                    FROM phieumuon 
+                    WHERE madocgia = ? AND trangthai IN ('DangMuon', 'Đang mượn') 
+                    AND DATEDIFF(NOW(), ngayhethan) > 0";
+        $stmtM = $this->conn->prepare($sqlMuon);
+        $stmtM->bind_param("s", $madocgia);
+        $stmtM->execute();
+        $treMuon = (int)($stmtM->get_result()->fetch_assoc()['tre_muon'] ?? 0);
+        $stmtM->close();
+
+        $sqlPhat = "SELECT MAX(DATEDIFF(NOW(), ngaylap)) as tre_phat 
+                    FROM phieuphat 
+                    WHERE madocgia = ? AND trangthai IN ('ChuaDong', 'Chưa đóng', 'chuadong', 'ChuaNop', 'Chưa nộp', 'chuanop') 
+                    AND DATEDIFF(NOW(), ngaylap) > 0";
+        $stmtP = $this->conn->prepare($sqlPhat);
+        $stmtP->bind_param("s", $madocgia);
+        $stmtP->execute();
+        $trePhat = (int)($stmtP->get_result()->fetch_assoc()['tre_phat'] ?? 0);
+        $stmtP->close();
+
+        $warnings = [];
+        $isLocked = false;
+        $lockReasons = [];
+
+        if ($treMuon > 2) {
+            $isLocked = true;
+            $lockReasons[] = "sách trễ hạn trả hơn 2 ngày (chậm $treMuon ngày)";
+        } elseif ($treMuon > 0) {
+            $warnings[] = "Bạn có sách đã trễ hạn trả $treMuon ngày. Phí phạt là 5.000đ/cuốn cho mỗi ngày trễ. Tài khoản sẽ bị khóa nếu trễ hơn 2 ngày!";
+        }
+
+        if ($trePhat > 7) {
+            $isLocked = true;
+            $lockReasons[] = "phiếu phạt nợ chưa đóng quá 7 ngày (chậm $trePhat ngày)";
+        } elseif ($trePhat > 0) {
+            $warnings[] = "Bạn có tiền phạt bảo lãnh chưa đóng ($trePhat ngày). Tài khoản sẽ bị khóa nếu trễ hạn quá 7 ngày đóng phạt.";
+        }
+
+        $hasTrangThai = $this->taikhoanHasTrangThai();
+        $currentStatus = 1;
+
+        if ($hasTrangThai) {
+            $sqlStatus = "SELECT trangthai FROM taikhoan WHERE tendangnhap = ?";
+            $stmtS = $this->conn->prepare($sqlStatus);
+            if ($stmtS) {
+                $stmtS->bind_param("s", $tendangnhap);
+                $stmtS->execute();
+                $rowS = $stmtS->get_result()->fetch_assoc();
+                $currentStatus = $rowS ? (int)$rowS['trangthai'] : 1;
+                $stmtS->close();
+            }
+        }
+
+        if ($isLocked) {
+            if ($hasTrangThai && $currentStatus !== 0) {
+                // Nếu chưa khóa thì Khóa tài khoản
+                $sqlUpdate = "UPDATE taikhoan SET trangthai = 0 WHERE tendangnhap = ?";
+                $stmtU = $this->conn->prepare($sqlUpdate);
+                if ($stmtU) {
+                    $stmtU->bind_param("s", $tendangnhap);
+                    $stmtU->execute();
+                    $stmtU->close();
+                }
+            }
+            return ['locked' => true, 'reasons' => $lockReasons, 'warnings' => []];
+        } else {
+            // Tự động mở khóa nếu trước đó bị khóa (mà ko còn vi phạm nào gây locked)
+            if ($hasTrangThai && $currentStatus === 0) {
+                $sqlUpdate = "UPDATE taikhoan SET trangthai = 1 WHERE tendangnhap = ?";
+                $stmtU = $this->conn->prepare($sqlUpdate);
+                if ($stmtU) {
+                    $stmtU->bind_param("s", $tendangnhap);
+                    $stmtU->execute();
+                    $stmtU->close();
+                }
+            }
+            return ['locked' => false, 'reasons' => [], 'warnings' => $warnings];
         }
     }
 }

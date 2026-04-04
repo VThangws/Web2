@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../login/auth.php';
 require_admin_login();
-require_admin_permission('TAIKHOAN');
+require_admin_permission_for_request('TAIKHOAN');
 
 require_once __DIR__ . '/../../../database/ConnectDB.php';
 
@@ -40,6 +40,98 @@ function nhanvien_exists(mysqli $conn, string $manv): bool
     $ok = $stmt->get_result()->num_rows > 0;
     $stmt->close();
     return $ok;
+}
+
+function docgia_exists(mysqli $conn, string $madocgia): bool
+{
+    $stmt = $conn->prepare('SELECT 1 FROM docgia WHERE madocgia = ? LIMIT 1');
+    if (!$stmt) {
+        return false;
+    }
+    $stmt->bind_param('s', $madocgia);
+    $stmt->execute();
+    $ok = $stmt->get_result()->num_rows > 0;
+    $stmt->close();
+    return $ok;
+}
+
+function next_docgia_code(mysqli $conn): string
+{
+    $res = $conn->query("SELECT madocgia FROM docgia WHERE madocgia REGEXP '^DG[0-9]+$' ORDER BY CAST(SUBSTRING(madocgia, 3) AS UNSIGNED) DESC LIMIT 1");
+    $lastCode = '';
+    if ($res) {
+        $row = $res->fetch_assoc();
+        $lastCode = is_array($row) ? (string)($row['madocgia'] ?? '') : '';
+    }
+
+    $nextNumber = 1;
+    if (preg_match('/^DG(\d+)$/', $lastCode, $m)) {
+        $nextNumber = (int)$m[1] + 1;
+    }
+
+    return 'DG' . str_pad((string)$nextNumber, 3, '0', STR_PAD_LEFT);
+}
+
+function create_docgia_profile_for_account(mysqli $conn, string $username): string
+{
+    $madocgia = next_docgia_code($conn);
+
+    $email = filter_var($username, FILTER_VALIDATE_EMAIL) ? $username : ($username . '@local.invalid');
+    $stmt = $conn->prepare("INSERT INTO docgia (madocgia, hodocgia, tendocgia, email, sdt, ngaysinh, diachi)
+                           VALUES (?, 'Tai khoan', 'Moi', ?, '', NULL, 'Chua cap nhat')");
+    if (!$stmt) {
+        throw new RuntimeException('Khong the tao ho so doc gia moi.');
+    }
+
+    $stmt->bind_param('ss', $madocgia, $email);
+    if (!$stmt->execute()) {
+        $raw = $stmt->error ?: 'Tao doc gia that bai.';
+        $stmt->close();
+        throw new RuntimeException($raw);
+    }
+    $stmt->close();
+
+    return $madocgia;
+}
+
+function backfill_orphan_reader_accounts(mysqli $conn, bool $hasMadocgiaCol): void
+{
+    if (!$hasMadocgiaCol) {
+        return;
+    }
+
+    $sql = "SELECT tk.tendangnhap, tk.madocgia
+            FROM taikhoan tk
+            LEFT JOIN docgia dg ON dg.madocgia = tk.madocgia
+            WHERE tk.manhomquyen = 'DG'
+              AND (tk.madocgia IS NULL OR tk.madocgia = '' OR dg.madocgia IS NULL)
+            LIMIT 100";
+    $res = $conn->query($sql);
+    if (!$res) {
+        return;
+    }
+
+    while ($row = $res->fetch_assoc()) {
+        $username = (string)($row['tendangnhap'] ?? '');
+        if ($username === '') {
+            continue;
+        }
+
+        try {
+            $newMadocgia = create_docgia_profile_for_account($conn, $username);
+            $stmt = $conn->prepare("UPDATE taikhoan
+                                   SET madocgia = ?, manv = NULL
+                                   WHERE tendangnhap = ?");
+            if ($stmt) {
+                $stmt->bind_param('ss', $newMadocgia, $username);
+                $stmt->execute();
+                $stmt->close();
+            }
+        } catch (Throwable $e) {
+            // Skip invalid row and continue to avoid blocking account screen.
+            continue;
+        }
+    }
 }
 
 function nhomquyen_exists(mysqli $conn, string $manhomquyen): bool
@@ -97,6 +189,10 @@ try {
 }
 
 $hasMadocgiaCol = column_exists($conn, 'taikhoan', 'madocgia');
+$hasTrangthaiCol = column_exists($conn, 'taikhoan', 'trangthai');
+
+// Auto-fix old DG accounts that were created without a linked docgia profile.
+backfill_orphan_reader_accounts($conn, $hasMadocgiaCol);
 
 // Load employees for quick selection (optional)
 $employees = [];
@@ -110,7 +206,7 @@ try {
     $sqlSuggest =
         "SELECT nv.manv
          FROM nhanvien nv
-         LEFT JOIN taikhoan tk ON tk.manv = nv.manv" . ($hasMadocgiaCol ? " AND tk.madocgia IS NULL" : "") .
+         LEFT JOIN taikhoan tk ON tk.manv = nv.manv" .
         " WHERE tk.manv IS NULL
          ORDER BY nv.manv ASC
          LIMIT 1";
@@ -119,6 +215,15 @@ try {
         $rowSuggest = $resSuggest->fetch_assoc();
         $suggestedManv = is_array($rowSuggest) ? (string)($rowSuggest['manv'] ?? '') : '';
     }
+} catch (Throwable $e) {
+    // keep empty
+}
+
+// Load readers for linking reader accounts (optional)
+$readers = [];
+try {
+    $res = $conn->query("SELECT madocgia, CONCAT(COALESCE(hodocgia,''),' ',COALESCE(tendocgia,'')) AS hoten FROM docgia ORDER BY madocgia ASC LIMIT 500");
+    $readers = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 } catch (Throwable $e) {
     // keep empty
 }
@@ -157,10 +262,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             redirect_with(['msg' => 'Đã xóa tài khoản ' . $tendangnhap]);
         }
 
+        if ($mode === 'toggle_status') {
+            if (!$hasTrangthaiCol) {
+                throw new RuntimeException('Bảng taikhoan chưa có cột trangthai để khóa/mở tài khoản.');
+            }
+
+            $tendangnhap = get_str($_POST, 'tendangnhap');
+            $nextStatusRaw = get_str($_POST, 'next_status');
+            $nextStatus = ($nextStatusRaw === '0') ? 0 : 1;
+
+            if ($tendangnhap === '') {
+                throw new RuntimeException('Thiếu tên đăng nhập.');
+            }
+            if ($tendangnhap === 'admin' && $nextStatus === 0) {
+                throw new RuntimeException('Không thể khóa tài khoản admin.');
+            }
+            if ($currentUsername !== '' && $tendangnhap === $currentUsername && $nextStatus === 0) {
+                throw new RuntimeException('Không thể tự khóa tài khoản đang đăng nhập.');
+            }
+
+            $stmt = $conn->prepare('UPDATE taikhoan SET trangthai = ? WHERE tendangnhap = ?');
+            if (!$stmt) {
+                throw new RuntimeException('Không thể chuẩn bị câu lệnh khóa/mở.');
+            }
+            $stmt->bind_param('is', $nextStatus, $tendangnhap);
+            if (!$stmt->execute()) {
+                throw new RuntimeException($stmt->error ?: 'Cập nhật trạng thái thất bại.');
+            }
+            $stmt->close();
+
+            $label = $nextStatus === 1 ? 'mở khóa' : 'khóa';
+            redirect_with(['msg' => 'Đã ' . $label . ' tài khoản ' . $tendangnhap]);
+        }
+
         $tendangnhap = get_str($_POST, 'tendangnhap');
         $matkhau = (string)($_POST['matkhau'] ?? '');
         $manhomquyen = get_str($_POST, 'manhomquyen');
         $manv = get_str($_POST, 'manv');
+        $madocgia = get_str($_POST, 'madocgia');
 
         if ($tendangnhap === '') {
             throw new RuntimeException('Tên đăng nhập không được để trống.');
@@ -176,6 +315,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($manv !== '' && !nhanvien_exists($conn, $manv)) {
             throw new RuntimeException('Mã nhân viên không tồn tại: ' . $manv);
         }
+        if ($hasMadocgiaCol && $madocgia !== '' && !docgia_exists($conn, $madocgia)) {
+            throw new RuntimeException('Mã độc giả không tồn tại: ' . $madocgia);
+        }
+
+        if ($manhomquyen === 'DG') {
+            if (!$hasMadocgiaCol) {
+                throw new RuntimeException('Bảng taikhoan chưa có cột madocgia để gắn tài khoản độc giả.');
+            }
+            if ($madocgia === '') {
+                throw new RuntimeException('Tài khoản nhóm Độc giả bắt buộc phải chọn mã độc giả.');
+            }
+            $manv = '';
+        } else {
+            // Với tài khoản không phải Độc giả, không lưu liên kết mã độc giả.
+            $madocgia = '';
+        }
 
         $hash = null;
         $matkhauTrim = trim($matkhau);
@@ -188,24 +343,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($mode === 'update') {
             if ($hash === null) {
-                $stmt = $conn->prepare("UPDATE taikhoan
+                if ($hasMadocgiaCol) {
+                    $stmt = $conn->prepare("UPDATE taikhoan
+                                       SET manhomquyen = NULLIF(?, ''),
+                                           manv = NULLIF(?, ''),
+                                           madocgia = NULLIF(?, '')
+                                       WHERE tendangnhap = ?");
+                } else {
+                    $stmt = $conn->prepare("UPDATE taikhoan
                                        SET manhomquyen = NULLIF(?, ''),
                                            manv = NULLIF(?, '')
                                        WHERE tendangnhap = ?");
+                }
                 if (!$stmt) {
                     throw new RuntimeException('Không thể chuẩn bị câu lệnh cập nhật.');
                 }
-                $stmt->bind_param('sss', $manhomquyen, $manv, $tendangnhap);
+                if ($hasMadocgiaCol) {
+                    $stmt->bind_param('ssss', $manhomquyen, $manv, $madocgia, $tendangnhap);
+                } else {
+                    $stmt->bind_param('sss', $manhomquyen, $manv, $tendangnhap);
+                }
             } else {
-                $stmt = $conn->prepare("UPDATE taikhoan
+                if ($hasMadocgiaCol) {
+                    $stmt = $conn->prepare("UPDATE taikhoan
+                                       SET matkhau = ?,
+                                           manhomquyen = NULLIF(?, ''),
+                                           manv = NULLIF(?, ''),
+                                           madocgia = NULLIF(?, '')
+                                       WHERE tendangnhap = ?");
+                } else {
+                    $stmt = $conn->prepare("UPDATE taikhoan
                                        SET matkhau = ?,
                                            manhomquyen = NULLIF(?, ''),
                                            manv = NULLIF(?, '')
                                        WHERE tendangnhap = ?");
+                }
                 if (!$stmt) {
                     throw new RuntimeException('Không thể chuẩn bị câu lệnh cập nhật.');
                 }
-                $stmt->bind_param('ssss', $hash, $manhomquyen, $manv, $tendangnhap);
+                if ($hasMadocgiaCol) {
+                    $stmt->bind_param('sssss', $hash, $manhomquyen, $manv, $madocgia, $tendangnhap);
+                } else {
+                    $stmt->bind_param('ssss', $hash, $manhomquyen, $manv, $tendangnhap);
+                }
             }
 
             if (!$stmt->execute()) {
@@ -221,16 +401,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new RuntimeException('Mật khẩu không được để trống khi tạo tài khoản mới.');
         }
 
-        $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv)
-                               VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''))");
+        if ($hasTrangthaiCol) {
+            if ($hasMadocgiaCol) {
+                $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv, madocgia, trangthai)
+                                   VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''), 1)");
+            } else {
+                $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv, trangthai)
+                                   VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), 1)");
+            }
+        } else {
+            if ($hasMadocgiaCol) {
+                $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv, madocgia)
+                                   VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''), NULLIF(?, ''))");
+            } else {
+                $stmt = $conn->prepare("INSERT INTO taikhoan (tendangnhap, matkhau, manhomquyen, manv)
+                                   VALUES (?, ?, NULLIF(?, ''), NULLIF(?, ''))");
+            }
+        }
         if (!$stmt) {
             throw new RuntimeException('Không thể chuẩn bị câu lệnh thêm mới.');
         }
-        $stmt->bind_param('ssss', $tendangnhap, $hash, $manhomquyen, $manv);
+        if ($hasMadocgiaCol) {
+            $stmt->bind_param('sssss', $tendangnhap, $hash, $manhomquyen, $manv, $madocgia);
+        } else {
+            $stmt->bind_param('ssss', $tendangnhap, $hash, $manhomquyen, $manv);
+        }
         if (!$stmt->execute()) {
             $raw = $stmt->error ?: 'Thêm mới thất bại.';
             if (stripos($raw, 'fk_taikhoan_nhanvien') !== false) {
                 throw new RuntimeException('Mã nhân viên không hợp lệ (không tồn tại).');
+            }
+            if (stripos($raw, 'fk_taikhoan_docgia') !== false) {
+                throw new RuntimeException('Mã độc giả không hợp lệ (không tồn tại).');
             }
             if (stripos($raw, 'fk_taikhoan_nhomquyen') !== false) {
                 throw new RuntimeException('Nhóm quyền không hợp lệ (không tồn tại).');
@@ -247,20 +449,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $q = get_str($_GET, 'q');
 $edit = get_str($_GET, 'edit');
+$statusSelect = $hasTrangthaiCol ? 'tk.trangthai' : '1 AS trangthai';
 
 $editingRow = null;
 if ($edit !== '') {
     $sqlEdit =
         "SELECT tk.tendangnhap, tk.manhomquyen, tk.manv,
+            CASE WHEN tk.manhomquyen = 'DG' THEN tk.madocgia ELSE '' END AS madocgia,
+            {$statusSelect},
                 nq.tennhomquyen,
-                CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
+            CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien,
+            CASE WHEN tk.manhomquyen = 'DG'
+                 THEN CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,''))
+                 ELSE ''
+            END AS ten_docgia
          FROM taikhoan tk
          LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
          LEFT JOIN nhanvien nv ON nv.manv = tk.manv
+         LEFT JOIN docgia dg ON dg.madocgia = tk.madocgia
          WHERE tk.tendangnhap = ?";
-    if ($hasMadocgiaCol) {
-        $sqlEdit .= " AND tk.madocgia IS NULL";
-    }
     $stmt = $conn->prepare($sqlEdit);
     if ($stmt) {
         $stmt->bind_param('s', $edit);
@@ -275,21 +482,25 @@ try {
     if ($q !== '') {
         $like = '%' . $q . '%';
         $sql =
-            "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv,
-                    CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
+                "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv, {$statusSelect},
+                    CASE WHEN tk.manhomquyen = 'DG' THEN tk.madocgia ELSE '' END AS madocgia,
+                    CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien,
+                    CASE WHEN tk.manhomquyen = 'DG'
+                        THEN CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,''))
+                        ELSE ''
+                    END AS ten_docgia
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
-        if ($hasMadocgiaCol) {
-            $sql .= " WHERE tk.madocgia IS NULL AND (";
-        } else {
-            $sql .= " WHERE (";
-        }
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
+             LEFT JOIN docgia dg ON dg.madocgia = tk.madocgia
+             WHERE (";
         $sql .=
             "tk.tendangnhap LIKE ?
                 OR tk.manv LIKE ?
+                OR COALESCE(tk.madocgia,'') LIKE ?
                 OR COALESCE(nq.tennhomquyen,'') LIKE ?
                 OR CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) LIKE ?
+                OR CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,'')) LIKE ?
              )
              ORDER BY tk.tendangnhap ASC
              LIMIT 300";
@@ -298,21 +509,25 @@ try {
         if (!$stmt) {
             throw new RuntimeException('Không thể chuẩn bị câu lệnh tìm kiếm.');
         }
-        $stmt->bind_param('ssss', $like, $like, $like, $like);
+        $stmt->bind_param('ssssss', $like, $like, $like, $like, $like, $like);
         $stmt->execute();
         $rows = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
     } else {
         $sql =
-            "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv,
-                    CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien
+                "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv, {$statusSelect},
+                    CASE WHEN tk.manhomquyen = 'DG' THEN tk.madocgia ELSE '' END AS madocgia,
+                    CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien,
+                    CASE WHEN tk.manhomquyen = 'DG'
+                        THEN CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,''))
+                        ELSE ''
+                    END AS ten_docgia
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
-             LEFT JOIN nhanvien nv ON nv.manv = tk.manv";
-        if ($hasMadocgiaCol) {
-            $sql .= " WHERE tk.madocgia IS NULL";
-        }
-        $sql .= " ORDER BY tk.tendangnhap ASC LIMIT 300";
+             LEFT JOIN nhanvien nv ON nv.manv = tk.manv
+             LEFT JOIN docgia dg ON dg.madocgia = tk.madocgia
+             ORDER BY tk.tendangnhap ASC
+             LIMIT 300";
 
         $res = $conn->query($sql);
         $rows = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
@@ -423,6 +638,31 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                             <?php endif; ?>
                         </div>
 
+                        <?php if ($hasMadocgiaCol): ?>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label mb-1">Độc giả (cho nhóm DG)</label>
+                                <?php if ($readers): ?>
+                                    <select class="form-select" name="madocgia">
+                                        <?php $selectedMadocgia = (string)($editingRow['madocgia'] ?? ''); ?>
+                                        <option value="" <?= $selectedMadocgia === '' ? 'selected' : '' ?>>-- Không gắn độc giả --</option>
+                                        <?php foreach ($readers as $d): ?>
+                                            <?php
+                                            $madgOption = (string)($d['madocgia'] ?? '');
+                                            $hotenDocgiaOption = (string)($d['hoten'] ?? '');
+                                            $selected = $madgOption !== '' && $selectedMadocgia === $madgOption;
+                                            ?>
+                                            <option value="<?= h($madgOption) ?>" <?= $selected ? 'selected' : '' ?>><?= h($madgOption) ?><?= $hotenDocgiaOption !== '' ? (' - ' . h($hotenDocgiaOption)) : '' ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                <?php else: ?>
+                                    <input class="form-control" name="madocgia" value="<?= h((string)($editingRow['madocgia'] ?? '')) ?>" placeholder="VD: DG001">
+                                <?php endif; ?>
+                                <?php if ($editingRow && (string)($editingRow['ten_docgia'] ?? '') !== ''): ?>
+                                    <div class="text-muted small">Độc giả: <?= h((string)$editingRow['ten_docgia']) ?></div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="col-12 d-flex gap-2">
                             <button class="btn btn-primary" type="submit"><?= $editingRow ? 'Lưu cập nhật' : 'Thêm mới' ?></button>
                             <?php if ($editingRow): ?>
@@ -454,8 +694,11 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                         <tr>
                             <th>Username</th>
                             <th>Nhóm quyền</th>
+                            <th>Trạng thái</th>
                             <th>Mã NV</th>
                             <th>Tên nhân viên</th>
+                            <th>Mã ĐG</th>
+                            <th>Tên độc giả</th>
                             <th class="text-end">Thao tác</th>
                         </tr>
                         </thead>
@@ -468,6 +711,7 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                             <?php foreach ($rows as $r): ?>
                                 <?php
                                 $username = (string)($r['tendangnhap'] ?? '');
+                                $isActive = (int)($r['trangthai'] ?? 1) === 1;
                                 $editUrl = '/admin/QuanLy/TaiKhoan/QL_TaiKhoan.php?edit=' . rawurlencode($username) . ($q !== '' ? ('&q=' . rawurlencode($q)) : '');
                                 ?>
                                 <tr>
@@ -476,10 +720,31 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                                         <div><?= h((string)($r['tennhomquyen'] ?? '')) ?></div>
                                         <div class="text-muted small"><?= h((string)($r['manhomquyen'] ?? '')) ?></div>
                                     </td>
+                                    <td>
+                                        <?php if (!$hasTrangthaiCol): ?>
+                                            <span class="badge text-bg-light">Chưa cấu hình</span>
+                                        <?php elseif ($isActive): ?>
+                                            <span class="badge text-bg-success">Đang hoạt động</span>
+                                        <?php else: ?>
+                                            <span class="badge text-bg-secondary">Đã khóa</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?= h((string)($r['manv'] ?? '')) ?></td>
                                     <td><?= h((string)($r['ten_nhanvien'] ?? '')) ?></td>
+                                    <td><?= h((string)($r['madocgia'] ?? '')) ?></td>
+                                    <td><?= h((string)($r['ten_docgia'] ?? '')) ?></td>
                                     <td class="text-end">
                                         <a class="btn btn-sm btn-outline-primary" href="<?= h($editUrl) ?>">Sửa</a>
+                                        <?php if ($hasTrangthaiCol): ?>
+                                            <form method="post" class="d-inline" onsubmit="return confirm('<?= $isActive ? 'Khóa' : 'Mở khóa' ?> tài khoản <?= h($username) ?>?')">
+                                                <input type="hidden" name="mode" value="toggle_status">
+                                                <input type="hidden" name="tendangnhap" value="<?= h($username) ?>">
+                                                <input type="hidden" name="next_status" value="<?= $isActive ? '0' : '1' ?>">
+                                                <button class="btn btn-sm <?= $isActive ? 'btn-outline-warning' : 'btn-outline-success' ?>" type="submit" <?= ($username === 'admin' || ($currentUsername !== '' && $username === $currentUsername)) ? 'disabled' : '' ?>>
+                                                    <?= $isActive ? 'Khóa' : 'Mở' ?>
+                                                </button>
+                                            </form>
+                                        <?php endif; ?>
                                         <form method="post" class="d-inline" onsubmit="return confirm('Xóa tài khoản <?= h($username) ?>?')">
                                             <input type="hidden" name="mode" value="delete">
                                             <input type="hidden" name="tendangnhap" value="<?= h($username) ?>">

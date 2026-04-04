@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../../login/auth.php';
 require_admin_login();
-require_admin_permission('SACH');
+require_admin_permission_for_request('SACH');
 ?>
 <!DOCTYPE html>
 <html lang="vi">

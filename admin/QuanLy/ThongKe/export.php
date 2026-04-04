@@ -1,15 +1,8 @@
 <?php
-?>
-
-<?php
-require_once __DIR__ . '/../../database/ConnectDB.php';
-
-$stats = [
-    'titles' => 0,
-    'copies' => 0,
-    'borrowedCopies' => 0,
-    'readers' => 0,
-];
+require_once __DIR__ . '/../../login/auth.php';
+require_admin_login();
+require_admin_permission('DASHBOARD');
+require_once __DIR__ . '/../../../database/ConnectDB.php';
 
 function get_date_param(string $key, string $default): string
 {
@@ -55,12 +48,6 @@ $statsTo = get_date_param('stats_to', $defaultTo);
 $sharedTop = get_top_param('top', 10);
 $topBooksLimit = get_top_param('top_books', $sharedTop);
 $topReadersLimit = get_top_param('top_readers', $sharedTop);
-$exportQuery = http_build_query([
-    'stats_from' => $statsFrom,
-    'stats_to' => $statsTo,
-    'top_books' => $topBooksLimit,
-    'top_readers' => $topReadersLimit,
-]);
 
 try {
     $fromDt = new DateTime($statsFrom);
@@ -73,24 +60,29 @@ try {
     $statsTo = $defaultTo;
 }
 
+$exportFormat = strtolower(trim((string)($_GET['format'] ?? 'pdf')));
+if (!in_array($exportFormat, ['pdf', 'excel'], true)) {
+    $exportFormat = 'pdf';
+}
+
+$stats = [
+    'titles' => 0,
+    'copies' => 0,
+    'borrowedCopies' => 0,
+    'readers' => 0,
+];
+
 $borrowStatusOrder = [
     'ChoDuyet' => 'Chờ duyệt',
     'DangMuon' => 'Đang mượn',
     'DaTra' => 'Đã trả',
     'Huy' => 'Hủy',
 ];
-
 $borrowStatusCounts = array_fill_keys(array_keys($borrowStatusOrder), 0);
 $borrowDailyLabels = [];
 $borrowDailyCounts = [];
 $topBorrowedBooks = [];
 $topBorrowingReaders = [];
-
-$chartCategoryLabels = [];
-$chartCategoryCounts = [];
-
-$chartStatusLabels = [];
-$chartStatusCounts = [];
 
 try {
     $conn = ConnectDB::getInstance()->getConnection();
@@ -182,7 +174,6 @@ try {
         $stmt->close();
     }
 
-
     $sqlTopReaders = "SELECT pm.madocgia,
                              CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,'')) AS ten_docgia,
                              COUNT(*) AS cnt
@@ -243,10 +234,10 @@ try {
                 <p class="text-muted mb-0">Số liệu tổng hợp từ hệ thống thư viện</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
-                <a href="/admin/QuanLy/ThongKe/export.php?format=pdf&amp;<?php echo htmlspecialchars($exportQuery, ENT_QUOTES); ?>" class="btn btn-outline-danger">
+                <a href="/admin/QuanLy/ThongKe/export.php?format=pdf&amp;<?php echo htmlspecialchars(http_build_query(['stats_from' => $statsFrom, 'stats_to' => $statsTo, 'top_books' => $topBooksLimit, 'top_readers' => $topReadersLimit]), ENT_QUOTES); ?>" class="btn btn-outline-danger">
                     <i class="fa-solid fa-file-pdf me-1"></i>Xuất PDF
                 </a>
-                <a href="/admin/QuanLy/ThongKe/export.php?format=excel&amp;<?php echo htmlspecialchars($exportQuery, ENT_QUOTES); ?>" class="btn btn-outline-success">
+                <a href="/admin/QuanLy/ThongKe/export.php?format=excel&amp;<?php echo htmlspecialchars(http_build_query(['stats_from' => $statsFrom, 'stats_to' => $statsTo, 'top_books' => $topBooksLimit, 'top_readers' => $topReadersLimit]), ENT_QUOTES); ?>" class="btn btn-outline-success">
                     <i class="fa-solid fa-file-excel me-1"></i>Xuất Excel
                 </a>
                 <a href="/admin/adminMenu.php" class="btn btn-outline-secondary">Trang quản trị</a>
@@ -598,7 +589,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             font: { size: 10 },
                             callback: function (value) {
                                 const label = String(this.getLabelForValue(value) ?? '');
-                                // 2026-04-02 -> 04-02 (gọn hơn)
                                 return label.length >= 10 ? label.slice(5) : label;
                             },
                         },

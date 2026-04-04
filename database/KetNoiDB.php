@@ -11,5 +11,9 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
   die("Kết nối thất bại: " . $conn->connect_error);
 }
-// echo "Kết nối thành công!";
+
+// Thiết lập múi giờ chuẩn Việt Nam
+date_default_timezone_set('Asia/Ho_Chi_Minh');
+$conn->query("SET time_zone = '+07:00'");
+$conn->set_charset('utf8mb4');
 ?>

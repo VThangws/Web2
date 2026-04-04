@@ -8,41 +8,45 @@ if(session_status() == PHP_SESSION_NONE) {
 
 header("Content-Type: application/json");
 
-if (!isset($_SESSION['docgia'])) {
+if(!isset($_SESSION['docgia'])){
+
     echo json_encode([
-        "success" => false,
-        "message" => "Chưa đăng nhập"
+        "success"=>false,
+        "message"=>"Chưa đăng nhập"
     ]);
+
     exit();
 }
 
 $docgia = $_SESSION['docgia'];
 
-$docgia->setHodocgia($_POST['hodocgia']);
-$docgia->setTendocgia($_POST['tendocgia']);
-$docgia->setSdt($_POST['sdt']);
-$docgia->setNgaysinh($_POST['ngaysinh']);
-$docgia->setDiachi($_POST['diachi']);
+$docgia->setHodocgia($_POST['hodocgia'] ?? "");
+$docgia->setTendocgia($_POST['tendocgia'] ?? "");
+$docgia->setSdt($_POST['sdt'] ?? "");
+$docgia->setDiachi($_POST['diachi'] ?? "");
 
 $dao = new DocGiaDAO();
 
 $result = $dao->capNhatThongTin($docgia);
 
-if ($result['success']) {
+if($result['success']){
 
-    $_SESSION['docgia'] = $docgia;
+    $_SESSION['docgia']=$docgia;
 
     echo json_encode([
-        "success" => true,
-        "message" => $result['message'],
-        "user" => [
-            "hodocgia" => $docgia->getHodocgia(),
-            "tendocgia" => $docgia->getTendocgia(),
-            "sdt" => $docgia->getSdt(),
-            "ngaysinh" => $docgia->getNgaysinh(),
-            "diachi" => $docgia->getDiachi()
+        "success"=>true,
+        "message"=>$result['message'],
+        "user"=>[
+            "hodocgia"=>$docgia->getHodocgia(),
+            "tendocgia"=>$docgia->getTendocgia(),
+            "sdt"=>$docgia->getSdt(),
+            "diachi"=>$docgia->getDiachi()
         ]
     ]);
-} else {
+
+}
+else{
+
     echo json_encode($result);
+
 }

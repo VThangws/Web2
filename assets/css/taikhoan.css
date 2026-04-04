@@ -1,172 +1,75 @@
-.container-main {
-    background-color: transparent;
-    min-height: 100vh;
-    margin: 0 auto;
-    max-width: 1400px;
-    padding: 20px;
+/* SECTION PROFILE - tách khỏi background trang */
+.profile-wrapper{
+    background:#f5f7fb;
+    padding:60px 0;
+    min-height:70vh;
 }
 
-.sidebar {
-    background-color: transparent;
-    padding: 20px;
-    min-height: 100vh;
+/* container chính */
+.profile-container{
+    max-width:1100px;
+    margin:auto;
 }
 
-.sidebar-item {
-    background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 15px 20px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-weight: 500;
+/* SIDEBAR */
+.sidebar{
+    background:#fff;
+    border-radius:14px;
+    border:1px solid #e8e8e8;
+    overflow:hidden;
 }
 
-.sidebar-item:hover {
-    background-color: #f8f9fa;
+.sidebar .list-group-item{
+    padding:15px 20px;
+    font-size:15px;
+    border:none;
+    border-bottom:1px solid #eee;
 }
 
-.sidebar-item.active {
-    background-color: #000;
-    color: #fff;
+.sidebar .list-group-item.active{
+    background:#2bbf9b;   /* cùng màu nút search */
+    color:#fff;
+    font-weight:600;
 }
 
-.sidebar-item i {
-    margin-right: 12px;
-    font-size: 18px;
+/* CARD */
+.info-card{
+    background:#fff;
+    border-radius:16px;
+    padding:35px 40px;
+    border:1px solid #e8e8e8;
+    box-shadow:0 4px 14px rgba(0,0,0,0.06);
 }
 
-.sidebar-item .bi-chevron-right {
-    margin-right: 0;
-    margin-left: auto;
+/* ROW */
+.info-row{
+    display:grid;
+    grid-template-columns:150px 1fr;
+    padding:14px 0;
+    border-bottom:1px solid #eee !important; 
+}
+.info-row:last-child{
+    border-bottom:none;
 }
 
-.content-area {
-    background-color: #fff;
-    padding: 40px;
-    border: 2px solid #d0d0d0;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+/* BUTTON */
+.btn-outline-dark{
+    border:2px solid #2bbf9b;
+    color:#2bbf9b;
+    border-radius:25px;
 }
 
-.section-title {
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 30px;
-    color: #1a1a1a;
+.btn-outline-dark:hover{
+    background:#2bbf9b;
+    color:#fff;
 }
 
-.info-section {
-    margin-bottom: 50px;
+.info-label{
+    color:#888;
+    font-size:14px;
 }
 
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 0;
-    border-bottom: 1px solid #e8e8e8;
-}
-
-.info-row:last-child {
-    border-bottom: none;
-}
-
-.info-label {
-    color: #666;
-    font-size: 16px;
-    font-weight: 400;
-}
-
-.info-value {
-    color: #1a1a1a;
-    font-size: 16px;
-    font-weight: 500;
-}
-
-.btn-update {
-    background-color: #fff;
-    color: #0066cc;
-    border: 2px solid #0066cc;
-    border-radius: 25px;
-    padding: 10px 30px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.btn-update:hover {
-    background-color: #0066cc;
-    color: #fff;
-}
-
-.sidebar a {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-}
-
-.flash{
-    background:#d4edda;
-    transition:0.6s;
-}
-
-/*  css cho modal notice   */
-.modal-success {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
-}
-
-.modal-error {
-    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
-    color: white;
-}
-
-/* Modal nằm trên bên phải */
-.modal-top-right {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    margin: 0;
-    max-width: 350px;
-}
-
-/* Animation chạy vào từ phải */
-.modal.fade .modal-top-right {
-    transform: translateX(100%);
-    transition: transform 0.3s ease-out;
-}
-
-.modal.show .modal-top-right {
-    transform: translateX(0);
-}
-
-#loginMessage h4 {
-    margin: 0;
-    font-weight: 600;
-    font-size: 18px;
-}
-
-@media (max-width: 768px) {
-    .sidebar {
-        border-right: none;
-        border-bottom: 1px solid #e0e0e0;
-        min-height: auto;
-    }
-
-    .content-area {
-        padding: 20px;
-        margin-top: 20px;
-    }
-
-    .info-row {
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .container-main {
-        padding: 15px;
-    }
+.info-value{
+    font-weight:500;
+    color:#333;
 }

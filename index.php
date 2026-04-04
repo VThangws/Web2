@@ -80,5 +80,29 @@ window.addEventListener('load', () => {
 });
 </script>
 <?php endif; ?>
+
+<!-- Tab switching cho trang tài khoản -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var TABS = ['accountSection', 'historySection', 'addressSection'];
+
+    function showSection(target) {
+        TABS.forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = (id === target) ? 'block' : 'none';
+        });
+    }
+
+    var items = document.querySelectorAll('.sidebar-item[data-section]');
+    items.forEach(function(item) {
+        item.addEventListener('click', function() {
+            var target = this.getAttribute('data-section');
+            items.forEach(function(i) { i.classList.remove('active'); });
+            this.classList.add('active');
+            showSection(target);
+        });
+    });
+});
+</script>
 </body>
 </html>

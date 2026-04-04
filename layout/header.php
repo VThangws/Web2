@@ -19,6 +19,8 @@ $docgia = $_SESSION['docgia'] ?? null;
 
 <link rel="stylesheet" href="/assets/css/login.css">
 <link rel="stylesheet" href="/assets/css/header.css">
+<link rel="stylesheet" href="/assets/css/responsive.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <header class="main-header">
     <div class="main-header-inner">
@@ -53,17 +55,18 @@ $docgia = $_SESSION['docgia'] ?? null;
         <!-- Icon + nút bên phải -->
         <div class="main-actions">
             <div class="header-support">
-                <div class="support-icon">
+                <!-- <div class="support-icon">
                     <i class="fa-solid fa-phone-volume"></i>
-                </div>
-                <div class="support-info">
+                </div> -->
+                <!-- <div class="support-info">
                     <span class="support-title">Hỗ trợ khách hàng</span>
                     <strong class="support-phone">0987654321</strong>
-                </div>
+                </div> -->
             </div>
             <!-- Nút Đăng ký / Đăng nhập -->
             <?php if ($docgia): ?>
                 <a href="/index.php?page=taikhoan" class="main-btn main-btn-outline" id="headerName">
+                    <i class="bi bi-person-fill me-1"></i>
                     Xin chào, <?= htmlspecialchars($docgia->getTendocgia(), ENT_QUOTES) ?>
                 </a>
             <?php else: ?>
@@ -99,19 +102,19 @@ $docgia = $_SESSION['docgia'] ?? null;
         <h5 class="offcanvas-title fw-bold fs-6" id="miniCartLabel">Sản phẩm trong giỏ (<span id="mini-cart-count"><?= $so_luong_gio_hang ?></span>)</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    
+
     <div class="offcanvas-body overflow-hidden" id="mini-cart-body">
-        </div>
+    </div>
 
     <div class="offcanvas-footer border-top px-3 pb-3 pt-2 bg-white">
         <a href="/index.php?page=cart" class="btn btn-mini-checkout w-100 fw-bold mb-2 py-2">Chi tiết giỏ hàng</a>
         <button type="button" class="btn btn-mini-close w-100 fw-bold py-2" data-bs-dismiss="offcanvas">Đóng</button>
     </div>
 </div>
-<script src="/assets/js/header.js" defer></script>
-<script>
-    window.user_id = <?= $docgia ? json_encode($docgia->getMadocgia()) : 'null' ?>;
-</script>
 
 <script src="/assets/js/header.js" defer></script>
 <script src="/assets/js/cart.js" defer></script>
+
+<script>
+    window.user_id = <?= $docgia ? json_encode($docgia->getMadocgia()) : 'null' ?>;
+</script>

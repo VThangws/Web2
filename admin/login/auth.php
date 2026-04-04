@@ -80,17 +80,39 @@ function admin_has_permission(string $machucnang, ?string $hanhdong = null): boo
 
         if ($hanhdong !== null) {
             $hanhdong = trim($hanhdong);
-            $stmt = $conn->prepare(
-                "SELECT 1 FROM ctquyen
-                 WHERE manhomquyen = ?
-                   AND machucnang = ?
-                   AND (hanhdong IS NULL OR hanhdong = '' OR hanhdong = ? OR UPPER(hanhdong) = 'ALL')
-                 LIMIT 1"
-            );
-            if ($stmt === false) {
-                return false;
+            $upper = strtoupper($hanhdong);
+
+            // READ should be satisfied by READ/WRITE/DELETE/ALL.
+            if ($upper === 'READ') {
+                $stmt = $conn->prepare(
+                    "SELECT 1 FROM ctquyen
+                     WHERE manhomquyen = ?
+                       AND machucnang = ?
+                       AND (
+                             hanhdong IS NULL
+                             OR hanhdong = ''
+                             OR UPPER(hanhdong) = 'ALL'
+                             OR UPPER(hanhdong) IN ('READ','WRITE','DELETE')
+                           )
+                     LIMIT 1"
+                );
+                if ($stmt === false) {
+                    return false;
+                }
+                $stmt->bind_param('ss', $role, $machucnang);
+            } else {
+                $stmt = $conn->prepare(
+                    "SELECT 1 FROM ctquyen
+                     WHERE manhomquyen = ?
+                       AND machucnang = ?
+                       AND (hanhdong IS NULL OR hanhdong = '' OR hanhdong = ? OR UPPER(hanhdong) = 'ALL')
+                     LIMIT 1"
+                );
+                if ($stmt === false) {
+                    return false;
+                }
+                $stmt->bind_param('sss', $role, $machucnang, $hanhdong);
             }
-            $stmt->bind_param('sss', $role, $machucnang, $hanhdong);
         } else {
             $stmt = $conn->prepare(
                 "SELECT 1 FROM ctquyen
@@ -126,4 +148,42 @@ function require_admin_permission(string $machucnang, ?string $hanhdong = null):
     echo '<a class="btn btn-outline-secondary" href="/admin/adminMenu.php">Về trang chủ</a></div>';
     echo '</body></html>';
     exit;
+}
+
+/**
+ * Enforce permissions for CRUD-like admin pages.
+ *
+ * Conventions used across this project:
+ * - ctquyen.hanhdong values: READ | WRITE | DELETE | ALL
+ * - Many legacy admin pages perform mutations via:
+ *   - GET param: luachon = Them | Sua | Xoa
+ *   - POST param: mode = add | update | delete
+ */
+function require_admin_permission_for_request(string $machucnang): void
+{
+    // Always require read access to view the page.
+    require_admin_permission($machucnang, 'READ');
+
+    $action = null;
+
+    $method = strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if ($method === 'POST') {
+        $mode = isset($_POST['mode']) ? strtolower(trim((string)$_POST['mode'])) : '';
+        if ($mode === 'delete' || $mode === 'remove') {
+            $action = 'DELETE';
+        } elseif ($mode === 'update' || $mode === 'add' || $mode === 'create' || $mode === 'save') {
+            $action = 'WRITE';
+        }
+    } else {
+        $luachon = isset($_GET['luachon']) ? strtolower(trim((string)$_GET['luachon'])) : '';
+        if ($luachon === 'xoa' || $luachon === 'delete' || $luachon === 'remove') {
+            $action = 'DELETE';
+        } elseif ($luachon === 'sua' || $luachon === 'them' || $luachon === 'update' || $luachon === 'add' || $luachon === 'create') {
+            $action = 'WRITE';
+        }
+    }
+
+    if ($action !== null) {
+        require_admin_permission($machucnang, $action);
+    }
 }

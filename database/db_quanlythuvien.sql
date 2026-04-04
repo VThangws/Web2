@@ -84,7 +84,7 @@ CREATE TABLE `ctphieutra` (
 CREATE TABLE `ctquyen` (
   `manhomquyen` varchar(50) NOT NULL,
   `machucnang` varchar(50) NOT NULL,
-  `hanhdong` varchar(100) DEFAULT NULL
+  `hanhdong` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1190,6 +1190,7 @@ INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
 ('STAFF', 'DASHBOARD', 'ALL'),
 ('STAFF', 'SACH', 'ALL'),
 ('STAFF', 'DOCGIA', 'ALL'),
+('STAFF', 'NHANVIEN', 'READ'),
 ('STAFF', 'NHACUNGCAP', 'ALL'),
 ('STAFF', 'NXB', 'ALL'),
 ('STAFF', 'TACGIA', 'ALL'),
@@ -1199,7 +1200,8 @@ ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
 -- KETOAN: invoices only
 INSERT INTO `ctquyen` (`manhomquyen`, `machucnang`, `hanhdong`) VALUES
 ('KETOAN', 'DASHBOARD', 'ALL'),
-('KETOAN', 'HOADON', 'ALL')
+('KETOAN', 'HOADON', 'ALL'),
+('KETOAN', 'NHANVIEN', 'READ')
 ON DUPLICATE KEY UPDATE `hanhdong` = VALUES(`hanhdong`);
 
 -- --------------------------------------------------------
@@ -1412,7 +1414,8 @@ CREATE TABLE `taikhoan` (
   `matkhau` varchar(255) DEFAULT NULL,
   `manhomquyen` varchar(50) DEFAULT NULL,
   `manv` varchar(50) DEFAULT NULL,
-  `madocgia` varchar(50) DEFAULT NULL
+  `madocgia` varchar(50) DEFAULT NULL,
+  `trangthai` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /* account user test*/
@@ -1445,9 +1448,29 @@ ON DUPLICATE KEY UPDATE
   `sdt` = VALUES(`sdt`),
   `ngaysinh` = VALUES(`ngaysinh`),
   `diachi` = VALUES(`diachi`);
+
+/* DOC GIA profile cho nhân viên (để tài khoản admin/staff đăng nhập được bên user) */
+INSERT INTO `docgia` (`madocgia`, `hodocgia`, `tendocgia`, `email`, `sdt`, `ngaysinh`, `diachi`) VALUES
+('DG901', 'Nguyễn', 'Văn An', 'admin@staff.local', '0901000001', '1998-01-15', 'Nhân viên'),
+('DG902', 'Trần', 'Thị Bích', 'qtri@staff.local', '0901000002', '1999-03-22', 'Nhân viên'),
+('DG903', 'Lê', 'Hoàng Minh', 'ketoan1@staff.local', '0901000003', '1997-07-09', 'Nhân viên'),
+('DG904', 'Phạm', 'Thảo Vy', 'ketoan2@staff.local', '0901000004', '2000-11-30', 'Nhân viên'),
+('DG905', 'Võ', 'Quang Huy', 'nv005@staff.local', '0901000005', '1996-05-18', 'Nhân viên'),
+('DG906', 'Đặng', 'Thu Trang', 'nv006@staff.local', '0901000006', '1998-09-05', 'Nhân viên'),
+('DG907', 'Bùi', 'Gia Khánh', 'nv007@staff.local', '0901000007', '1995-12-12', 'Nhân viên'),
+('DG908', 'Huỳnh', 'Ngọc Mai', 'nv008@staff.local', '0901000008', '2001-02-08', 'Nhân viên'),
+('DG909', 'Phan', 'Thanh Tùng', 'nv009@staff.local', '0901000009', '1997-04-27', 'Nhân viên'),
+('DG910', 'Ngô', 'Kim Oanh', 'nv010@staff.local', '0901000010', '1999-08-14', 'Nhân viên')
+ON DUPLICATE KEY UPDATE
+  `hodocgia` = VALUES(`hodocgia`),
+  `tendocgia` = VALUES(`tendocgia`),
+  `email` = VALUES(`email`),
+  `sdt` = VALUES(`sdt`),
+  `ngaysinh` = VALUES(`ngaysinh`),
+  `diachi` = VALUES(`diachi`);
 /* TAI KHOAN */
 INSERT INTO `taikhoan`(`tendangnhap`, `matkhau`, `manhomquyen`, `madocgia`)
-VALUES('demo1@gmail.com', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'DG', 'DG001')
+VALUES('user@example.com', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'DG', 'DG001')
 ON DUPLICATE KEY UPDATE
   `matkhau` = '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm',
   `manhomquyen` = 'DG',
@@ -1459,16 +1482,16 @@ ON DUPLICATE KEY UPDATE
 -- --------------------------------------------------------
 
 INSERT INTO `taikhoan` (`tendangnhap`, `matkhau`, `manhomquyen`, `manv`, `madocgia`) VALUES
-('admin',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV001', NULL),
-('qtri',    '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV002', NULL),
-('ketoan1', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV003', NULL),
-('ketoan2', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV004', NULL),
-('nv005',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV005', NULL),
-('nv006',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV006', NULL),
-('nv007',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV007', NULL),
-('nv008',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV008', NULL),
-('nv009',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV009', NULL),
-('nv010',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV010', NULL)
+('admin',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV001', 'DG901'),
+('qtri',    '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'ADMIN',  'NV002', 'DG902'),
+('ketoan1', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV003', 'DG903'),
+('ketoan2', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'KETOAN', 'NV004', 'DG904'),
+('nv005',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV005', 'DG905'),
+('nv006',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV006', 'DG906'),
+('nv007',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV007', 'DG907'),
+('nv008',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV008', 'DG908'),
+('nv009',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV009', 'DG909'),
+('nv010',   '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'STAFF',  'NV010', 'DG910')
 ON DUPLICATE KEY UPDATE
   `matkhau` = VALUES(`matkhau`),
   `manhomquyen` = VALUES(`manhomquyen`),
@@ -1599,20 +1622,18 @@ CREATE TABLE `vitri` (
 INSERT INTO `vitri` (`mavitri`, `khuvuc`, `ke`, `mota`) VALUES
 ('VT001', 'Tầng 1', 'Kệ A1', 'Khu vực văn học'),
 ('VT002', 'Tầng 1', 'Kệ B2', 'Khu vực trinh thám'),
-('VT003', 'Tầng 2', 'Kệ C1', 'Khu vực kỹ năng')
+('VT003', 'Tầng 2', 'Kệ C1', 'Khu vực kỹ năng');
 
 --
 -- Table structure for table `giohang`
 --
 
 CREATE TABLE `giohang` (
-  `madocgia` varchar(10) NOT NULL,
-  `madausach` varchar(10) NOT NULL,
+  `madocgia` varchar(50) NOT NULL,
+  `madausach` varchar(50) NOT NULL,
   `soluong` int DEFAULT 1,
   PRIMARY KEY (`madocgia`,`madausach`),
-  KEY `fk_giohang_dausach` (`madausach`),
-  CONSTRAINT `fk_giohang_docgia` FOREIGN KEY (`madocgia`) REFERENCES `docgia` (`madocgia`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_giohang_dausach` FOREIGN KEY (`madausach`) REFERENCES `dausach` (`madausach`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `fk_giohang_dausach` (`madausach`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -1651,7 +1672,7 @@ ALTER TABLE `ctphieutra`
 -- Indexes for table `ctquyen`
 --
 ALTER TABLE `ctquyen`
-  ADD PRIMARY KEY (`manhomquyen`,`machucnang`),
+  ADD PRIMARY KEY (`manhomquyen`,`machucnang`,`hanhdong`),
   ADD KEY `fk_ctq_chucnang` (`machucnang`);
 
 --
@@ -1819,6 +1840,13 @@ ALTER TABLE `dausach`
   ADD CONSTRAINT `fk_dausach_nxb` FOREIGN KEY (`manxb`) REFERENCES `nhaxuatban` (`manxb`),
   ADD CONSTRAINT `fk_dausach_tacgia` FOREIGN KEY (`matacgia`) REFERENCES `tacgia` (`matacgia`),
   ADD CONSTRAINT `fk_dausach_theloai` FOREIGN KEY (`matheloai`) REFERENCES `theloai` (`matheloai`);
+
+--
+-- Constraints for table `giohang`
+--
+ALTER TABLE `giohang`
+  ADD CONSTRAINT `fk_giohang_dausach` FOREIGN KEY (`madausach`) REFERENCES `dausach` (`madausach`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_giohang_docgia` FOREIGN KEY (`madocgia`) REFERENCES `docgia` (`madocgia`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `phieumuon`

@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$conn = ConnectDB::getInstance()->getConnection();
 
 		$hasMadocgiaCol = false;
+		$hasTrangthaiCol = false;
 		try {
 			$check = $conn->prepare(
 				"SELECT 1
@@ -44,9 +45,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$hasMadocgiaCol = false;
 		}
 
-		$sql = $hasMadocgiaCol
-			? 'SELECT tendangnhap, matkhau, manhomquyen, manv, madocgia FROM taikhoan WHERE tendangnhap = ? LIMIT 1'
-			: 'SELECT tendangnhap, matkhau, manhomquyen, manv FROM taikhoan WHERE tendangnhap = ? LIMIT 1';
+		try {
+			$check = $conn->prepare(
+				"SELECT 1
+				 FROM INFORMATION_SCHEMA.COLUMNS
+				 WHERE TABLE_SCHEMA = DATABASE()
+				   AND TABLE_NAME = 'taikhoan'
+				   AND COLUMN_NAME = 'trangthai'
+				 LIMIT 1"
+			);
+			if ($check) {
+				$check->execute();
+				$hasTrangthaiCol = ($check->get_result()->num_rows > 0);
+				$check->close();
+			}
+		} catch (Throwable $e) {
+			$hasTrangthaiCol = false;
+		}
+
+		if ($hasMadocgiaCol && $hasTrangthaiCol) {
+			$sql = 'SELECT tendangnhap, matkhau, manhomquyen, manv, madocgia, trangthai FROM taikhoan WHERE tendangnhap = ? LIMIT 1';
+		} elseif ($hasMadocgiaCol) {
+			$sql = 'SELECT tendangnhap, matkhau, manhomquyen, manv, madocgia FROM taikhoan WHERE tendangnhap = ? LIMIT 1';
+		} elseif ($hasTrangthaiCol) {
+			$sql = 'SELECT tendangnhap, matkhau, manhomquyen, manv, trangthai FROM taikhoan WHERE tendangnhap = ? LIMIT 1';
+		} else {
+			$sql = 'SELECT tendangnhap, matkhau, manhomquyen, manv FROM taikhoan WHERE tendangnhap = ? LIMIT 1';
+		}
 		$stmt = $conn->prepare($sql);
 		if ($stmt === false) {
 			$error = 'Không thể kết nối đăng nhập (prepare failed).';
@@ -56,10 +81,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			$result = $stmt->get_result();
 			$row = $result ? $result->fetch_assoc() : null;
 
+			$isLocked = $hasTrangthaiCol && is_array($row) && (int)($row['trangthai'] ?? 1) === 0;
 			$dbPassword = $row['matkhau'] ?? null;
 			$ok = false;
 
-			if (is_string($dbPassword) && $dbPassword !== '') {
+			if ($isLocked) {
+				$error = 'Tài khoản đã bị khóa.';
+			} elseif (is_string($dbPassword) && $dbPassword !== '') {
 				if (password_verify($matkhau, $dbPassword)) {
 					$ok = true;
 				} elseif (hash_equals($dbPassword, $matkhau)) {
@@ -68,7 +96,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			}
 
 			if ($ok && is_array($row)) {
-				if ($hasMadocgiaCol && isset($row['madocgia']) && is_string($row['madocgia']) && trim($row['madocgia']) !== '') {
+				$role = isset($row['manhomquyen']) && is_string($row['manhomquyen']) ? trim($row['manhomquyen']) : '';
+				if ($hasMadocgiaCol && strtoupper($role) === 'DG') {
 					$error = 'Tài khoản này không có quyền quản trị.';
 				} else {
 					session_regenerate_id(true);
@@ -85,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					header('Location: ' . $next);
 					exit;
 				}
-			} else {
+			} elseif ($error === '') {
 				$error = 'Tên đăng nhập hoặc mật khẩu không đúng.';
 			}
 		}

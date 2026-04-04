@@ -24,9 +24,40 @@ function json_out(string $status, string $message, array $extra = []): void {
     exit;
 }
 
-// Tắt warning/notice để không bể JSON (nhưng vẫn bắt Throwable để trả JSON lỗi)
+// Tắt warning/notice để không bể JSON
 error_reporting(0);
 ini_set('display_errors', '0');
+
+/**
+ * ID helpers: map PMxxxx -> PTxxxx / PPxxxx, fallback to hash.
+ */
+function make_id_from_mamuon(string $prefix, string $mamuon): string {
+    $mamuon = trim($mamuon);
+    if ($mamuon === '') {
+        return $prefix . substr(md5((string)microtime(true)), 0, 10);
+    }
+    if (str_starts_with($mamuon, 'PM')) {
+        $id = $prefix . substr($mamuon, 2);
+        return strlen($id) <= 50 ? $id : substr($id, 0, 50);
+    }
+
+    $hash = substr(sha1($mamuon), 0, 12);
+    $id = $prefix . $hash;
+    return strlen($id) <= 50 ? $id : substr($id, 0, 50);
+}
+
+function calc_overdue_days(?string $dueAt, string $returnedAt): int {
+    if (!$dueAt) return 0;
+    try {
+        $due = new DateTime($dueAt);
+        $ret = new DateTime($returnedAt);
+        if ($ret <= $due) return 0;
+        $seconds = $ret->getTimestamp() - $due->getTimestamp();
+        return (int)ceil($seconds / 86400);
+    } catch (Throwable $e) {
+        return 0;
+    }
+}
 
 try {
     $conn = ConnectDB::getInstance()->getConnection();
@@ -35,25 +66,20 @@ try {
     }
     $conn->set_charset('utf8mb4');
 
-    /**
-     * Admin session theo admin/login.php:
-     * $_SESSION['admin_user'] = ['tendangnhap','manhomquyen','manv','madocgia']
-     */
     $admin = $_SESSION['admin_user'] ?? null;
     $manv = is_array($admin) ? trim((string)($admin['manv'] ?? '')) : '';
     if ($manv === '') {
         json_out('error', 'Bạn chưa đăng nhập admin hoặc thiếu mã nhân viên (manv).');
     }
 
-    // 1) Input
     $mamuon = $_POST['mamuon'] ?? '';
     $mamuon = is_string($mamuon) ? trim($mamuon) : '';
     if ($mamuon === '') {
         json_out('error', 'Không tìm thấy mã phiếu mượn!');
     }
 
-    // 2) Lấy info phiếu mượn
-    $stmt = $conn->prepare("SELECT trangthai, loaimuon FROM phieumuon WHERE mamuon = ? LIMIT 1");
+    // 2) Lấy info phiếu mượn (schema hiện tại)
+    $stmt = $conn->prepare("SELECT trangthai, ngaymuon, ngayhethan, madocgia FROM phieumuon WHERE mamuon = ? LIMIT 1");
     if (!$stmt) {
         json_out('error', 'Lỗi prepare SELECT phieumuon: ' . $conn->error);
     }
@@ -72,92 +98,60 @@ try {
     }
 
     $currentStatus = (string)($result['trangthai'] ?? '');
-    $type = (string)($result['loaimuon'] ?? '');
-    $newStatus = '';
-
-    // 3) Logic chuyển đổi trạng thái
-    if ($type === 'ONLINE') {
-        if ($currentStatus === 'PENDING') $newStatus = 'ACTIVE';
-        elseif ($currentStatus === 'ACTIVE') $newStatus = 'COMPLETED';
-    } else { // ON_SITE
-        if ($currentStatus === 'ACTIVE') $newStatus = 'COMPLETED';
-    }
-
-    if ($newStatus === '') {
-        json_out('error', 'Phiếu đang ở trạng thái "' . $currentStatus . '" nên không thể cập nhật.');
-    }
-
-    // 4) Transaction
-    $conn->begin_transaction();
-
-    // 4.1) Update phieumuon + lưu manv & thời gian xác nhận
-    // Chỉ set ngaymuon khi chuyển sang ACTIVE (tránh ghi đè nếu COMPLETED)
-    $sqlUpdate = "
-        UPDATE phieumuon
-        SET trangthai = ?,
-            manv = ?,
-            thoigian_xacnhan = NOW()
-            " . ($newStatus === 'ACTIVE' ? ", ngaymuon = NOW()" : "") . "
-        WHERE mamuon = ?
-    ";
-
-    $up = $conn->prepare($sqlUpdate);
-    if (!$up) {
-        $conn->rollback();
-        json_out('error', 'Lỗi prepare UPDATE phieumuon: ' . $conn->error);
-    }
-
-    $up->bind_param("sss", $newStatus, $manv, $mamuon);
-    if (!$up->execute()) {
-        $err = $up->error;
+    $ngayMuon = (string)($result['ngaymuon'] ?? '');
+    $ngayHetHan = (string)($result['ngayhethan'] ?? '');
+    $madocgia = (string)($result['madocgia'] ?? '');
+    // 3) Logic điều hướng hoặc chuyển đổi trạng thái
+    if ($currentStatus === 'ChoDuyet') {
+        $newStatus = 'DangMuon';
+        
+        $conn->begin_transaction();
+        
+        // Cập nhật trạng thái phiếu
+        $sqlUpdate = "UPDATE phieumuon SET trangthai = ?, manv = ?, ngaymuon = COALESCE(ngaymuon, NOW()), ngayhethan = COALESCE(ngayhethan, DATE_ADD(NOW(), INTERVAL 14 DAY)) WHERE mamuon = ?";
+        $up = $conn->prepare($sqlUpdate);
+        if (!$up) {
+            $conn->rollback();
+            json_out('error', 'Lỗi prepare UPDATE phieumuon: ' . $conn->error);
+        }
+        $up->bind_param("sss", $newStatus, $manv, $mamuon);
+        if (!$up->execute()) {
+            $err = $up->error;
+            $up->close();
+            $conn->rollback();
+            json_out('error', 'Lỗi execute UPDATE phieumuon: ' . $err);
+        }
         $up->close();
-        $conn->rollback();
-        json_out('error', 'Lỗi execute UPDATE phieumuon: ' . $err);
-    }
-    $up->close();
 
-    // 4.2) Nếu COMPLETED thì trả sách về SanSang (nếu có bảng ctphieumuon & cuonsach)
-    if ($newStatus === 'COMPLETED') {
-        $checkCt = $conn->query("SHOW TABLES LIKE 'ctphieumuon'");
-        $checkCs = $conn->query("SHOW TABLES LIKE 'cuonsach'");
-        $hasCt = $checkCt && $checkCt->num_rows > 0;
-        $hasCs = $checkCs && $checkCs->num_rows > 0;
-
-        if ($hasCt && $hasCs) {
-            $reset = $conn->prepare("
-                UPDATE cuonsach c
-                JOIN ctphieumuon ct ON c.macuonsach = ct.macuonsach
-                SET c.trangthai = 'SanSang'
-                WHERE ct.mamuon = ?
-            ");
-
-            if (!$reset) {
-                $conn->rollback();
-                json_out('error', 'Lỗi prepare reset cuonsach: ' . $conn->error);
-            }
-
-            $reset->bind_param("s", $mamuon);
-            if (!$reset->execute()) {
-                $err = $reset->error;
-                $reset->close();
-                $conn->rollback();
-                json_out('error', 'Lỗi execute reset cuonsach: ' . $err);
-            }
+        // Đổi trạng thái các sách thành DaMuon (đồng bộ với trạng thái lúc lập phiếu)
+        $reset = $conn->prepare("UPDATE cuonsach c JOIN ctphieumuon ct ON c.macuonsach = ct.macuonsach SET c.trangthai = 'DaMuon' WHERE ct.mamuon = ?");
+        if ($reset) {
+            $reset->bind_param('s', $mamuon);
+            $reset->execute();
             $reset->close();
         }
+
+        $conn->commit();
+
+        json_out('success', 'Đã duyệt phiếu mượn thành công. Các cuốn sách đang được mượn!', [
+            'mamuon' => $mamuon,
+            'oldStatus' => $currentStatus,
+            'newStatus' => $newStatus,
+            'manv' => $manv,
+            'madocgia' => $madocgia,
+        ]);
+
+    } elseif ($currentStatus === 'DangMuon') {
+        // Redirect client sang màn hình lập phiếu trả (lap_phieu_tra.php)
+        json_out('redirect', 'Đang chuyển sang màn hình lập phiếu trả...', [
+            'url' => '/admin/QuanLy/HoaDon/lap_phieu_tra.php?mamuon=' . urlencode($mamuon)
+        ]);
+        
+    } else {
+        // Trạng thái DaTra hoặc khác
+        json_out('error', 'Phiếu mượn đang ở trạng thái "' . $currentStatus . '", không thể thao tác chức năng này!');
     }
 
-    $conn->commit();
-
-    json_out('success', 'Cập nhật thành công!', [
-        'mamuon' => $mamuon,
-        'oldStatus' => $currentStatus,
-        'newStatus' => $newStatus,
-        'manv' => $manv,
-        'type' => $type,
-    ]);
-
 } catch (Throwable $e) {
-    // Đảm bảo luôn trả JSON thay vì chết 500
     json_out('error', 'Server error: ' . $e->getMessage());
 }

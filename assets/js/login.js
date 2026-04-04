@@ -76,14 +76,14 @@ if (registerForm) {
             .then(data => {
                 if (data.success) {
                     // Hiện thông báo thành công
-                    showModal('success', 'Đăng ký thành công! Mã của bạn: ' + data.madocgia);
+                    showModal('true', 'Đăng ký thành công! Mã của bạn: ' + data.madocgia);
 
                     // Chuyển sang form đăng nhập sau 2 giây
                     setTimeout(() => {
                         wrapper.classList.remove('active');
                     }, 2000);
                 } else {
-                    showModal('error', data.message);
+                    showModal('false', data.message);
                 }
             })
             .catch(err => console.error('Lỗi:', err));
