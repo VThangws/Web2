@@ -257,11 +257,3 @@ function showModal(isSuccess, message) {
   modalInstance.show();
   setTimeout(() => modalInstance.hide(), 2000);
 }
-// ===== VALIDATE SỐ ĐIỆN THOẠI =====
-const sdtVal = $("#sdt_input").val().trim();
-const sdtRegex = /^0\d{9}$/;
-if (sdtVal && !sdtRegex.test(sdtVal)) {
-  showModal(false, "Không tìm thấy số điện thoại");
-  btn.prop("disabled", false).html("Lưu");
-  return;
-}
