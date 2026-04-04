@@ -70,14 +70,41 @@ class DocGiaDAO {
     }
 
     public function Xoa($conn, $madocgia) {
+        // kiểm tra ràng buộc tham chiếu để có thông báo rõ ràng
+        $dependencies = [
+            'phieumuon' => 'phiếu mượn',
+            'phieuphat' => 'phiếu phạt',
+            'taikhoan'  => 'tài khoản'
+        ];
+
+        foreach ($dependencies as $table => $label) {
+            $checkSql = "SELECT COUNT(*) AS cnt FROM {$table} WHERE madocgia = ?";
+            $checkStmt = $conn->prepare($checkSql);
+            if ($checkStmt) {
+                $checkStmt->bind_param("s", $madocgia);
+                $checkStmt->execute();
+                $cnt = (int)($checkStmt->get_result()->fetch_assoc()['cnt'] ?? 0);
+                $checkStmt->close();
+                if ($cnt > 0) {
+                    echo '<script>alert("Không thể xóa đọc giả vì tồn tại ' . $cnt . ' ' . $label . ' liên quan. Vui lòng xóa hoặc cập nhật các bản ghi liên quan trước.");</script>';
+                    return false;
+                }
+            }
+        }
+
         $sql = "DELETE FROM docgia WHERE madocgia=?";
         $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            echo '<script>alert("Lỗi chuẩn bị truy vấn xóa: ' . addslashes($conn->error) . '");</script>';
+            return false;
+        }
         $stmt->bind_param("s", $madocgia);
         if ($stmt->execute()) {
             echo '<script>alert("Đã xóa đọc giả!");</script>';
             return true;
         } else {
-            echo '<script>alert("Xóa đọc giả không thành công!");</script>';
+            $err = $stmt->error ?: $conn->error;
+            echo '<script>alert("Xóa đọc giả không thành công: ' . addslashes($err) . '");</script>';
             return false;
         }
     }

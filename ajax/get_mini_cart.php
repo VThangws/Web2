@@ -1,5 +1,28 @@
 <?php
 session_start();
+if (!empty($_SESSION['cart'])) {
+    require_once __DIR__ . '/../database/ConnectDB.php'; // Đảm bảo đường dẫn đúng
+    $conn = ConnectDB::getInstance()->getConnection();
+    
+    // Lấy danh sách các mã sách đang có trong giỏ hàng
+    $ma_sach_arr = array_keys($_SESSION['cart']);
+    // Ép kiểu để bỏ vào câu SQL: 'DS01', 'DS02'...
+    $ma_sach_string = "'" . implode("','", $ma_sach_arr) . "'"; 
+
+    // CHÚ Ý: Đổi tên bảng 'dausach', cột mã 'madausach', cột giá 'giamuon' cho khớp CSDL của ông
+    $sql_update_price = "SELECT madausach, giamuon FROM dausach WHERE madausach IN ($ma_sach_string)";
+    $result_update = $conn->query($sql_update_price);
+
+    if ($result_update && $result_update->num_rows > 0) {
+        while ($row = $result_update->fetch_assoc()) {
+            $ma = $row['madausach'];
+            if (isset($_SESSION['cart'][$ma])) {
+                // Đè giá mới từ DB vào cái giá cũ mèm trong Session
+                $_SESSION['cart'][$ma]['dongia'] = $row['giamuon']; 
+            }
+        }
+    }
+}
 $html = '';
 $total_items = isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'soluong')) : 0;
 
