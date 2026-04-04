@@ -22,6 +22,14 @@ if ($email === "" || $matkhau === "") {
 $result = $dao->dangNhap($email, $matkhau);
 
 if ($result) {
+    if (isset($result['locked']) && $result['locked']) {
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Tài Khoản Bị Khóa Lỗi Tự Động: " . implode(" ", $result['reasons']) . " Vui lòng đến thư viện để giải quyết!"
+        ]);
+        exit;
+    }
+
     $user     = $result['docgia'];
     $madocgia = $user->getMadocgia();
 

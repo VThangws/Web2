@@ -46,8 +46,8 @@ function fmt_money($value): string
 function fmt_status(string $status): string
 {
     $s = trim(mb_strtolower($status, 'UTF-8'));
-    if (in_array($s, ['chuadong', 'chưa đóng'])) return '<span class="badge bg-danger">Chưa đóng</span>';
-    if (in_array($s, ['dadong', 'đã đóng'])) return '<span class="badge bg-success">Đã đóng</span>';
+    if (in_array($s, ['chuadong', 'chưa đóng', 'chuanop', 'chưa nộp'])) return '<span class="badge bg-danger">Chưa nộp</span>';
+    if (in_array($s, ['dadong', 'đã đóng', 'danop', 'đã nộp'])) return '<span class="badge bg-success">Đã nộp</span>';
     if (in_array($s, ['dangmuon', 'đang mượn', 'dangmuon'])) return '<span class="badge bg-warning text-dark">Đang mượn</span>';
     if (in_array($s, ['datra', 'đã trả', 'datra'])) return '<span class="badge bg-success">Đã trả</span>';
     if (in_array($s, ['choduyet', 'chờ duyệt'])) return '<span class="badge bg-info text-dark">Chờ duyệt</span>';
@@ -234,9 +234,9 @@ $backUrl = '/admin/QuanLy/HoaDon/QL_HoaDon.php?type=' . rawurlencode($type);
             <div class="d-flex gap-2">
                 <a class="btn btn-outline-secondary" href="<?= h($backUrl) ?>"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
                 
-                <?php if ($type === 'phat' && isset($header['trangthai']) && in_array(trim(mb_strtolower($header['trangthai'], 'UTF-8')), ['chuadong', 'chưa đóng', 'chua dong'])): ?>
+                <?php if ($type === 'phat' && isset($header['trangthai']) && in_array(trim(mb_strtolower($header['trangthai'], 'UTF-8')), ['chuadong', 'chưa đóng', 'chua dong', 'chuanop', 'chưa nộp'])): ?>
                     <button type="button" class="btn btn-success" onclick="thuTienPhat('<?= h($id) ?>')">
-                        <i class="fa-solid fa-money-bill"></i> Xác nhận thu tiền
+                        <i class="fa-solid fa-money-bill"></i> Xác nhận đã nộp
                     </button>
                 <?php endif; ?>
 

@@ -1,5 +1,8 @@
 <?php
 require_once __DIR__ . "/../model/DocGia.php";
+require_once __DIR__ . "/../database/ConnectDB.php";
+require_once __DIR__ . "/../DAO/DocGiaDAO.php";
+
 if (session_status() == PHP_SESSION_NONE) {
   session_start();
 }
@@ -10,6 +13,43 @@ if (!$docgia) {
   header("Location: /index.php?page=dangnhap");
   exit();
 }
+
+$conn = ConnectDB::getInstance()->getConnection();
+$madocgia = $docgia->getMadocgia();
+
+// Auto-check vi phạm
+$tendangnhap = isset($_SESSION['taikhoan']) ? $_SESSION['taikhoan']->getTendangnhap() : $docgia->getEmail();
+$daoDocGia = new DocGiaDAO();
+$viPham = $daoDocGia->kiemTraViPhamDocGia($tendangnhap, $madocgia);
+
+if ($viPham['locked']) {
+    unset($_SESSION['docgia']);
+    unset($_SESSION['taikhoan']);
+    echo "<script>alert('Tài Khoản Bị Khóa Lỗi Tự Động: " . implode(" ", $viPham['reasons']) . " Vui lòng đến thư viện để giải quyết!'); window.location.href='/';</script>";
+    exit();
+}
+$warnings = $viPham['warnings'] ?? [];
+
+// Phiếu mượn
+$stmt = $conn->prepare("SELECT mamuon, ngaymuon, ngayhethan, trangthai FROM phieumuon WHERE madocgia = ? ORDER BY ngaymuon DESC");
+$stmt->bind_param('s', $madocgia);
+$stmt->execute();
+$phieus = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
+// Phiếu trả
+$stmtTra = $conn->prepare("SELECT pt.matra, pt.mamuon, pt.ngaytra, pt.tongtienphat FROM phieutra pt JOIN phieumuon pm ON pt.mamuon = pm.mamuon WHERE pm.madocgia = ? ORDER BY pt.ngaytra DESC");
+$stmtTra->bind_param('s', $madocgia);
+$stmtTra->execute();
+$phieutra = $stmtTra->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmtTra->close();
+
+// Phiếu phạt
+$stmtPhat = $conn->prepare("SELECT maphat, matra, ngaylap, tongtienphat, trangthai FROM phieuphat WHERE madocgia = ? ORDER BY ngaylap DESC");
+$stmtPhat->bind_param('s', $madocgia);
+$stmtPhat->execute();
+$phieuphat = $stmtPhat->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmtPhat->close();
 ?>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <link rel="stylesheet" href="assets/css/taikhoan.css">
@@ -74,6 +114,21 @@ if (!$docgia) {
 
       <!-- MAIN CONTENT -->
       <div class="col-lg-9">
+
+        <?php if (!empty($warnings)): ?>
+          <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill flex-shrink-0 me-2" style="font-size: 1.5rem;"></i>
+            <div>
+              <h6 class="alert-heading fw-bold mb-1">Cảnh báo hệ thống!</h6>
+              <ul class="mb-0 ps-3">
+                <?php foreach ($warnings as $w): ?>
+                  <li><?= htmlspecialchars($w) ?></li>
+                <?php endforeach; ?>
+              </ul>
+            </div>
+          </div>
+        <?php endif; ?>
+
         <!-- ACCOUNT -->
         <div class="info-card info-section" id="account">
 
@@ -284,12 +339,147 @@ if (!$docgia) {
         <!-- ORDERS -->
         <div class="info-card info-section d-none" id="orders">
 
-          <h5>Đơn hàng của bạn</h5>
+          <h5>Lịch sử hoạt động</h5>
 
-          <p class="text-muted">
-            Bạn chưa có đơn hàng nào.
-          </p>
+          <ul class="nav nav-tabs mt-4" id="orderTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link text-success fw-semibold active" data-bs-toggle="tab" data-bs-target="#tab-muon" type="button">Phiếu mượn</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link text-info fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-tra" type="button">Phiếu trả</button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link text-danger fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-phat" type="button">Phiếu phạt</button>
+            </li>
+          </ul>
 
+          <div class="tab-content border border-top-0 p-3 bg-white rounded-bottom">
+            <!-- TAB MƯỢN -->
+            <div class="tab-pane fade show active" id="tab-muon">
+              <?php if (empty($phieus)): ?>
+                <p class="text-muted mt-2">Bạn chưa mượn cuốn sách nào.</p>
+              <?php else: ?>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Mã phiếu</th>
+                        <th>Ngày mượn</th>
+                        <th>Ngày đến hạn</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($phieus as $p): ?>
+                        <tr>
+                          <td class="fw-bold text-success">#<?= htmlspecialchars($p['mamuon']) ?></td>
+                          <td><?= htmlspecialchars($p['ngaymuon'] ? date('d/m/Y', strtotime($p['ngaymuon'])) : '') ?></td>
+                          <td><?= htmlspecialchars($p['ngayhethan'] ? date('d/m/Y', strtotime($p['ngayhethan'])) : '') ?></td>
+                          <td>
+                            <?php
+                            $st = mb_strtolower(trim($p['trangthai']), 'UTF-8');
+                            if (in_array($st, ['choduyet', 'chờ duyệt'])) echo '<span class="badge bg-info text-dark">Chờ duyệt</span>';
+                            elseif (in_array($st, ['dangmuon', 'đang mượn', 'dangmuon'])) echo '<span class="badge bg-warning text-dark">Đang mượn</span>';
+                            elseif (in_array($st, ['datra', 'đã trả', 'datra'])) echo '<span class="badge bg-success">Đã trả</span>';
+                            elseif (in_array($st, ['dahuy', 'đã hủy', 'huy'])) echo '<span class="badge bg-danger">Đã hủy</span>';
+                            else echo '<span class="badge bg-secondary">' . htmlspecialchars($p['trangthai']) . '</span>';
+                            ?>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-success text-nowrap" onclick="viewTicket('muon','<?= htmlspecialchars($p['mamuon']) ?>')">
+                              <i class="bi bi-eye"></i> Chi tiết
+                            </button>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+              <?php endif; ?>
+            </div>
+
+            <!-- TAB TRẢ -->
+            <div class="tab-pane fade" id="tab-tra">
+              <?php if (empty($phieutra)): ?>
+                <p class="text-muted mt-2">Bạn chưa có phiếu trả nào.</p>
+              <?php else: ?>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Mã trả</th>
+                        <th>Mã mượn</th>
+                        <th>Ngày trả</th>
+                        <th>Tổng tiền phạt</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($phieutra as $t): ?>
+                        <tr>
+                          <td class="fw-bold text-info">#<?= htmlspecialchars($t['matra']) ?></td>
+                          <td><?= htmlspecialchars($t['mamuon']) ?></td>
+                          <td><?= htmlspecialchars($t['ngaytra'] ? date('d/m/Y', strtotime($t['ngaytra'])) : '') ?></td>
+                          <td class="text-danger fw-semibold"><?= number_format($t['tongtienphat'], 0, ',', '.') ?> đ</td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-info text-nowrap" onclick="viewTicket('tra','<?= htmlspecialchars($t['matra']) ?>')">
+                              <i class="bi bi-eye"></i> Chi tiết
+                            </button>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+              <?php endif; ?>
+            </div>
+
+            <!-- TAB PHẠT -->
+            <div class="tab-pane fade" id="tab-phat">
+              <?php if (empty($phieuphat)): ?>
+                <p class="text-muted mt-2">Bạn chưa có phiếu phạt nào.</p>
+              <?php else: ?>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Mã phạt</th>
+                        <th>Mã trả</th>
+                        <th>Ngày lập</th>
+                        <th>Tiền phạt</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <?php foreach ($phieuphat as $pf): ?>
+                        <tr>
+                          <td class="fw-bold text-danger">#<?= htmlspecialchars($pf['maphat']) ?></td>
+                          <td><?= htmlspecialchars($pf['matra']) ?></td>
+                          <td><?= htmlspecialchars($pf['ngaylap'] ? date('d/m/Y', strtotime($pf['ngaylap'])) : '') ?></td>
+                          <td class="text-danger fw-semibold"><?= number_format($pf['tongtienphat'], 0, ',', '.') ?> đ</td>
+                          <td>
+                            <?php
+                            $st = mb_strtolower(trim($pf['trangthai']), 'UTF-8');
+                            if (in_array($st, ['chuadong', 'chưa đóng'])) echo '<span class="badge bg-danger">Chưa đóng</span>';
+                            elseif (in_array($st, ['dadong', 'đã đóng'])) echo '<span class="badge bg-success">Đã đóng</span>';
+                            else echo '<span class="badge bg-secondary">' . htmlspecialchars($pf['trangthai']) . '</span>';
+                            ?>
+                          </td>
+                          <td>
+                            <button class="btn btn-sm btn-outline-danger text-nowrap" onclick="viewTicket('phat','<?= htmlspecialchars($pf['maphat']) ?>')">
+                              <i class="bi bi-eye"></i> Chi tiết
+                            </button>
+                          </td>
+                        </tr>
+                      <?php endforeach; ?>
+                    </tbody>
+                  </table>
+                </div>
+              <?php endif; ?>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -298,6 +488,33 @@ if (!$docgia) {
 
   </div>
 
+</div>
+
+<!-- Modal Chi Tiết Phiếu -->
+<div class="modal fade" id="ticketDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chi tiết phiếu mượn: <span id="td_mamuon" class="text-primary fw-bold"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle mb-0" id="ticketDetailTable">
+            <thead class="table-light" id="ticketDetailHead">
+              <!-- Render logic -->
+            </thead>
+            <tbody id="ticketDetailBody">
+              <!-- Dữ liệu render qua JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="assets/js/profileAcc.js"></script>

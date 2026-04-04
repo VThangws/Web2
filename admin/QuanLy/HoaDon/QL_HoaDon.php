@@ -461,6 +461,9 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                                 <td><?= h((string)($r['tongtienphat'] ?? '0')) ?></td>
                                 <td><?= h((string)($r['trangthai'] ?? '')) ?></td>
                                 <td class="text-end">
+                                    <?php if (in_array(trim(mb_strtolower($r['trangthai'] ?? '', 'UTF-8')), ['chuadong', 'chưa đóng', 'chua dong', 'chuanop', 'chưa nộp'])): ?>
+                                        <button class="btn btn-sm btn-success" onclick="thuTienPhat('<?= h($r['maphat']) ?>')">Đã nộp</button>
+                                    <?php endif; ?>
                                     <a class="btn btn-sm btn-outline-primary" href="<?= h($detailUrl) ?>">Chi tiết</a>
                                     <a class="btn btn-sm btn-outline-secondary" href="<?= h($printUrl) ?>" target="_blank">In</a>
                                 </td>
@@ -491,5 +494,26 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
 </main>
 
 <script src="/assets/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+<script>
+function thuTienPhat(maphat) {
+    if(confirm('Xác nhận đã thu đủ tiền cho phiếu phạt ' + maphat + '?')) {
+        fetch('/ajax/ajax_thu_tien_phat.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'maphat=' + encodeURIComponent(maphat)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                alert('Xác nhận thu tiền thành công!');
+                location.reload();
+            } else {
+                alert('Lỗi: ' + (data.message || 'Không thể cập nhật trạng thái.'));
+            }
+        })
+        .catch(error => { console.error('Lỗi:', error); alert('Lỗi kết nối!'); });
+    }
+}
+</script>
 </body>
 </html>

@@ -19,19 +19,21 @@ document.querySelectorAll(".sidebar-item").forEach((item) => {
   });
 });
 // ===== API TỈNH / QUẬN / PHƯỜNG =====
-const API_BASE = "https://provinces.open-api.vn/api";
+const API_BASE = "https://esgoo.net/api-tinhthanh";
 
 async function loadTinh() {
   try {
-    const res = await fetch(`${API_BASE}/?depth=1`);
-    const data = await res.json();
+    const res = await fetch(`${API_BASE}/1/0.htm`);
+    const result = await res.json();
     const select = document.getElementById("tinh");
-    data.forEach((tinh) => {
-      const opt = document.createElement("option");
-      opt.value = tinh.code;
-      opt.textContent = tinh.name;
-      select.appendChild(opt);
-    });
+    if (result.error === 0) {
+      result.data.forEach((tinh) => {
+        const opt = document.createElement("option");
+        opt.value = tinh.id;
+        opt.textContent = tinh.full_name;
+        select.appendChild(opt);
+      });
+    }
   } catch (e) {
     console.error("Không thể tải danh sách tỉnh:", e);
   }
@@ -46,18 +48,20 @@ async function loadQuan(tinhCode) {
   quanSelect.disabled = true;
   phuongSelect.disabled = true;
 
-  if (!tinhCode) return;
+  if (!tinhCode || tinhCode === "-- Chọn tỉnh/thành --") return;
 
   try {
-    const res = await fetch(`${API_BASE}/p/${tinhCode}?depth=2`);
-    const data = await res.json();
-    data.districts.forEach((quan) => {
-      const opt = document.createElement("option");
-      opt.value = quan.code;
-      opt.textContent = quan.name;
-      quanSelect.appendChild(opt);
-    });
-    quanSelect.disabled = false;
+    const res = await fetch(`${API_BASE}/2/${tinhCode}.htm`);
+    const result = await res.json();
+    if (result.error === 0) {
+      result.data.forEach((quan) => {
+        const opt = document.createElement("option");
+        opt.value = quan.id;
+        opt.textContent = quan.full_name;
+        quanSelect.appendChild(opt);
+      });
+      quanSelect.disabled = false;
+    }
   } catch (e) {
     console.error("Không thể tải danh sách quận:", e);
   }
@@ -68,18 +72,20 @@ async function loadPhuong(quanCode) {
   phuongSelect.innerHTML = '<option value="">-- Chọn phường/xã --</option>';
   phuongSelect.disabled = true;
 
-  if (!quanCode) return;
+  if (!quanCode || quanCode === "-- Chọn quận/huyện --") return;
 
   try {
-    const res = await fetch(`${API_BASE}/d/${quanCode}?depth=2`);
-    const data = await res.json();
-    data.wards.forEach((phuong) => {
-      const opt = document.createElement("option");
-      opt.value = phuong.code;
-      opt.textContent = phuong.name;
-      phuongSelect.appendChild(opt);
-    });
-    phuongSelect.disabled = false;
+    const res = await fetch(`${API_BASE}/3/${quanCode}.htm`);
+    const result = await res.json();
+    if (result.error === 0) {
+      result.data.forEach((phuong) => {
+        const opt = document.createElement("option");
+        opt.value = phuong.id;
+        opt.textContent = phuong.full_name;
+        phuongSelect.appendChild(opt);
+      });
+      phuongSelect.disabled = false;
+    }
   } catch (e) {
     console.error("Không thể tải danh sách phường:", e);
   }
@@ -256,4 +262,69 @@ function showModal(isSuccess, message) {
   );
   modalInstance.show();
   setTimeout(() => modalInstance.hide(), 2000);
+}
+
+// ===== XEM CHI TIẾT PHIẾU =====
+function viewTicket(type, id) {
+  $.ajax({
+    url: "/ajax/get_ticket_detail.php",
+    type: "GET",
+    dataType: "json",
+    data: { type: type, id: id },
+    success: function (res) {
+      if (res.success) {
+        // Cập nhật tiêu đề
+        let titleName = type === 'muon' ? 'Phiếu mượn' : (type === 'tra' ? 'Phiếu trả' : 'Phiếu phạt');
+        document.querySelector("#ticketDetailModal .modal-title").innerHTML = `Chi tiết ${titleName}: <span id="td_mamuon" class="text-primary fw-bold">#${id}</span>`;
+        
+        const thead = document.getElementById("ticketDetailHead");
+        const tbody = document.getElementById("ticketDetailBody");
+        thead.innerHTML = "";
+        tbody.innerHTML = "";
+        
+        let headerHtml = "<tr><th>Mã cuốn</th><th>Tên sách</th>";
+        if (type === 'muon') {
+            headerHtml += "<th>Tình trạng giao</th></tr>";
+        } else if (type === 'tra') {
+            headerHtml += "<th>Tình trạng trả</th><th>Trễ hạn</th><th>Phạt trễ</th><th>Phạt hỏng</th></tr>";
+        } else if (type === 'phat') {
+            headerHtml += "<th>Lý do phạt</th><th>Trễ hạn</th><th>Tiền phạt</th></tr>";
+        }
+        thead.innerHTML = headerHtml;
+        
+        const formatCurrency = (val) => new Intl.NumberFormat('vi-VN').format(val) + " đ";
+
+        if (res.data && res.data.length > 0) {
+          res.data.forEach(item => {
+            const tr = document.createElement("tr");
+            let tdHtml = `<td class="fw-semibold">${item.macuonsach}</td><td>${item.tensach}</td>`;
+            
+            if (type === 'muon') {
+              tdHtml += `<td>${item.tinhtrang_truoc || "Bình thường"}</td>`;
+            } else if (type === 'tra') {
+              tdHtml += `<td>${item.tinhtrang_sau || "Không rõ"}</td>
+                         <td class="text-danger">${item.songayquahan > 0 ? item.songayquahan + " ngày" : "Không"}</td>
+                         <td class="text-danger">${formatCurrency(item.tienphatquahan || 0)}</td>
+                         <td class="text-danger">${formatCurrency(item.tienphathuha || 0)}</td>`;
+            } else if (type === 'phat') {
+              tdHtml += `<td>${item.lydo || "Không rõ"}</td>
+                         <td class="text-danger">${item.songayquahan > 0 ? item.songayquahan + " ngày" : "Không"}</td>
+                         <td class="text-danger fw-bold">${formatCurrency(item.sotienphat || 0)}</td>`;
+            }
+            tr.innerHTML = tdHtml;
+            tbody.appendChild(tr);
+          });
+        } else {
+          tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted">Không có dữ liệu chi tiết</td></tr>`;
+        }
+        
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("ticketDetailModal")).show();
+      } else {
+        showModal(false, res.message || "Lỗi khi lấy dữ liệu.");
+      }
+    },
+    error: function () {
+      showModal(false, "Không thể kết nối tới server.");
+    }
+  });
 }
