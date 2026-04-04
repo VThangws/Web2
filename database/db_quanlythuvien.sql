@@ -1470,7 +1470,7 @@ ON DUPLICATE KEY UPDATE
   `diachi` = VALUES(`diachi`);
 /* TAI KHOAN */
 INSERT INTO `taikhoan`(`tendangnhap`, `matkhau`, `manhomquyen`, `madocgia`)
-VALUES('demo1@gmail.com', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'DG', 'DG001')
+VALUES('user@example.com', '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm', 'DG', 'DG001')
 ON DUPLICATE KEY UPDATE
   `matkhau` = '$2y$10$3Gpc3sERSYqYBNtRcLVW.e5XWr0hPHSGGWolDiro62D6JY8uqJkQm',
   `manhomquyen` = 'DG',

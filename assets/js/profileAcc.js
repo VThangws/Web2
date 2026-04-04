@@ -1,5 +1,23 @@
-// ===== SIDEBAR ACTIVE (được quản lý bởi TaiKhoan.php - không can thiệp ở đây) =====
+// ===== SIDEBAR ACTIVE =====
+document.querySelectorAll(".sidebar-item").forEach((item) => {
+  item.addEventListener("click", function (e) {
+    e.preventDefault();
 
+    document
+      .querySelectorAll(".sidebar-item")
+      .forEach((i) => i.classList.remove("active"));
+
+    this.classList.add("active");
+
+    document
+      .querySelectorAll(".info-section")
+      .forEach((sec) => sec.classList.add("d-none"));
+
+    const target = this.dataset.target;
+
+    document.getElementById(target).classList.remove("d-none");
+  });
+});
 // ===== API TỈNH / QUẬN / PHƯỜNG =====
 const API_BASE = "https://provinces.open-api.vn/api";
 
@@ -78,6 +96,15 @@ function updateInfo() {
       '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...',
     );
 
+  // ===== VALIDATE SỐ ĐIỆN THOẠI =====
+  const sdtVal = $("#sdt_input").val().trim();
+  const sdtRegex = /^0\d{9}$/;
+  if (sdtVal && !sdtRegex.test(sdtVal)) {
+    showModal(false, "Không tìm thấy số điện thoại");
+    btn.prop("disabled", false).html("Lưu");
+    return;
+  }
+
   const tinhText =
     document.getElementById("tinh").selectedOptions[0]?.text || "";
   const quanText =
@@ -104,20 +131,32 @@ function updateInfo() {
       hodocgia: $("#hodocgia").val(),
       tendocgia: $("#tendocgia").val(),
       sdt: $("#sdt_input").val(),
-      ngaysinh: $("#ngaysinh").val(),
       diachi: diachiDayDu || diachiCuThe,
     },
     success: function (data) {
       if (data.success) {
         showModal(true, data.message);
+
+        // Cập nhật hiển thị
         $("#fullname").text(data.user.hodocgia + " " + data.user.tendocgia);
         $("#sdt").text(data.user.sdt || "Chưa có thông tin");
+        $("#diachi_show").text(data.user.diachi);
+
+        // Cập nhật lại form inputs
         $("#hodocgia").val(data.user.hodocgia);
         $("#tendocgia").val(data.user.tendocgia);
         $("#sdt_input").val(data.user.sdt);
-        $("#ngaysinh").val(data.user.ngaysinh);
         $("#diachi").val(data.user.diachi);
+
+        //Cập nhật lại data trên button để pre-fill đúng lần sau
+        const btn = document.getElementById("btnOpenUpdate");
+        btn.dataset.ho = data.user.hodocgia;
+        btn.dataset.ten = data.user.tendocgia;
+        btn.dataset.sdt = data.user.sdt;
+        btn.dataset.diachi = data.user.diachi;
+
         $("#headerName").html("Xin chào, " + data.user.tendocgia);
+
         setTimeout(() => {
           bootstrap.Collapse.getOrCreateInstance(
             document.getElementById("updateBox"),
@@ -135,20 +174,13 @@ function updateInfo() {
     },
   });
 }
-
-// ===== TOGGLE HIỆN/ẨN MẬT KHẨU TRONG FORM =====
-function toggleInput(inputId, iconId) {
-  const input = document.getElementById(inputId);
-  const icon = document.getElementById(iconId);
-  if (input.type === "password") {
-    input.type = "text";
-    icon.className = "bi bi-eye-slash";
-  } else {
-    input.type = "password";
-    icon.className = "bi bi-eye";
-  }
-}
-
+// ===== PRE-FILL FORM KHI MỞ COLLAPSE =====
+document.getElementById("btnOpenUpdate")?.addEventListener("click", function () {
+  $("#hodocgia").val(this.dataset.ho);
+  $("#tendocgia").val(this.dataset.ten);
+  $("#sdt_input").val(this.dataset.sdt);
+  $("#diachi").val(this.dataset.diachi);
+});
 // ===== ĐỔI MẬT KHẨU =====
 function changePassword() {
   const currentPwd = $("#currentPassword").val().trim();
@@ -224,4 +256,12 @@ function showModal(isSuccess, message) {
   );
   modalInstance.show();
   setTimeout(() => modalInstance.hide(), 2000);
+}
+// ===== VALIDATE SỐ ĐIỆN THOẠI =====
+const sdtVal = $("#sdt_input").val().trim();
+const sdtRegex = /^0\d{9}$/;
+if (sdtVal && !sdtRegex.test(sdtVal)) {
+  showModal(false, "Không tìm thấy số điện thoại");
+  btn.prop("disabled", false).html("Lưu");
+  return;
 }

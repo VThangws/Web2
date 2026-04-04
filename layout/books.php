@@ -97,6 +97,7 @@ if ($filterTacGia != '') {
 }
 
 // Lọc theo nhà xuất bản – dùng cột manxb trong dausach
+$filterMaNXB = trim($_GET['manxb'] ?? '');
 if ($filterMaNXB != '') {
     $whereSql .= " AND manxb = ?";
     $params[] = $filterMaNXB;

@@ -174,7 +174,7 @@ class DocGiaDAO {
 
         $sql = "UPDATE docgia SET hodocgia=?, tendocgia=?, sdt=?, diachi=? WHERE madocgia=?";
         $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param("ssssss",
+        $stmt->bind_param("sssss",
             $hodocgia,
             $tendocgia,
             $sdt,
