@@ -120,10 +120,10 @@ require_admin_permission_for_request('SACH');
     require_once "../../../../database/KetNoiDB.php";
     $dao = new DauSachDAO();
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' || $_SERVER['REQUEST_METHOD'] === 'GET') {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'GET') {
         $luachon = $_REQUEST['luachon'] ?? '';
 
-        if ($luachon === 'Them') {
+        if ($luachon == 'Them') {
             $madausach = $_POST['madausach'];
             $tensach = $_POST['tensach'];
             $namsanxuat = $_POST['namxuatban'];
@@ -145,10 +145,10 @@ require_admin_permission_for_request('SACH');
             }
 
             $dao->Them($conn, $madausach, $tensach, $namsanxuat, $dongia, $matacgia, $matheloai, $manxb, $mota, $filename_to_save);
-        } elseif ($luachon === 'Xoa') {
+        } else if ($luachon == 'Xoa') {
             $madausach = $_REQUEST['madausach'];
             $dao->Xoa($conn, $madausach);
-        } elseif ($luachon === 'Sua') {
+        } else if ($luachon == 'Sua') {
             $dausach = $dao->getDauSach($conn, $_REQUEST['madausach']);
 
             $madausach = $_REQUEST['madausach'];
@@ -161,9 +161,9 @@ require_admin_permission_for_request('SACH');
             $mota = $_REQUEST['mota'];
 
             $changeImg = false;
-            if (isset($_FILES['anhbia'])) {
+            // Kiểm tra xem có file được chọn và upload không bị lỗi
+            if (isset($_FILES['anhbia']) && $_FILES['anhbia']['error'] === UPLOAD_ERR_OK) {
                 $changeImg = true;
-                $_FILES['anhbia']['name'];
             }
 
             if ($changeImg === true) {

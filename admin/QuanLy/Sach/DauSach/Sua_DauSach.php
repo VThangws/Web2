@@ -86,10 +86,10 @@ require_admin_permission('SACH');
             </div>
             <div class="form-group">
                 <label>Ảnh hiện tại</label>
-                <img class="thumbnail" alt="Ảnh xem trước" src="<?php echo $dausach->getAnhbia(); ?>"/>
+                <img class="thumbnail" alt="Ảnh xem trước" src="<?php echo '../../../../assets/img/books/' . $dausach->getAnhbia(); ?>"/>
             </div>
             <div class="actions">
-              <button type="submit" class="btn">Cập nhật</button>
+              <button type="submit" class="btn" name="luachon" value="Sua">Cập nhật</button>
               <a href="QL_DauSach.php" class="btn-secondary">Hủy</a>
             </div>
         </form>
