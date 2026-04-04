@@ -327,6 +327,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new RuntimeException('Tài khoản nhóm Độc giả bắt buộc phải chọn mã độc giả.');
             }
             $manv = '';
+        } else {
+            // Với tài khoản không phải Độc giả, không lưu liên kết mã độc giả.
+            $madocgia = '';
         }
 
         $hash = null;
@@ -451,10 +454,15 @@ $statusSelect = $hasTrangthaiCol ? 'tk.trangthai' : '1 AS trangthai';
 $editingRow = null;
 if ($edit !== '') {
     $sqlEdit =
-        "SELECT tk.tendangnhap, tk.manhomquyen, tk.manv, tk.madocgia, {$statusSelect},
+        "SELECT tk.tendangnhap, tk.manhomquyen, tk.manv,
+            CASE WHEN tk.manhomquyen = 'DG' THEN tk.madocgia ELSE '' END AS madocgia,
+            {$statusSelect},
                 nq.tennhomquyen,
             CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien,
-            CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,'')) AS ten_docgia
+            CASE WHEN tk.manhomquyen = 'DG'
+                 THEN CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,''))
+                 ELSE ''
+            END AS ten_docgia
          FROM taikhoan tk
          LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
          LEFT JOIN nhanvien nv ON nv.manv = tk.manv
@@ -475,9 +483,12 @@ try {
         $like = '%' . $q . '%';
         $sql =
                 "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv, {$statusSelect},
-                    tk.madocgia,
+                    CASE WHEN tk.manhomquyen = 'DG' THEN tk.madocgia ELSE '' END AS madocgia,
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien,
-                    CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,'')) AS ten_docgia
+                    CASE WHEN tk.manhomquyen = 'DG'
+                        THEN CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,''))
+                        ELSE ''
+                    END AS ten_docgia
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
              LEFT JOIN nhanvien nv ON nv.manv = tk.manv
@@ -505,9 +516,12 @@ try {
     } else {
         $sql =
                 "SELECT tk.tendangnhap, tk.manhomquyen, nq.tennhomquyen, tk.manv, {$statusSelect},
-                    tk.madocgia,
+                    CASE WHEN tk.manhomquyen = 'DG' THEN tk.madocgia ELSE '' END AS madocgia,
                     CONCAT(COALESCE(nv.honv,''),' ',COALESCE(nv.tennv,'')) AS ten_nhanvien,
-                    CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,'')) AS ten_docgia
+                    CASE WHEN tk.manhomquyen = 'DG'
+                        THEN CONCAT(COALESCE(dg.hodocgia,''),' ',COALESCE(dg.tendocgia,''))
+                        ELSE ''
+                    END AS ten_docgia
              FROM taikhoan tk
              LEFT JOIN nhomquyen nq ON nq.manhomquyen = tk.manhomquyen
              LEFT JOIN nhanvien nv ON nv.manv = tk.manv
