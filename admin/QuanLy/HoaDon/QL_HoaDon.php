@@ -18,8 +18,7 @@ function get_str(string $key, string $default = ''): string
     if (!isset($_GET[$key])) {
         return $default;
     }
-    $value = trim((string)$_GET[$key]);
-    return $value;
+    return trim((string)$_GET[$key]);
 }
 
 function fmt_dt(?string $value): string
@@ -338,6 +337,14 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
             </div>
         </form>
 
+        <?php if ($type === 'muon'): ?>
+            <div class="d-flex justify-content-end mb-3">
+                <a class="btn btn-success" href="/admin/QuanLy/HoaDon/phieu_muon_create.php">
+                    <i class="fa-solid fa-plus"></i> Tạo phiếu mượn
+                </a>
+            </div>
+        <?php endif; ?>
+
         <?php if ($type === 'nhap'): ?>
             <div class="d-flex justify-content-end mb-3">
                 <a class="btn btn-success" href="/admin/QuanLy/HoaDon/phieu_nhap_create.php">
@@ -345,6 +352,7 @@ require_once __DIR__ . '/../../layout/admin_sidebar.php';
                 </a>
             </div>
         <?php endif; ?>
+
 
         <?php if ($error !== ''): ?>
             <div class="alert alert-danger"><?= h($error) ?></div>

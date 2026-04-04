@@ -26,7 +26,7 @@ require_admin_login();
         border: none !important;
         border-radius: 24px !important;
         overflow: hidden;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        box-shadow: 0 40px 80px rgba(0,0,0,0.1);
         background: white;
     }
 
@@ -215,8 +215,8 @@ function resetUI() {
 
 let html5QrcodeScanner = new Html5QrcodeScanner(
     "reader", { 
-        fps: 25, 
-        qrbox: { width: 280, height: 280 },
+        fps: 60, 
+        qrbox: { width: 680, height: 680 },
         aspectRatio: 1.0
     }
 );

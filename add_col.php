@@ -1,8 +1,10 @@
 <?php
-require 'database/ConnectDB.php';
+require_once __DIR__ . '/database/ConnectDB.php';
 $conn = ConnectDB::getInstance()->getConnection();
-if ($conn->query('ALTER TABLE taikhoan ADD COLUMN trangthai INT DEFAULT 1')) {
-    echo "OK";
+
+$sql = "ALTER TABLE phieumuon ADD COLUMN loaimuon VARCHAR(20) DEFAULT 'ONLINE' AFTER madocgia";
+if ($conn->query($sql)) {
+    echo "Thêm cột loaimuon thành công!\n";
 } else {
-    echo "Error: " . $conn->error;
+    echo "Lỗi: " . $conn->error . "\n";
 }
